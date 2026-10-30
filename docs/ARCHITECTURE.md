@@ -225,6 +225,8 @@ A single versioned `Settings` object with defaults and a `migrate(old)` function
 
 Session length options: 15, 30 or 60 words, or 30, 60 or 120 seconds. A timed session starts its clock at the first keystroke and generates `seconds * 4` words (240 wpm), so the text does not run out; if it does, the session ends with the text. Defaults: `en-us`, `stop`, `words`, 30 words, live WPM hidden, appearance `system`.
 
+Implemented so far (`core/settings/settings.ts`): `version`, `errorMode`, `length` and `keyboardMode` (finger colours, next key only, hidden; default finger colours). Other fields are added with the feature that reads them. `migrateSettings(unknown)` validates each field alone: a bad or missing field takes its default and the rest are kept. `layout` stays the `en-us` constant until a second layout exists.
+
 ## Input (`src/input/`)
 
 Character input is read from a visually hidden, focused `<textarea>`:
@@ -255,9 +257,11 @@ Upgrades are an ordered list in `src/storage/migrations.ts` (versions 1, 2, 3, .
 
 `openDatabase()` resolves `null` when IndexedDB is missing, errors (private mode) or is blocked by an older tab. Callers then run memory-only: the app works, nothing persists.
 
+`settings` holds the object under `'current'`. `progress` holds `{ letters, punctuation, numbers, code }`, the unlocked stage count per track, under the layout id (per-character stats join it in milestone 7); `parseProgress` resets a bad track to 1 and clamps to the stage count. A `sessions` record (`core/engine/record.ts`) is `{ at, layout, mode, lesson, wpm, accuracy, durationMs, errors }`, where `wpm` is net and `errors` counts wrong attempts per expected character. `src/storage/store.ts` loads settings and progress once at startup, in parallel with the word list, and exposes fire-and-forget saves that log failures; with no database nothing is read or saved. The Stats view will add the session validator when it reads records.
+
 Raw keystroke logs are **not** stored long term; they are folded into stats at the end of a session.
 
-Writes happen when a session finishes, or when the page is hidden (`visibilitychange`), never per keystroke.
+Writes happen when a session finishes, or when the page is hidden (`visibilitychange`), never per keystroke. Until deferred saving lands, each write goes out straight away: settings on change, progress and the session record on finish.
 
 ### Export and import
 
@@ -277,7 +281,7 @@ Loaded with a dynamic `import()` only when a model server is configured. Specifi
 
 Views: **Practice** (default), **Lessons** (unlock progress per track), **Stats** (history and per-key heatmap), **Settings**. View switching is a `$state` value in `App.svelte`, mirrored to `location.hash` so Back works. No router library.
 
-The Practice view keeps its session in `$state.raw` and replaces it only for a new passage, so keystrokes mutate plain data and nothing reactive sees them. It calls `TextView.update(change)` once per `apply`. `App.svelte` passes the passage and the default `stop` error mode as props until lessons (milestone 5) and settings (milestone 6) supply them, and the view detaches input as the session finishes, because removing the focused textarea fires a blur during Svelte's update.
+The Practice view keeps its session in `$state.raw` and replaces it only for a new passage, so keystrokes mutate plain data and nothing reactive sees them. It calls `TextView.update(change)` once per `apply`. `App.svelte` passes the passage and the error mode from Settings as props, and the view detaches input as the session finishes, because removing the focused textarea fires a blur during Svelte's update.
 
 Components get data through props. Shared app state lives in one module with `$state` runes (`src/ui/state.svelte.ts`), not in a global store library.
 

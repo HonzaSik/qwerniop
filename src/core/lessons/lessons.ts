@@ -99,3 +99,16 @@ export function lessonTitle(id: Layout["id"], lesson: Lesson): string {
     lesson.track === "letters" ? "Lesson" : TRACK_NAMES[lesson.track];
   return `${noun} ${lesson.stage}${keys ? ` · ${keys}` : ""}`;
 }
+
+/** Valid Progress from anything read from storage; each track falls back to 1 alone and is clamped to its stage count. */
+export function parseProgress(id: Layout["id"], raw: unknown): Progress {
+  const out = initialProgress();
+  if (typeof raw !== "object" || raw === null) return out;
+  for (const track of TRACKS) {
+    const v = (raw as Record<string, unknown>)[track];
+    if (typeof v === "number" && Number.isInteger(v) && v >= 1) {
+      out[track] = Math.min(v, lessonCount(id, track));
+    }
+  }
+  return out;
+}

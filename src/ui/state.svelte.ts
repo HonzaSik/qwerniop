@@ -3,8 +3,13 @@ import {
   type Lesson,
   type Progress,
 } from "../core/lessons/lessons";
-
-export type KeyboardMode = "fingers" | "next" | "hidden";
+import {
+  defaultSettings,
+  type KeyboardMode,
+  type SessionLength,
+  type Settings,
+} from "../core/settings/settings";
+import type { Store, Stored } from "../storage/store";
 
 export const KEYBOARD_MODES: readonly { value: KeyboardMode; label: string }[] =
   [
@@ -13,31 +18,36 @@ export const KEYBOARD_MODES: readonly { value: KeyboardMode; label: string }[] =
     { value: "hidden", label: "Hidden" },
   ];
 
-export type SessionLength =
-  | { kind: "words"; amount: number }
-  | { kind: "seconds"; amount: number };
-
-export const SESSION_LENGTHS: readonly SessionLength[] = [
-  { kind: "words", amount: 15 },
-  { kind: "words", amount: 30 },
-  { kind: "words", amount: 60 },
-  { kind: "seconds", amount: 30 },
-  { kind: "seconds", amount: 60 },
-  { kind: "seconds", amount: 120 },
-];
-
 export const lengthLabel = (l: SessionLength): string =>
   `${l.amount} ${l.kind === "words" ? "words" : "s"}`;
 
-// Milestone 6 moves keyboardMode and length into persisted Settings and progress into the progress store.
 export const ui: {
-  keyboardMode: KeyboardMode;
-  length: SessionLength;
+  settings: Settings;
   progress: Progress;
   lesson: Lesson;
 } = $state({
-  keyboardMode: "fingers",
-  length: { kind: "words", amount: 30 },
+  settings: defaultSettings(),
   progress: initialProgress(),
   lesson: { track: "letters", stage: 1 },
 });
+
+// Null until storage opens, and for good when it is unavailable: the app then runs memory-only.
+let store: Store | null = null;
+
+export function hydrate(loaded: {
+  store: Store | null;
+  stored: Stored | null;
+}): void {
+  store = loaded.store;
+  if (loaded.stored) {
+    ui.settings = loaded.stored.settings;
+    ui.progress = loaded.stored.progress;
+  }
+}
+
+/** Call after changing `ui.settings`, never per keystroke. */
+export const saveSettings = (): void =>
+  store?.saveSettings($state.snapshot(ui.settings));
+export const saveProgress = (): void =>
+  store?.saveProgress($state.snapshot(ui.progress));
+export const saveSession: Store["addSession"] = (r) => store?.addSession(r);

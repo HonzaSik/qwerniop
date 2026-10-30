@@ -1,5 +1,7 @@
 <script lang="ts">
 import "./ui/styles/tokens.css";
+import type { Session } from "./core/engine/engine";
+import { sessionRecord } from "./core/engine/record";
 import { enUs } from "./core/layouts/en-us";
 import {
   completeLesson,
@@ -8,10 +10,19 @@ import {
   nextLesson,
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
+import { SESSION_LENGTHS } from "./core/settings/settings";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
+import { loadStore } from "./storage/store";
 import { loadSnippets, loadWords } from "./ui/content";
-import { lengthLabel, SESSION_LENGTHS, ui } from "./ui/state.svelte";
+import {
+  hydrate,
+  lengthLabel,
+  saveProgress,
+  saveSession,
+  saveSettings,
+  ui,
+} from "./ui/state.svelte";
 import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
 
@@ -35,7 +46,21 @@ function start(lesson: Lesson): void {
   location.hash = "#practice";
 }
 
-const data = Promise.all([loadWords(), loadSnippets()]);
+// Storage loads alongside the word list, so it adds no wait of its own; any failure leaves the defaults.
+function finish(session: Session): void {
+  ui.progress = completeLesson(LAYOUT, ui.progress, run.lesson);
+  saveProgress();
+  saveSession(sessionRecord(session, LAYOUT, run.lesson, Date.now()));
+}
+
+const data = Promise.all([
+  loadWords(),
+  loadSnippets(),
+  loadStore(LAYOUT).then(hydrate),
+]).then(([words, snippets]) => {
+  run = begin(ui.lesson);
+  return [words, snippets] as const;
+});
 const text = (words: string[], snippets: string) =>
   generateContent({
     type: run.lesson.track === "letters" ? "words" : run.lesson.track,
@@ -44,9 +69,9 @@ const text = (words: string[], snippets: string) =>
     letters: unlockedLetters(LAYOUT, run.letterStage) ?? "",
     stage: run.lesson.track === "letters" ? 0 : run.lesson.stage,
     length:
-      ui.length.kind === "words"
-        ? ui.length.amount
-        : ui.length.amount * WORDS_PER_SECOND,
+      ui.settings.length.kind === "words"
+        ? ui.settings.length.amount
+        : ui.settings.length.amount * WORDS_PER_SECOND,
     rng: seededRng(run.seed),
   });
 </script>
@@ -61,23 +86,26 @@ const text = (words: string[], snippets: string) =>
   {#if view === "lessons"}
     <Lessons layout={LAYOUT} progress={ui.progress} current={ui.lesson} onstart={start} />
   {:else}
-    {#key `${run.seed}${run.lesson.track}${run.lesson.stage}${ui.length.kind}${ui.length.amount}`}
+    {#key `${run.seed}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
       <Practice
         text={text(words, snippets)}
         title={lessonTitle(LAYOUT, run.lesson)}
-        errorMode="stop"
-        timeLimit={ui.length.kind === "seconds" ? ui.length.amount * 1000 : undefined}
-        onfinish={() => (ui.progress = completeLesson(LAYOUT, ui.progress, run.lesson))}
+        errorMode={ui.settings.errorMode}
+        timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
+        onfinish={finish}
         onnext={() => start(nextLesson(LAYOUT, run.lesson))}
       />
     {/key}
     <label class="length">
       Length
       <select
-        value={SESSION_LENGTHS.findIndex((l) => l.kind === ui.length.kind && l.amount === ui.length.amount)}
+        value={SESSION_LENGTHS.findIndex((l) => l.kind === ui.settings.length.kind && l.amount === ui.settings.length.amount)}
         onchange={(e) => {
           const next = SESSION_LENGTHS[e.currentTarget.selectedIndex];
-          if (next) ui.length = next;
+          if (next) {
+            ui.settings.length = next;
+            saveSettings();
+          }
         }}
       >
         {#each SESSION_LENGTHS as l, i}<option value={i}>{lengthLabel(l)}</option>{/each}

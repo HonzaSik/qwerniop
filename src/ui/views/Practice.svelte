@@ -4,13 +4,14 @@ import {
   createSession,
   type ErrorMode,
   expire,
+  type Session,
 } from "../../core/engine/engine";
 import { enUs } from "../../core/layouts/en-us";
 import { attachInput } from "../../input/input";
 import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
 import TextView from "../components/TextView.svelte";
-import { KEYBOARD_MODES, ui } from "../state.svelte";
+import { KEYBOARD_MODES, saveSettings, ui } from "../state.svelte";
 
 interface Props {
   text: string;
@@ -20,7 +21,7 @@ interface Props {
   /** Milliseconds; absent for a session that ends with the text. */
   timeLimit?: number | undefined;
   /** Runs once when a session ends, whether the text ran out or the clock did. */
-  onfinish: () => void;
+  onfinish: (session: Session) => void;
   onnext: () => void;
 }
 
@@ -64,7 +65,7 @@ function end(): void {
   // Removing the focused textarea fires blur during Svelte's update, where a pause may not set state.
   stop?.();
   finished = true;
-  onfinish();
+  onfinish(session);
 }
 
 // One slow interval, not per keystroke. Keystroke times are timeStamp minus paused time, so this clock is too.
@@ -136,12 +137,21 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       {/if}
     </div>
   </div>
-  {#if ui.keyboardMode !== "hidden"}
-    <div class="board"><Keyboard bind:this={board} layout={enUs} mode={ui.keyboardMode} /></div>
+  {#if ui.settings.keyboardMode !== "hidden"}
+    <div class="board"><Keyboard bind:this={board} layout={enUs} mode={ui.settings.keyboardMode} /></div>
   {/if}
   <label class="mode">
     Keyboard
-    <select bind:value={ui.keyboardMode}>
+    <select
+      value={ui.settings.keyboardMode}
+      onchange={(e) => {
+        const mode = KEYBOARD_MODES[e.currentTarget.selectedIndex];
+        if (mode) {
+          ui.settings.keyboardMode = mode.value;
+          saveSettings();
+        }
+      }}
+    >
       {#each KEYBOARD_MODES as m}<option value={m.value}>{m.label}</option>{/each}
     </select>
   </label>

@@ -3,9 +3,11 @@ import {
   completeLesson,
   initialProgress,
   isUnlocked,
+  lessonCount,
   lessonKeys,
   lessonTitle,
   nextLesson,
+  parseProgress,
 } from "./lessons";
 
 const letter = (stage: number) => ({ track: "letters" as const, stage });
@@ -66,6 +68,29 @@ describe("lessons", () => {
     );
     expect(lessonTitle("en-us", { track: "punctuation", stage: 1 })).toBe(
       "Punctuation 1 · capitals",
+    );
+  });
+});
+
+describe("parseProgress", () => {
+  test.each([undefined, null, 3, "x"])("falls back for %j", (v) => {
+    expect(parseProgress("en-us", v)).toEqual(initialProgress());
+  });
+
+  test("keeps valid tracks, resets bad ones, clamps to the stage count", () => {
+    const got = parseProgress("en-us", {
+      letters: 5,
+      punctuation: "2",
+      numbers: 0,
+      code: 999,
+      extra: 1,
+    });
+    expect(got.letters).toBe(5);
+    expect(got.punctuation).toBe(1);
+    expect(got.numbers).toBe(1);
+    expect(got.code).toBe(lessonCount("en-us", "code"));
+    expect(Object.keys(got).sort()).toEqual(
+      Object.keys(initialProgress()).sort(),
     );
   });
 });
