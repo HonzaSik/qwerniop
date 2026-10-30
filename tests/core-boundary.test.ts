@@ -2,11 +2,15 @@ import { expect, test } from "vitest";
 
 // Biome's noRestrictedImports cannot tell a relative path that stays in
 // src/core/ from one that escapes it, so imports are scanned here instead.
-const sources = import.meta.glob("/src/core/**/*", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-}) as Record<string, string>;
+// Colocated tests are skipped: they legitimately import vitest.
+const sources = import.meta.glob<string>(
+  ["/src/core/**/*", "!/src/core/**/*.test.ts"],
+  {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  },
+);
 
 const IMPORT = /\b(?:from|import)\s*\(?\s*["']([^"']+)["']/g;
 
