@@ -10,9 +10,11 @@ import {
   trackStages,
   tracksOpen,
 } from "../lessons/tracks";
+import { defaultSettings } from "../settings/settings";
 import { type ContentOptions, generateContent, parseSnippets } from "./content";
 import { seededRng } from "./rng";
 
+const targets = defaultSettings().targets;
 const words = raw.split("\n").filter(Boolean);
 const snippets = parseSnippets(snippetRaw);
 const letters = unlockedLetters("en-us", 8) ?? "";
@@ -22,6 +24,7 @@ const make = (type: ContentOptions["type"], stage: number, seed = 1): string =>
     words,
     snippets,
     letters,
+    targets,
     stage,
     length: 60,
     rng: seededRng(seed),
@@ -78,6 +81,7 @@ describe("generateContent", () => {
         snippets,
         letters,
         stats,
+        targets,
         stage: 1,
         length: 500,
         rng: seededRng(1),

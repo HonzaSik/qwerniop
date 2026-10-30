@@ -1,4 +1,4 @@
-import { weakness } from "../adaptive/weakness";
+import { type Targets, weakness } from "../adaptive/weakness";
 import type { CharStats } from "../stats/chars";
 import type { Rng } from "./rng";
 
@@ -15,6 +15,7 @@ export interface GenerateOptions {
   words: readonly string[]; // frequency-ordered word list
   allowed: string; // letters the learner has unlocked; Space is always allowed
   stats?: CharStats; // per-character stats; weak characters are sampled more
+  targets: Targets;
   length: number; // words in the passage
   rng: Rng;
 }
@@ -62,6 +63,7 @@ export function generate({
   words,
   allowed,
   stats = {},
+  targets,
   length,
   rng,
 }: GenerateOptions): string {
@@ -69,7 +71,7 @@ export function generate({
   if (letters.length === 0) return "";
   const set = new Set(letters);
   const fitting = words.filter((w) => [...w].every((c) => set.has(c)));
-  const need = new Map(letters.map((l) => [l, weakness(stats[l])]));
+  const need = new Map(letters.map((l) => [l, weakness(stats[l], targets)]));
   const out: string[] = [];
   if (fitting.length >= MIN_WORDS) {
     const cumulative = new Float64Array(fitting.length);

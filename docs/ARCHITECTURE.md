@@ -194,8 +194,8 @@ Smoothing factor `α = 0.1` per attempt, in log order; a character's first sampl
 
 Two decisions:
 
-1. **Which words to show.** `weakness(stat)` (`core/adaptive/weakness.ts`) is 0 to 1: the mean of an accuracy gap `1 - 0.05 / errorRate` and a speed gap `1 - targetMs / ms` (each 0 at or better than target, 1 with no timed samples), blended toward 1 by `min(1, attempts / 30)`, so unseen and newly unlocked characters count as fully weak. A word weighs `0.25 + Σ weakness(char)` over its characters; words are sampled by cumulative weight. A drawn word that is one of the previous 8 is redrawn up to 10 times. Pseudo-word letters are weighted by `0.25 + weakness`. Targets are fixed at the defaults until the unlock rule makes them configurable.
-2. **When to unlock the next key.** All currently unlocked characters must meet the targets (defaults: 95 % accuracy and 35 WPM equivalent speed, both configurable) over at least 30 recent attempts each. The next key is the next one in the lesson order for the current layout.
+1. **Which words to show.** `weakness(stat)` (`core/adaptive/weakness.ts`) is 0 to 1: the mean of an accuracy gap `1 - 0.05 / errorRate` and a speed gap `1 - targetMs / ms` (each 0 at or better than target, 1 with no timed samples), blended toward 1 by `min(1, attempts / 30)`, so unseen and newly unlocked characters count as fully weak. A word weighs `0.25 + Σ weakness(char)` over its characters; words are sampled by cumulative weight. A drawn word that is one of the previous 8 is redrawn up to 10 times. Pseudo-word letters are weighted by `0.25 + weakness`. Targets come from Settings: `weakness(stat, targets)`.
+2. **When to unlock the next key.** All currently unlocked characters must meet the targets (defaults: 95 % accuracy and 35 WPM equivalent speed, both configurable) over at least 30 recent attempts each. A character meets the targets when its weakness is 0. Each track checks its own unlocked characters after the session's stats are folded, at most one stage per session. The next key is the next one in the lesson order for the current layout.
 
 ### `core/lessons`
 
@@ -225,7 +225,7 @@ A single versioned `Settings` object with defaults and a `migrate(old)` function
 
 Session length options: 15, 30 or 60 words, or 30, 60 or 120 seconds. A timed session starts its clock at the first keystroke and generates `seconds * 4` words (240 wpm), so the text does not run out; if it does, the session ends with the text. Defaults: `en-us`, `stop`, `words`, 30 words, live WPM hidden, appearance `system`.
 
-Implemented so far (`core/settings/settings.ts`): `version`, `errorMode`, `length` and `keyboardMode` (finger colours, next key only, hidden; default finger colours). Other fields are added with the feature that reads them. `migrateSettings(unknown)` validates each field alone: a bad or missing field takes its default and the rest are kept. `layout` stays the `en-us` constant until a second layout exists.
+Implemented so far (`core/settings/settings.ts`): `version`, `errorMode`, `length` and `keyboardMode` (finger colours, next key only, hidden; default finger colours) and `targets` (accuracy 90, 95 or 98 %, speed 20 to 60 wpm; defaults 95 % and 35 wpm). Other fields are added with the feature that reads them. `migrateSettings(unknown)` validates each field alone: a bad or missing field takes its default and the rest are kept. `layout` stays the `en-us` constant until a second layout exists.
 
 ## Input (`src/input/`)
 

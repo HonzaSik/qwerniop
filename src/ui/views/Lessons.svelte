@@ -11,6 +11,8 @@ import {
   TRACKS,
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
+import { TARGET_ACCURACIES, TARGET_WPMS } from "../../core/settings/settings";
+import { saveSettings, ui } from "../state.svelte";
 
 interface Props {
   layout: Layout["id"];
@@ -29,6 +31,39 @@ const isOpen = (track: LessonTrack) =>
 </script>
 
 <main aria-label="Lessons">
+  <!-- Temporary until the Settings view exists. -->
+  <div class="targets">
+    <label>
+      Accuracy
+      <select
+        value={TARGET_ACCURACIES.findIndex((a) => a === ui.settings.targets.accuracy)}
+        onchange={(e) => {
+          const accuracy = TARGET_ACCURACIES[e.currentTarget.selectedIndex];
+          if (accuracy !== undefined) {
+            ui.settings.targets = { ...ui.settings.targets, accuracy };
+            saveSettings();
+          }
+        }}
+      >
+        {#each TARGET_ACCURACIES as a, i}<option value={i}>{Math.round(a * 100)} %</option>{/each}
+      </select>
+    </label>
+    <label>
+      Speed
+      <select
+        value={TARGET_WPMS.findIndex((w) => w === ui.settings.targets.wpm)}
+        onchange={(e) => {
+          const wpm = TARGET_WPMS[e.currentTarget.selectedIndex];
+          if (wpm !== undefined) {
+            ui.settings.targets = { ...ui.settings.targets, wpm };
+            saveSettings();
+          }
+        }}
+      >
+        {#each TARGET_WPMS as w, i}<option value={i}>{w} wpm</option>{/each}
+      </select>
+    </label>
+  </div>
   {#each TRACKS as track}
     <section aria-labelledby="track-{track}">
       <h2 id="track-{track}">{TRACK_NAMES[track]}</h2>
@@ -65,6 +100,14 @@ const isOpen = (track: LessonTrack) =>
     min-height: 100vh;
     margin: 0 auto;
     padding: var(--space-6) var(--space-4);
+  }
+
+  .targets {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
   }
 
   section {

@@ -1,3 +1,4 @@
+import type { Targets } from "../adaptive/weakness";
 import type { ErrorMode } from "../engine/engine";
 
 export const KEYBOARD_MODE_VALUES = ["fingers", "next", "hidden"] as const;
@@ -16,6 +17,9 @@ export const SESSION_LENGTHS: readonly SessionLength[] = [
   { kind: "seconds", amount: 120 },
 ];
 
+export const TARGET_ACCURACIES = [0.9, 0.95, 0.98] as const;
+export const TARGET_WPMS = [20, 25, 30, 35, 40, 50, 60] as const;
+
 export const SETTINGS_VERSION = 1;
 
 export interface Settings {
@@ -23,6 +27,7 @@ export interface Settings {
   errorMode: ErrorMode;
   length: SessionLength;
   keyboardMode: KeyboardMode;
+  targets: Targets;
 }
 
 export const defaultSettings = (): Settings => ({
@@ -30,6 +35,7 @@ export const defaultSettings = (): Settings => ({
   errorMode: "stop",
   length: { kind: "words", amount: 30 },
   keyboardMode: "fingers",
+  targets: { accuracy: 0.95, wpm: 35 },
 });
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -49,6 +55,7 @@ export function migrateSettings(old: unknown): Settings {
       l.kind === old.length.kind &&
       l.amount === old.length.amount,
   );
+  const targets = isRecord(old.targets) ? old.targets : undefined;
   return {
     version: SETTINGS_VERSION,
     errorMode:
@@ -59,5 +66,11 @@ export function migrateSettings(old: unknown): Settings {
     keyboardMode:
       KEYBOARD_MODE_VALUES.find((m) => m === old.keyboardMode) ??
       defaults.keyboardMode,
+    targets: {
+      accuracy:
+        TARGET_ACCURACIES.find((a) => a === targets?.accuracy) ??
+        defaults.targets.accuracy,
+      wpm: TARGET_WPMS.find((w) => w === targets?.wpm) ?? defaults.targets.wpm,
+    },
   };
 }

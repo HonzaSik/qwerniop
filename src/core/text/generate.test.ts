@@ -1,13 +1,15 @@
 import { describe, expect, test } from "vitest";
 import raw from "../../data/words/en.txt?raw";
 import { unlockedLetters } from "../lessons/letters";
+import { defaultSettings } from "../settings/settings";
 import type { CharStat, CharStats } from "../stats/chars";
 import { generate, MIN_WORDS } from "./generate";
 import { seededRng } from "./rng";
 
+const targets = defaultSettings().targets;
 const words = raw.split("\n").filter(Boolean);
 const run = (allowed: string, seed = 1) =>
-  generate({ words, allowed, length: 30, rng: seededRng(seed) });
+  generate({ words, allowed, length: 30, targets, rng: seededRng(seed) });
 
 describe("generate", () => {
   test("is deterministic for a seed and differs across seeds", () => {
@@ -29,6 +31,7 @@ describe("generate", () => {
     const text = generate({
       words,
       allowed: "th",
+      targets,
       length: 400,
       rng: seededRng(3),
     });
@@ -72,7 +75,14 @@ describe("generate", () => {
       ...extra,
     });
     const make = (allowed: string, stats: CharStats, seed = 1) =>
-      generate({ words, allowed, stats, length: 2000, rng: seededRng(seed) });
+      generate({
+        words,
+        allowed,
+        stats,
+        targets,
+        length: 2000,
+        rng: seededRng(seed),
+      });
     const share = (text: string, c: string) => {
       const ws = text.split(" ");
       return ws.filter((w) => w.includes(c)).length / ws.length;

@@ -1,3 +1,4 @@
+import type { Targets } from "../adaptive/weakness";
 import { trackChars } from "../lessons/tracks";
 import type { CharStats } from "../stats/chars";
 import { generate } from "./generate";
@@ -11,6 +12,7 @@ export interface ContentOptions {
   snippets: readonly string[]; // from parseSnippets
   letters: string; // unlocked letters; code ignores it, see codeText
   stats?: CharStats; // weights words and punctuation text; numbers and code ignore it
+  targets: Targets;
   stage: number; // stage within the track of `type`
   length: number; // words (groups for numbers, lines for code stages 1 to 3)
   rng: Rng;

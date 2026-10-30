@@ -38,4 +38,21 @@ describe("migrateSettings", () => {
     const got = migrateSettings({ version: 0, extra: 1 });
     expect(got).toEqual(defaultSettings());
   });
+
+  test("targets default to 95 % and 35 wpm", () => {
+    expect(defaultSettings().targets).toEqual({ accuracy: 0.95, wpm: 35 });
+    expect(migrateSettings({}).targets).toEqual({ accuracy: 0.95, wpm: 35 });
+  });
+
+  test("each target falls back alone and a valid pair is kept", () => {
+    expect(
+      migrateSettings({ targets: { accuracy: 0.5, wpm: 35 } }).targets,
+    ).toEqual({ accuracy: 0.95, wpm: 35 });
+    expect(
+      migrateSettings({ targets: { accuracy: 0.98, wpm: 7 } }).targets,
+    ).toEqual({ accuracy: 0.98, wpm: 35 });
+    expect(
+      migrateSettings({ targets: { accuracy: 0.9, wpm: 60 } }).targets,
+    ).toEqual({ accuracy: 0.9, wpm: 60 });
+  });
 });

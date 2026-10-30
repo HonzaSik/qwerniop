@@ -1,12 +1,16 @@
 import { describe, expect, test } from "vitest";
+import { defaultSettings } from "../settings/settings";
+import type { CharStat } from "../stats/chars";
 import {
   completeLesson,
   initialProgress,
   isUnlocked,
+  type Lesson,
   lessonCount,
   lessonKeys,
   lessonTitle,
   nextLesson,
+  type Progress,
   parseProgress,
 } from "./lessons";
 
@@ -20,27 +24,80 @@ describe("lessons", () => {
     expect(isUnlocked("en-us", p, { track: "numbers", stage: 1 })).toBe(false);
   });
 
-  test("completing a lesson unlocks the next, never lowers, and stops at the end", () => {
-    let p = completeLesson("en-us", initialProgress(), letter(1));
-    expect(p.letters).toBe(2);
-    p = completeLesson("en-us", p, letter(1));
-    expect(p.letters).toBe(2);
-    p = { ...p, letters: 14 };
-    expect(completeLesson("en-us", p, letter(14)).letters).toBe(14);
-  });
+  describe("completeLesson", () => {
+    const T = defaultSettings().targets;
+    const good: CharStat = {
+      attempts: 30,
+      correct: 30,
+      accuracy: 1,
+      timed: 30,
+      totalMs: 9000,
+      ms: 300,
+    };
+    const meeting = (chars: string, over: Record<string, CharStat> = {}) => ({
+      ...Object.fromEntries([...chars].map((c) => [c, good])),
+      ...over,
+    });
+    const at = (o: Partial<Progress>, chars: string, stats = {}): Progress => ({
+      ...initialProgress(),
+      ...o,
+      stats: meeting(chars, stats),
+    });
+    const done = (p: Progress, l: Lesson = letter(1), t = T) =>
+      completeLesson("en-us", p, l, t);
 
-  test("a locked lesson cannot be completed", () => {
-    const p = initialProgress();
-    expect(completeLesson("en-us", p, letter(5))).toBe(p);
+    test("unlocks the next stage when every unlocked character meets the targets", () => {
+      expect(done(at({}, "fj")).letters).toBe(2);
+    });
+
+    test.each([
+      ["29 attempts", { ...good, attempts: 29 }],
+      ["accuracy 0.94", { ...good, accuracy: 0.94 }],
+      ["400 ms", { ...good, ms: 400 }],
+      ["no timed samples", { ...good, timed: 0 }],
+    ])("one character with %s holds the stage", (_, j) => {
+      expect(done(at({}, "fj", { j })).letters).toBe(1);
+    });
+
+    test("a missing character holds the stage", () => {
+      expect(done(at({}, "f")).letters).toBe(1);
+    });
+
+    test("custom targets let a weaker stat pass", () => {
+      const j = { ...good, accuracy: 0.92, ms: 500 };
+      const p = at({}, "fj", { j });
+      expect(done(p).letters).toBe(1);
+      expect(done(p, letter(1), { accuracy: 0.9, wpm: 20 }).letters).toBe(2);
+    });
+
+    test("replaying an earlier lesson checks the frontier", () => {
+      expect(done(at({ letters: 3 }, "fj"), letter(1)).letters).toBe(3);
+      expect(done(at({ letters: 3 }, "fjdksl"), letter(1)).letters).toBe(4);
+    });
+
+    test("a locked lesson and the last stage return the same object", () => {
+      const p = at({}, "fj");
+      expect(done(p, letter(5))).toBe(p);
+      const last = at({ letters: 14 }, "fj");
+      expect(done(last, letter(14))).toBe(last);
+    });
+
+    test("other tracks use the rule, and capitals unlock without stats", () => {
+      const p = { ...initialProgress(), letters: 8 };
+      const punct = { track: "punctuation" as const, stage: 1 };
+      expect(done(p, punct).punctuation).toBe(2);
+      const numbers = { track: "numbers" as const, stage: 1 };
+      expect(done(p, numbers).numbers).toBe(1);
+      expect(done(at({ letters: 8 }, "12345"), numbers).numbers).toBe(2);
+    });
   });
 
   test("tracks open at letter step 8 and unlock stage by stage", () => {
-    let p = { ...initialProgress(), letters: 8 };
+    const p = { ...initialProgress(), letters: 8, numbers: 2 };
     const numbers = { track: "numbers" as const, stage: 1 };
     expect(isUnlocked("en-us", p, numbers)).toBe(true);
-    expect(isUnlocked("en-us", p, { ...numbers, stage: 2 })).toBe(false);
-    p = completeLesson("en-us", p, numbers);
     expect(isUnlocked("en-us", p, { ...numbers, stage: 2 })).toBe(true);
+    expect(isUnlocked("en-us", p, { ...numbers, stage: 3 })).toBe(false);
   });
 
   test("layouts without an order have no lessons", () => {

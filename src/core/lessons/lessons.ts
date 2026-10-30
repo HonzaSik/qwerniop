@@ -1,3 +1,4 @@
+import { type Targets, weakness } from "../adaptive/weakness";
 import type { Layout } from "../layouts/layout";
 import { type CharStats, isRecord, parseCharStats } from "../stats/chars";
 import { stageCount, unlockedLetters } from "./letters";
@@ -11,7 +12,7 @@ export interface Lesson {
   stage: number;
 }
 
-/** Stages unlocked per track, and the per-character stats. Interim rule until the adaptive unlock (milestone 7): finishing a lesson unlocks the next one in its track. */
+/** Stages unlocked per track, and the per-character stats. */
 export type Progress = Record<LessonTrack, number> & { stats: CharStats };
 
 export const TRACKS: readonly LessonTrack[] = [
@@ -47,17 +48,24 @@ export function isUnlocked(
   );
 }
 
+/** Unlocks the next stage of the lesson's track when every character unlocked there meets the targets; at most one stage per call. */
 export function completeLesson(
   id: Layout["id"],
   progress: Progress,
   lesson: Lesson,
+  targets: Targets,
 ): Progress {
   if (!isUnlocked(id, progress, lesson)) return progress;
-  const unlocked = Math.min(
-    Math.max(progress[lesson.track], lesson.stage + 1),
-    lessonCount(id, lesson.track),
-  );
-  return { ...progress, [lesson.track]: unlocked };
+  const { track } = lesson;
+  const stage = progress[track];
+  if (stage >= lessonCount(id, track)) return progress;
+  const chars =
+    track === "letters"
+      ? (unlockedLetters(id, stage) ?? "")
+      : trackChars(track, stage);
+  return [...chars].every((c) => weakness(progress.stats[c], targets) === 0)
+    ? { ...progress, [track]: stage + 1 }
+    : progress;
 }
 
 /** The following stage of the same track; the last stage stays where it is and gets new text. */

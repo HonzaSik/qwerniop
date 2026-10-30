@@ -62,7 +62,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 - [x] Per-character EWMA stats
 - [x] Weighted word sampling toward weak characters
-- [ ] Unlock rule with configurable targets
+- [x] Unlock rule with configurable targets
 - [ ] Offline session feedback sentences
 - [ ] Tests with simulated learners (strong, weak on one key, inconsistent)
 

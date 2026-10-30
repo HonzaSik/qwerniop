@@ -47,6 +47,8 @@ function begin(lesson: Lesson) {
     seed: Date.now(),
     letterStage: ui.progress.letters,
     stats: $state.snapshot(ui.progress.stats),
+    // Copied for the same reason: changing a target must not rewrite the text on screen.
+    targets: $state.snapshot(ui.settings.targets),
   };
 }
 let run = $state(begin(ui.lesson));
@@ -59,8 +61,17 @@ function start(lesson: Lesson): void {
 
 // Storage loads alongside the word list, so it adds no wait of its own; any failure leaves the defaults.
 function finish(session: Session): void {
-  const done = completeLesson(LAYOUT, ui.progress, run.lesson);
-  ui.progress = { ...done, stats: foldSession(done.stats, session.log) };
+  // Fold first: the rule judges the stats including this session.
+  const progress = {
+    ...ui.progress,
+    stats: foldSession(ui.progress.stats, session.log),
+  };
+  ui.progress = completeLesson(
+    LAYOUT,
+    progress,
+    run.lesson,
+    ui.settings.targets,
+  );
   saveProgress();
   saveSession(sessionRecord(session, LAYOUT, run.lesson, Date.now()));
 }
@@ -80,6 +91,7 @@ const text = (words: string[], snippets: string) =>
     snippets: parseSnippets(snippets),
     letters: unlockedLetters(LAYOUT, run.letterStage) ?? "",
     stats: run.stats,
+    targets: run.targets,
     stage: run.lesson.track === "letters" ? 0 : run.lesson.stage,
     length:
       ui.settings.length.kind === "words"
