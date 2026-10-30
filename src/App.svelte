@@ -18,6 +18,7 @@ import { loadSnippets, loadWords } from "./ui/content";
 import {
   hydrate,
   lengthLabel,
+  readSessions,
   saveProgress,
   saveSession,
   saveSettings,
@@ -25,6 +26,7 @@ import {
 } from "./ui/state.svelte";
 import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
+import Stats from "./ui/views/Stats.svelte";
 
 // Words a timed session generates per second: 4 is 240 wpm, so nobody outruns the text.
 const WORDS_PER_SECOND = 4;
@@ -32,7 +34,9 @@ const LAYOUT = enUs.id;
 
 // The hash is the view, so Back works and the nav is plain links.
 let hash = $state(location.hash);
-const view = $derived(hash === "#lessons" ? "lessons" : "practice");
+const view = $derived(
+  hash === "#lessons" ? "lessons" : hash === "#stats" ? "stats" : "practice",
+);
 
 // One practice run: the lesson, a seed so every run has new text, and the letters known when it began.
 function begin(lesson: Lesson) {
@@ -82,9 +86,12 @@ const text = (words: string[], snippets: string) =>
   <nav aria-label="Views">
     <a href="#practice" aria-current={view === "practice" ? "page" : undefined}>Practice</a>
     <a href="#lessons" aria-current={view === "lessons" ? "page" : undefined}>Lessons</a>
+    <a href="#stats" aria-current={view === "stats" ? "page" : undefined}>Stats</a>
   </nav>
   {#if view === "lessons"}
     <Lessons layout={LAYOUT} progress={ui.progress} current={ui.lesson} onstart={start} />
+  {:else if view === "stats"}
+    {#key hash}<Stats sessions={readSessions()} />{/key}
   {:else}
     {#key `${run.seed}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
       <Practice

@@ -1,4 +1,4 @@
-import type { SessionRecord } from "../core/engine/record";
+import { parseSessionRecord, type SessionRecord } from "../core/engine/record";
 import type { Layout } from "../core/layouts/layout";
 import { type Progress, parseProgress } from "../core/lessons/lessons";
 import { migrateSettings, type Settings } from "../core/settings/settings";
@@ -17,6 +17,8 @@ export interface Store {
   saveSettings(settings: Settings): void;
   saveProgress(progress: Progress): void;
   addSession(record: SessionRecord): void;
+  /** Flushes queued writes first so a session just finished is included. Invalid records are dropped. */
+  readSessions(): Promise<SessionRecord[]>;
 }
 
 /**
@@ -67,5 +69,14 @@ function writer(db: Database, layout: Layout["id"]): Store {
     if (document.visibilityState === "hidden") flushNow();
   });
   addEventListener("pagehide", flushNow);
-  return queue;
+  return {
+    saveSettings: queue.saveSettings,
+    saveProgress: queue.saveProgress,
+    addSession: queue.addSession,
+    async readSessions() {
+      await queue.flush();
+      const rows = await db.getAll<unknown>("sessions");
+      return rows.flatMap((row) => parseSessionRecord(row) ?? []);
+    },
+  };
 }

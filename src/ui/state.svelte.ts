@@ -1,3 +1,4 @@
+import type { SessionRecord } from "../core/engine/record";
 import {
   initialProgress,
   type Lesson,
@@ -51,3 +52,13 @@ export const saveSettings = (): void =>
 export const saveProgress = (): void =>
   store?.saveProgress($state.snapshot(ui.progress));
 export const saveSession: Store["addSession"] = (r) => store?.addSession(r);
+
+/** Read when the Stats view opens, never while typing. */
+export const readSessions = async (): Promise<SessionRecord[]> => {
+  try {
+    return (await store?.readSessions()) ?? [];
+  } catch (error) {
+    console.error("Storage read failed", error);
+    return [];
+  }
+};

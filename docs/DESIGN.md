@@ -97,11 +97,17 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 
 ## Lessons view
 
-- Reached from the nav links (Practice, Lessons) at the top left; the view is the location hash (`#practice`, `#lessons`), so Back works. Practice is the default and shows the current lesson, titled "Lesson 5 · e i" above the text (other tracks: "Numbers 2 · 6 7 8 9 0").
+- Reached from the nav links (Practice, Lessons, Stats) at the top left; the view is the location hash (`#practice`, `#lessons`), so Back works. Practice is the default and shows the current lesson, titled "Lesson 5 · e i" above the text (other tracks: "Numbers 2 · 6 7 8 9 0").
 - One section per track: Letters, Punctuation, Numbers, Code. Each lists its lessons as buttons in a grid, with "Unlocked n of m" under the heading. A lesson is a stage of its track and shows the keys it adds; capitals and whole code snippets, which add no key, are named instead. Done lessons say "Done", the current lesson has an accent outline, locked ones are disabled. A button starts its lesson (Enter or click).
 - The three non-letter tracks show "Opens at letter lesson 8" until the letter track reaches that step.
 - Interim unlock rule until the adaptive rule (milestone 7): finishing a session of a lesson, however it went, unlocks the next lesson of its track. Progress is the unlocked stage count per track, saved as the `progress` record (the current lesson is not saved). The last lesson of a track shows no "Done", since an unlocked count cannot tell it from the current one.
 - Track lessons use the letters unlocked when the lesson started.
+
+## Stats view
+
+- Reached from the `Stats` nav link (`#stats`). Records are read when the view opens. With no sessions it shows only "No sessions yet. Finish a practice session and it will show up here."
+- History: two plain SVG line charts, Speed (net wpm) and Accuracy (percent, axis fixed 0 to 100), over the last 30 sessions of the layout, oldest left, one point per session; no x labels. Y axis has ticks at 0, half and a round top (1, 2 or 5 times a power of ten). Each chart has a text alternative (`role="img"` with latest, lowest and highest) and the latest value next to its title. Line is `--accent`, grid `--separator`, width `--chart-line-width`.
+- Errors by key: the keyboard in heat mode. A key's heat is its wrong-attempt count over all sessions of the layout, divided by the worst key's count; fill is `--finger-t` mixed toward `--error` by heat times `--heat-max-mix` (75 %). Shift is counted for shifted characters (via `strokesFor`). Colour is not the only signal: a "Most missed" line lists the top five keys with counts. Source is the session records' `errors`; milestone 7 replaces it with per-character stats in `core/stats/history.ts`. With no errors the board is replaced by "No errors recorded."
 
 ## On-screen keyboard
 

@@ -39,6 +39,8 @@
   --key-wrong-opacity: 0.55;
   --keyboard-key-ratio: 0.9;
   --keyboard-label-ratio: 0.36;
+  --heat-max-mix: 75%;
+  --chart-line-width: 2px;
 
   --finger-l5: #f2c9d4;
   --finger-l4: #f6d3b8;

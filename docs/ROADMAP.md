@@ -55,7 +55,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] IndexedDB wrapper with versioned upgrades
 - [x] Settings, progress, sessions stores
 - [x] Deferred saving, flush on `visibilitychange`
-- [ ] Stats view: history chart of WPM and accuracy (plain SVG, no chart library), per-key heatmap on the keyboard
+- [x] Stats view: history chart of WPM and accuracy (plain SVG, no chart library), per-key heatmap on the keyboard
 - [ ] JSON export and import with validation, migration and confirmation
 
 ## 7. Adaptive practice

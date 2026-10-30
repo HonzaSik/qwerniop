@@ -9,7 +9,7 @@ export interface Writer {
   addSession(record: SessionRecord): Promise<unknown>;
 }
 
-export interface WriteQueue extends Store {
+export interface WriteQueue extends Omit<Store, "readSessions"> {
   flush(): Promise<void>;
 }
 

@@ -1,5 +1,5 @@
 import type { Layout } from "../layouts/layout";
-import type { LessonTrack } from "../lessons/lessons";
+import { type LessonTrack, TRACKS } from "../lessons/lessons";
 import type { Session } from "./engine";
 import { accuracy, duration, netWpm } from "./results";
 
@@ -38,5 +38,41 @@ export function sessionRecord(
     accuracy: accuracy(session),
     durationMs: duration(session),
     errors,
+  };
+}
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+const isCount = (v: unknown): v is number =>
+  typeof v === "number" && Number.isInteger(v) && v >= 0;
+const isFiniteNonNeg = (v: unknown): v is number =>
+  typeof v === "number" && Number.isFinite(v) && v >= 0;
+
+/** Stored records are unchecked; null means drop it. Never throws. */
+export function parseSessionRecord(value: unknown): SessionRecord | null {
+  if (!isRecord(value)) return null;
+  const { at, layout, mode, lesson, wpm, accuracy, durationMs, errors } = value;
+  if (!isFiniteNonNeg(at) || !isFiniteNonNeg(wpm)) return null;
+  if (!isFiniteNonNeg(durationMs)) return null;
+  if (!isFiniteNonNeg(accuracy) || accuracy > 1) return null;
+  if (layout !== "en-us" && layout !== "cs-qwertz") return null;
+  if (mode !== "stop" && mode !== "continue") return null;
+  if (!isRecord(lesson) || !isCount(lesson.stage)) return null;
+  const track = TRACKS.find((t) => t === lesson.track);
+  if (!track || !isRecord(errors)) return null;
+  const clean: Record<string, number> = {};
+  for (const [char, n] of Object.entries(errors)) {
+    if (!isCount(n)) return null;
+    clean[char] = n;
+  }
+  return {
+    at,
+    layout,
+    mode,
+    lesson: { track, stage: lesson.stage },
+    wpm,
+    accuracy,
+    durationMs,
+    errors: clean,
   };
 }

@@ -6,10 +6,12 @@ import { keyLabel } from "./keyboard-labels";
 interface Props {
   layout: Layout;
   /** "hidden" is the caller's job: it unmounts the board. */
-  mode: "fingers" | "next";
+  mode: "fingers" | "next" | "heat";
+  /** Heat mode only: 0..1 per key code; absent keys are cold. */
+  heat?: ReadonlyMap<string, number>;
 }
 
-let { layout, mode }: Props = $props();
+let { layout, mode, heat }: Props = $props();
 
 let highlighter: ReturnType<typeof createHighlighter> | undefined;
 
@@ -62,7 +64,7 @@ const SPACE_ROW_OFFSET = 3.75;
       {/if}
       {#each layout.keys.filter((k) => k.row === row) as key (key.code)}
         {@const label = keyLabel(key)}
-        <span class="key" data-code={key.code} data-finger={key.finger} style:--w={key.width ?? 1}>
+        <span class="key" data-code={key.code} data-finger={key.finger} style:--w={key.width ?? 1} style:--heat={heat?.get(key.code) ?? 0}>
           {#if label.shift}<span class="shift">{label.shift}</span>{/if}
           <span>{label.main}</span>
         </span>
@@ -176,4 +178,9 @@ const SPACE_ROW_OFFSET = 3.75;
   .key[data-finger="R4"] { --finger-bg: var(--finger-r4); }
   .key[data-finger="R5"] { --finger-bg: var(--finger-r5); }
   .key[data-finger="T"] { --finger-bg: var(--finger-t); }
+
+  /* Neutral fill mixed toward the error colour; the Stats view also lists the numbers. */
+  .keyboard[data-mode="heat"] .key {
+    --finger-bg: color-mix(in srgb, var(--error) calc(var(--heat) * var(--heat-max-mix)), var(--finger-t));
+  }
 </style>
