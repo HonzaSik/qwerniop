@@ -21,7 +21,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 - [x] `core/engine` as specified in ARCHITECTURE.md, both error modes
 - [x] Results: gross WPM, net WPM, accuracy, duration
-- [ ] Code-mode newline and indentation handling
+- [x] Code-mode newline and indentation handling
 - [ ] Tests covering: correct run, errors in both modes, Backspace at start, finish rules, Unicode (Czech characters), newline skipping
 - [ ] Benchmark with baseline recorded
 

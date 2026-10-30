@@ -139,3 +139,13 @@ describe("sessions with nothing to measure", () => {
     expect(accuracy(session)).toBe(0);
   });
 });
+
+describe("skipped indentation", () => {
+  test("counts in neither WPM nor accuracy", () => {
+    const session = run("a:\n    b", "stop", "a:\nb");
+    expect(session.finishedAt).toBe(ONE_MINUTE);
+    expect(grossWpm(session)).toBe(0.8);
+    expect(netWpm(session)).toBe(0.8);
+    expect(accuracy(session)).toBe(1);
+  });
+});

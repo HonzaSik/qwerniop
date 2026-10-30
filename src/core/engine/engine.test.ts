@@ -257,3 +257,118 @@ describe("sincePrevious", () => {
     expect(session.log[0]?.sincePrevious).toBe(0);
   });
 });
+
+describe("indentation after a newline", () => {
+  test("a retyped character after a skip is corrected, not correct", () => {
+    // Skips advance the cursor without a log entry, so at the retype of `y` the
+    // log length and the cursor are both 4.
+    const session = run("x\n  yz!", "continue", "x\nyz\b\by");
+    expect(session.chars[4]?.status).toBe("corrected");
+  });
+
+  describe.each<ErrorMode>(["stop", "continue"])("%s mode", (mode) => {
+    test("Enter skips spaces and tabs and reports every changed index", () => {
+      const session = createSession({ text: "a\n \t b", errorMode: mode });
+      apply(session, { kind: "char", char: "a", at: 100 });
+      expect(apply(session, { kind: "char", char: "\n", at: 200 })).toEqual([
+        1, 2, 3, 4,
+      ]);
+      expect(session.cursor).toBe(5);
+      expect(statuses(session)).toEqual([
+        "correct",
+        "correct",
+        "skipped",
+        "skipped",
+        "skipped",
+        "pending",
+      ]);
+      expect(session.log.map((stroke) => stroke.index)).toEqual([0, 1]);
+    });
+
+    test("spaces inside a line are typed", () => {
+      const session = run("a b\n", mode, "a b");
+      expect(session.chars[1]?.status).toBe("correct");
+      expect(session.cursor).toBe(3);
+    });
+
+    test("indentation at the start of the text is typed", () => {
+      const session = run("  a", mode, " ");
+      expect(session.cursor).toBe(1);
+      expect(session.chars[0]?.status).toBe("correct");
+    });
+
+    test("a whitespace-only line still takes its Enter", () => {
+      const session = run("a\n  \nb", mode, "a\n");
+      expect(session.cursor).toBe(4);
+      expect(session.finishedAt).toBeUndefined();
+      expect(run("a\n  \nb", mode, "a\n\nb").finishedAt).toBe(400);
+    });
+
+    test.each(["x\n", "x\n  ", "x\n\t"])("%j finishes on the Enter", (text) => {
+      const session = run(text, mode, "x\n");
+      expect(session.cursor).toBe(session.chars.length);
+      expect(session.finishedAt).toBe(200);
+    });
+  });
+
+  test("stop mode: a wrong key at a newline does not skip", () => {
+    const session = run("a\n  b", "stop", "aq");
+    expect(session.cursor).toBe(1);
+    expect(session.chars[2]?.status).toBe("pending");
+    expect(statuses(run("a\n  b", "stop", "aq\n"))).toEqual([
+      "correct",
+      "corrected",
+      "skipped",
+      "skipped",
+      "pending",
+    ]);
+  });
+
+  test("continue mode: a wrong key at a newline still skips", () => {
+    const session = run("a\n  b", "continue", "aq");
+    expect(session.cursor).toBe(4);
+    expect(session.chars[1]?.status).toBe("wrong");
+    expect(session.chars[2]?.status).toBe("skipped");
+  });
+
+  test("continue mode: Backspace hops over the run to the newline", () => {
+    const session = run("a\n  b", "continue", "a\n");
+    expect(apply(session, { kind: "backspace", at: 300 })).toEqual([3, 2, 1]);
+    expect(session.cursor).toBe(1);
+    expect(statuses(session)).toEqual([
+      "correct",
+      "pending",
+      "pending",
+      "pending",
+      "pending",
+    ]);
+    expect(session.lastKeyAt).toBe(300);
+  });
+
+  test("continue mode: retyping Enter after the hop is corrected and skips again", () => {
+    const session = run("a\n  b", "continue", "a\n\b\n");
+    expect(session.cursor).toBe(4);
+    expect(statuses(session)).toEqual([
+      "correct",
+      "corrected",
+      "skipped",
+      "skipped",
+      "pending",
+    ]);
+  });
+
+  test("continue mode: Backspace takes one Enter per whitespace-only line", () => {
+    const session = run("a\n \n b", "continue", "a\n\n");
+    expect(session.cursor).toBe(5);
+    apply(session, { kind: "backspace", at: 400 });
+    expect(session.cursor).toBe(3);
+    apply(session, { kind: "backspace", at: 500 });
+    expect(session.cursor).toBe(1);
+  });
+
+  test("stop mode: Backspace does not hop", () => {
+    const session = run("a\n  b", "stop", "a\n\b");
+    expect(session.cursor).toBe(4);
+    expect(session.chars[2]?.status).toBe("skipped");
+  });
+});

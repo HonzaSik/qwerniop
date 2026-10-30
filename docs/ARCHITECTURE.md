@@ -127,13 +127,14 @@ type InputEvent =
 interface CharState {
   expected: string
   typed?: string
-  status: 'pending' | 'correct' | 'corrected' | 'wrong'
+  status: 'pending' | 'correct' | 'corrected' | 'wrong' | 'skipped'
 }
 
 interface Session {
   config: SessionConfig
   chars: CharState[]
   cursor: number
+  furthest: number        // highest cursor reached; an index below it was attempted before, so a right entry there is `corrected`
   startedAt?: number
   finishedAt?: number
   lastKeyAt?: number      // last key that changed the session, Backspace included; sincePrevious measures from it
@@ -158,9 +159,13 @@ function apply(session: Session, event: InputEvent): Change
 Rules:
 
 - **stop mode:** a wrong character is logged as an error and the cursor stays. The character is marked `wrong` until the right key is pressed, then `corrected`. Backspace does nothing.
-- **continue mode:** a wrong character is marked `wrong` and the cursor advances. Backspace moves back one and resets that character to `pending`; a later correct entry there becomes `corrected`. Backspace can move back across words, but not before index 0.
+- **continue mode:** a wrong character is marked `wrong` and the cursor advances. Backspace moves back one and resets that character to `pending`; a later correct entry there becomes `corrected`. At the start of an indented line it hops over the skipped run to the newline, resetting the run and the newline to `pending`. Backspace can move back across words, but not before index 0.
 - The session starts on the first keystroke and finishes when the cursor passes the last character. In stop mode the cursor only passes a character once it is typed right, so no `wrong` characters remain. In continue mode, reaching the end of the text always finishes the session, even with `wrong` characters left; the errors simply count.
-- Newlines in code are typed with Enter. Leading indentation after a newline is skipped automatically, so the learner types code content, not spaces.
+- Newlines in code are typed with Enter. Leading indentation after a newline is skipped automatically, so the learner types code content, not spaces. Spaces and tabs both count as indentation, and passing the newline triggers the skip, even with a wrong key in continue mode.
+- Skipped characters get the status `skipped`, have no log entry and count in no result. If the skip reaches the end of the text, the session finishes on that keystroke.
+- On a whitespace-only line only the whitespace is skipped, so the learner still presses Enter for it.
+- Indentation at the very start of the text is not skipped. Snippet sources should be dedented so it does not arise.
+- There is no code-mode switch: the engine always applies these rules. Non-code text never holds a newline.
 
 Derived results are pure functions over the session. WPM uses the standard five characters per word, and minutes come from the duration.
 

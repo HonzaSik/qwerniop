@@ -12,7 +12,7 @@ export type InputEvent =
 export interface CharState {
   expected: string;
   typed?: string;
-  status: "pending" | "correct" | "corrected" | "wrong";
+  status: "pending" | "correct" | "corrected" | "wrong" | "skipped";
 }
 
 export interface Keystroke {
@@ -28,6 +28,7 @@ export interface Session {
   config: SessionConfig;
   chars: CharState[];
   cursor: number;
+  furthest: number;
   startedAt?: number;
   finishedAt?: number;
   lastKeyAt?: number;
@@ -46,6 +47,7 @@ export function createSession(config: SessionConfig): Session {
       status: "pending",
     })),
     cursor: 0,
+    furthest: 0,
     log: [],
   };
 }
@@ -66,7 +68,7 @@ function typeChar(session: Session, typed: string, at: number): Change {
   const correct = typed === current.expected;
   if (correct) {
     current.status =
-      current.status === "wrong" || attemptedBefore(session, index)
+      current.status === "wrong" || index < session.furthest
         ? "corrected"
         : "correct";
   } else {
@@ -85,29 +87,42 @@ function typeChar(session: Session, typed: string, at: number): Change {
   });
   session.lastKeyAt = at;
 
+  const changed = [index];
   if (correct || session.config.errorMode === "continue") {
-    session.cursor = index + 1;
-    if (session.cursor === session.chars.length) session.finishedAt = at;
+    let cursor = index + 1;
+    if (current.expected === "\n") {
+      let next = session.chars[cursor];
+      while (next?.expected === " " || next?.expected === "\t") {
+        next.status = "skipped";
+        changed.push(cursor);
+        next = session.chars[++cursor];
+      }
+    }
+    session.cursor = cursor;
+    if (cursor > session.furthest) session.furthest = cursor;
+    if (cursor === session.chars.length) session.finishedAt = at;
   }
-  return [index];
+  return changed;
 }
 
 function backspace(session: Session, at: number): Change {
-  const index = session.cursor - 1;
-  const previous = session.chars[index];
+  if (session.config.errorMode === "stop") return [];
+
+  const changed: number[] = [];
+  let index = session.cursor - 1;
+  let previous = session.chars[index];
+  // The learner never typed a skipped run, so one Backspace undoes the Enter before it.
+  while (previous?.status === "skipped") {
+    previous.status = "pending";
+    changed.push(index);
+    previous = session.chars[--index];
+  }
   // Undefined at the start of the text, where there is nothing to move back over.
-  if (session.config.errorMode === "stop" || previous === undefined) return [];
+  if (previous === undefined) return [];
 
   session.chars[index] = { expected: previous.expected, status: "pending" };
+  changed.push(index);
   session.cursor = index;
   session.lastKeyAt = at;
-  return [index];
-}
-
-function attemptedBefore(session: Session, index: number): boolean {
-  // Equal counts mean every attempt so far advanced the cursor and no Backspace
-  // moved it back, so no index was attempted twice and a clean run skips the scan.
-  // A stop-mode error or a Backspace makes them differ for the rest of the session.
-  if (session.log.length === session.cursor) return false;
-  return session.log.some((stroke) => stroke.index === index);
+  return changed;
 }
