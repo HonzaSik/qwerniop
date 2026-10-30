@@ -148,6 +148,17 @@ describe("Czech text", () => {
     expect(netWpm(session)).toBeCloseTo(8);
     expect(accuracy(session)).toBe(4 / 5);
   });
+
+  test.each<ErrorMode>(["stop", "continue"])(
+    "%s mode: a decomposed character counts as one character",
+    (mode) => {
+      const session = run("ča", mode, "ča", 6000);
+      expect(session.log).toHaveLength(2);
+      expect(grossWpm(session)).toBeCloseTo(4);
+      expect(netWpm(session)).toBeCloseTo(4);
+      expect(accuracy(session)).toBe(1);
+    },
+  );
 });
 
 describe("skipped indentation", () => {

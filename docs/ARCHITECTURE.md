@@ -166,6 +166,7 @@ Rules:
 - On a whitespace-only line only the whitespace is skipped, so the learner still presses Enter for it.
 - Indentation at the very start of the text is not skipped. Snippet sources should be dedented so it does not arise.
 - There is no code-mode switch: the engine always applies these rules. Non-code text never holds a newline.
+- Unicode form: `createSession` normalizes the text to NFC, once per passage, and `src/input/` normalizes `event.data` to NFC before building the `InputEvent`. `apply` compares exactly, so nothing is added to the keystroke path. Characters arriving as two separate events (`c`, then U+030C) are not handled. `config.text` keeps the text as the caller passed it.
 
 Derived results are pure functions over the session. WPM uses the standard five characters per word, and minutes come from the duration.
 

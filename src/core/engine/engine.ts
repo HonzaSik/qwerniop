@@ -41,8 +41,9 @@ export type Change = readonly number[];
 export function createSession(config: SessionConfig): Session {
   return {
     config,
+    // NFC here covers every text source: a decomposed letter would be two positions no key can type.
     // Split by code point: indexing the string would cut astral characters in half.
-    chars: Array.from(config.text, (expected) => ({
+    chars: Array.from(config.text.normalize("NFC"), (expected) => ({
       expected,
       status: "pending",
     })),

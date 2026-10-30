@@ -81,6 +81,14 @@ describe.each<ErrorMode>(["stop", "continue"])("%s mode, shared", (mode) => {
     expect(session.chars.every((char) => char.status === "correct")).toBe(true);
     expect(session.finishedAt).toBe(3000);
   });
+
+  test("a decomposed character in the text is one composed position", () => {
+    const session = run("č", mode, "č");
+    expect(session.chars).toEqual([
+      { expected: "č", typed: "č", status: "correct" },
+    ]);
+    expect(session.finishedAt).toBe(100);
+  });
 });
 
 describe("stop mode", () => {
