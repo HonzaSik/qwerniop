@@ -27,7 +27,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 3. Practice view
 
-- [ ] `src/input/` with hidden textarea, `beforeinput`, composition, focus loss pausing
+- [x] `src/input/` with hidden textarea, `beforeinput`, composition, focus loss pausing
 - [ ] Text view rendering spans once per passage; per-character updates through an action
 - [ ] Caret moved by transform, line scrolling
 - [ ] Fixed English passage, end-of-session summary

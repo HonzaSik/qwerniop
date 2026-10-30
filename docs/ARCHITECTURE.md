@@ -121,7 +121,7 @@ interface SessionConfig {
 }
 
 type InputEvent =
-  | { kind: 'char'; char: string; at: number }    // at = event.timeStamp in ms
+  | { kind: 'char'; char: string; at: number }    // at = event.timeStamp minus time spent paused, in ms
   | { kind: 'backspace'; at: number }
 
 interface CharState {
@@ -221,11 +221,14 @@ Defaults: `en-us`, `stop`, `words`, 30 words, live WPM hidden, appearance `syste
 
 Character input is read from a visually hidden, focused `<textarea>`:
 
-- `beforeinput` with `inputType` `insertText` or `insertCompositionText` gives the final character, including dead-key results like `č`. Call `preventDefault()` and keep the textarea empty.
+- `beforeinput` with `inputType` `insertText` gives the character. Call `preventDefault()` and keep the textarea empty. Other input types outside a composition are prevented and ignored.
+- During a composition `beforeinput` is ignored and not prevented: it fires for every intermediate state and is not always cancelable. `compositionend.data` gives the final character, including dead-key results like `č`, once. Empty `data` is a cancelled composition and emits nothing. The textarea is cleared there.
 - `beforeinput` with `deleteContentBackward` is Backspace.
-- `keydown` is used only to highlight the physical key (`event.code`) on the on-screen keyboard and for Enter in code mode. Never read characters from `keydown`: dead keys report `"Dead"` and layouts differ.
+- `keydown` is used only to highlight the physical key (`event.code`) on the on-screen keyboard and for Enter. Enter types `\n` when the passage holds a newline (`text.includes("\n")`, set per passage by the caller) and otherwise does nothing; it is always prevented, and ignored during a composition. Never read characters from `keydown`: dead keys report `"Dead"` and layouts differ.
 - `compositionstart` / `compositionend` are tracked so a pending dead key shows a subtle indicator.
-- Losing focus pauses the session and shows "Click or press any key to continue".
+- Losing focus pauses the session and shows "Click or press any key to continue". Focus returning by itself stays paused. A click or a key other than a lone modifier resumes; the resuming key is prevented and types nothing.
+- Paused time, ending at the resuming event's `timeStamp`, is held in this module and subtracted from `at`, so the engine and results need no pause concept.
+- The caller renders and visually hides the textarea.
 
 This module turns DOM events into `InputEvent`s and nothing more.
 
