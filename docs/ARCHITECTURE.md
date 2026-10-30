@@ -261,7 +261,7 @@ Upgrades are an ordered list in `src/storage/migrations.ts` (versions 1, 2, 3, .
 
 Raw keystroke logs are **not** stored long term; they are folded into stats at the end of a session.
 
-Writes happen when a session finishes, or when the page is hidden (`visibilitychange`), never per keystroke. Saves go into a write queue: settings and progress keep only the latest value, session records are appended. A flush is scheduled with `requestIdleCallback` (`setTimeout(0)` fallback) after the first save of a burst, so settings changes and session finishes both stay off the critical path, and runs at once on `visibilitychange` to hidden and on `pagehide`. A failed write stays queued and is retried by the next flush; nothing retries on its own. Callers pass `$state.snapshot` copies, so later mutations cannot change queued data.
+Writes happen when a session finishes, or when the page is hidden (`visibilitychange`), never per keystroke. Saves go into a write queue: settings and progress keep only the latest value, session records are appended. A flush is scheduled with `requestIdleCallback` with a 2000 ms timeout so a page that never idles still saves (`setTimeout(0)` fallback) after the first save of a burst, so settings changes and session finishes both stay off the critical path, and runs at once on `visibilitychange` to hidden and on `pagehide`. A failed write stays queued and is retried by the next flush; nothing retries on its own. Callers pass `$state.snapshot` copies, so later mutations cannot change queued data.
 
 ### Export and import
 

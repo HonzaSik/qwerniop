@@ -55,10 +55,10 @@ function writer(db: Database, layout: Layout["id"]): Store {
       putProgress: (p) => db.put("progress", p, layout),
       addSession: (r) => db.add("sessions", r),
     },
-    // Off the keystroke path: idle time, or a 0ms timeout where unsupported.
+    // Off the keystroke path: idle time, but never later than 2s so a busy page still saves.
     (flush) =>
       typeof requestIdleCallback === "function"
-        ? requestIdleCallback(flush)
+        ? requestIdleCallback(flush, { timeout: 2000 })
         : setTimeout(flush, 0),
   );
   const flushNow = (): void => void queue.flush();
