@@ -17,6 +17,8 @@ Layouts live in `src/core/layouts/<id>.ts` as `Layout` objects (see ARCHITECTURE
 
 Use ISO geometry for `cs-qwertz` (extra key `IntlBackslash` left of `Z`/`Y`) and ANSI for `en-us`. The on-screen keyboard draws from this data, so the geometry is part of the layout. Only keys in the finger map are listed; row 4 is Space only.
 
+On ISO, Enter spans rows 1 and 2. It is listed once, in row 2 (width 1.25) with `Backslash` left of it, so row 1 is 13.5 units and leaves the top of Enter empty. A dead key has `base: ""` and no `shift` at its dead level and carries `deadBase`/`deadShift` as the spacing accent: `´` U+00B4, `ˇ` U+02C7, `¨` U+00A8, `˚` U+02DA.
+
 ## Finger map
 
 Same physical assignment for both layouts:
@@ -52,12 +54,12 @@ No dead keys.
 
 | Row | Keys (base / shift) |
 |---|---|
-| 0 | `; °`¹ `+ 1` `ě 2` `š 3` `č 4` `ř 5` `ž 6` `ý 7` `á 8` `í 9` `é 0` `= %` `´ ˇ`² |
-| 1 | `q` `w` `e` `r` `t` `z` `u` `i` `o` `p` `ú /` `) (` `¨ '`² |
-| 2 | `a` `s` `d` `f` `g` `h` `j` `k` `l` `ů "` `§ !` |
+| 0 | `; ˚`¹ `+ 1` `ě 2` `š 3` `č 4` `ř 5` `ž 6` `ý 7` `á 8` `í 9` `é 0` `= %` `´ ˇ`² |
+| 1 | `q` `w` `e` `r` `t` `z` `u` `i` `o` `p` `ú /` `) (` |
+| 2 | `a` `s` `d` `f` `g` `h` `j` `k` `l` `ů "` `§ !` `¨ '`² |
 | 3 | `\ \|`³ `y` `x` `c` `v` `b` `n` `m` `, ?` `. :` `- _` |
 
-1. Verify: on some systems Shift here is a dead ring above (`°` combining) rather than a plain `°`.
+1. Shift is a dead ring above (XKB `dead_abovering`), not a plain `°`.
 2. Dead keys. `´` is čárka, `ˇ` is háček, `¨` is diaeresis.
 3. `IntlBackslash`, the extra ISO key.
 
