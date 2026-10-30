@@ -1,5 +1,10 @@
 <script lang="ts">
-import { apply, createSession, type ErrorMode } from "../../core/engine/engine";
+import {
+  apply,
+  createSession,
+  type ErrorMode,
+  expire,
+} from "../../core/engine/engine";
 import { enUs } from "../../core/layouts/en-us";
 import { attachInput } from "../../input/input";
 import Keyboard from "../components/Keyboard.svelte";
@@ -10,14 +15,21 @@ import { KEYBOARD_MODES, ui } from "../state.svelte";
 interface Props {
   text: string;
   errorMode: ErrorMode;
+  /** Milliseconds; absent for a session that ends with the text. */
+  timeLimit?: number | undefined;
 }
 
-let { text, errorMode }: Props = $props();
+let { text, errorMode, timeLimit }: Props = $props();
 
 // Raw: a deep proxy would make every keystroke reactive. Only a new session is a change.
 let session = $state.raw(newSession());
 let finished = $state(false);
 let paused = $state(false);
+// Whole seconds only, so the readout changes once a second and never touches the text.
+let secondsLeft = $state(fullSeconds());
+let pausedTotal = 0;
+let pausedSince = 0;
+let stop: (() => void) | undefined;
 let view: TextView | undefined;
 let board: Keyboard | undefined = $state();
 // Keydown precedes the input it produces, so this is the key behind a wrong character.
@@ -28,14 +40,40 @@ $effect(() => {
   board?.next(session.chars[session.cursor]?.expected);
 });
 
+function fullSeconds(): number {
+  return Math.ceil((timeLimit ?? 0) / 1000);
+}
+
 function newSession() {
-  return createSession({ text, errorMode });
+  return createSession({ text, errorMode, timeLimit });
 }
 
 function restart(): void {
   session = newSession();
   finished = false;
+  secondsLeft = fullSeconds();
+  pausedTotal = 0;
 }
+
+function end(): void {
+  // Removing the focused textarea fires blur during Svelte's update, where a pause may not set state.
+  stop?.();
+  finished = true;
+}
+
+// One slow interval, not per keystroke. Keystroke times are timeStamp minus paused time, so this clock is too.
+$effect(() => {
+  if (timeLimit === undefined || finished) return;
+  const id = setInterval(() => {
+    if (paused) return;
+    const at = performance.now() - pausedTotal;
+    if (expire(session, at)) end();
+    else if (session.startedAt !== undefined) {
+      secondsLeft = Math.ceil((timeLimit - (at - session.startedAt)) / 1000);
+    }
+  }, 250);
+  return () => clearInterval(id);
+});
 
 function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   const destroy = attachInput(textarea, {
@@ -51,9 +89,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       }
       board?.next(session.chars[session.cursor]?.expected);
       if (session.finishedAt !== undefined) {
-        // Removing the focused textarea fires blur during Svelte's update, where a pause may not set state.
-        destroy();
-        finished = true;
+        end();
       }
     },
     onKeyDown(code) {
@@ -62,14 +98,20 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     },
     onComposingChange() {},
     onPausedChange(value) {
+      if (value) pausedSince = performance.now();
+      else pausedTotal += performance.now() - pausedSince;
       paused = value;
     },
   });
+  stop = destroy;
   return { destroy };
 }
 </script>
 
 <main aria-label="Practice">
+  {#if timeLimit !== undefined}
+    <p class="timer" aria-label="Time left">{secondsLeft}</p>
+  {/if}
   <div class="stage">
     <div class="layer text" class:done={finished} aria-hidden={finished}>
       <TextView bind:this={view} {session} />
@@ -128,6 +170,14 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     background: var(--surface);
     color: var(--text);
     font: inherit;
+  }
+
+  .timer {
+    margin: 0 0 var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-size-md);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
   }
 
   .stage {

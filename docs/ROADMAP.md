@@ -47,7 +47,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Normalization script in `scripts/`
 - [x] Letter track unlock order, pseudo-word fallback for early lessons
 - [x] Content types: words, punctuation and capitals, numbers, code (with built-in snippets)
-- [ ] Session length setting: word count or timer
+- [x] Session length setting: word count or timer
 - [ ] Lessons view showing progress
 
 ## 6. Storage and stats

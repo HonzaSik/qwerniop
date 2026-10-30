@@ -3,6 +3,8 @@ export type ErrorMode = "stop" | "continue";
 export interface SessionConfig {
   text: string;
   errorMode: ErrorMode;
+  /** Milliseconds from the first key until the session ends; absent for an untimed session. */
+  timeLimit?: number | undefined;
 }
 
 export type InputEvent =
@@ -55,10 +57,29 @@ export function createSession(config: SessionConfig): Session {
 
 /** Mutates the session in place: this runs on every keystroke. */
 export function apply(session: Session, event: InputEvent): Change {
-  if (session.finishedAt !== undefined) return [];
+  if (expire(session, event.at) || session.finishedAt !== undefined) return [];
   return event.kind === "char"
     ? typeChar(session, event.char, event.at)
     : backspace(session, event.at);
+}
+
+/**
+ * Ends a timed session whose limit has passed at `at`; the caller owns the clock.
+ * The finish time is the limit itself, so duration does not depend on how late the check ran.
+ */
+export function expire(session: Session, at: number): boolean {
+  const { timeLimit } = session.config;
+  const { startedAt } = session;
+  if (
+    timeLimit === undefined ||
+    startedAt === undefined ||
+    session.finishedAt !== undefined ||
+    at - startedAt < timeLimit
+  ) {
+    return false;
+  }
+  session.finishedAt = startedAt + timeLimit;
+  return true;
 }
 
 function typeChar(session: Session, typed: string, at: number): Change {

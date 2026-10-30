@@ -110,7 +110,7 @@ The full key data and finger map are specified in [LAYOUTS.md](LAYOUTS.md).
 
 ### `core/engine`
 
-A typing session is a pure state machine. No timers inside it; time is passed in.
+A typing session is a pure state machine. No timers inside it; time is passed in. A timed session ends through `expire(session, at)`: once `at - startedAt >= timeLimit` it sets `finishedAt = startedAt + timeLimit` (so duration equals the limit) and returns true; `apply` calls it first and drops a key that arrives after the limit. The UI owns the clock: one 250 ms interval in the Practice view, which skips ticks while paused and subtracts paused time like keystroke times.
 
 ```ts
 type ErrorMode = 'stop' | 'continue'
@@ -118,6 +118,7 @@ type ErrorMode = 'stop' | 'continue'
 interface SessionConfig {
   text: string
   errorMode: ErrorMode
+  timeLimit?: number                              // ms from the first key; timed sessions only
 }
 
 type InputEvent =
@@ -222,7 +223,7 @@ Offline text generation:
 
 A single versioned `Settings` object with defaults and a `migrate(old)` function. Includes: layout, error mode, content types, session length (`words` count or `seconds`), live stats visibility, targets, appearance override, reduce motion, model server config.
 
-Defaults: `en-us`, `stop`, `words`, 30 words, live WPM hidden, appearance `system`.
+Session length options: 15, 30 or 60 words, or 30, 60 or 120 seconds. A timed session starts its clock at the first keystroke and generates `seconds * 4` words (240 wpm), so the text does not run out; if it does, the session ends with the text. Defaults: `en-us`, `stop`, `words`, 30 words, live WPM hidden, appearance `system`.
 
 ## Input (`src/input/`)
 

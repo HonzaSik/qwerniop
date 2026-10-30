@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { apply, createSession, type ErrorMode, type Session } from "./engine";
+import {
+  apply,
+  createSession,
+  type ErrorMode,
+  expire,
+  type Session,
+} from "./engine";
 
 const BACKSPACE = "\b";
 
@@ -393,5 +399,34 @@ describe("indentation after a newline", () => {
     const session = run("a\n  b", "stop", "a\n\b");
     expect(session.cursor).toBe(4);
     expect(session.chars[2]?.status).toBe("skipped");
+  });
+});
+
+describe("timeLimit", () => {
+  const timed = () =>
+    createSession({ text: "abc", errorMode: "stop", timeLimit: 1000 });
+
+  test("never expires before the first key or without a limit", () => {
+    expect(expire(timed(), 99_999)).toBe(false);
+    const untimed = run("abc", "stop", "a");
+    expect(expire(untimed, 99_999)).toBe(false);
+    expect(untimed.finishedAt).toBeUndefined();
+  });
+
+  test("expires at the limit counted from the first key, finishing at the limit", () => {
+    const session = timed();
+    apply(session, { kind: "char", char: "a", at: 500 });
+    expect(expire(session, 1499)).toBe(false);
+    expect(expire(session, 2000)).toBe(true);
+    expect(session.finishedAt).toBe(1500);
+    expect(expire(session, 3000)).toBe(false);
+  });
+
+  test("a key after the limit is dropped and ends the session", () => {
+    const session = timed();
+    apply(session, { kind: "char", char: "a", at: 0 });
+    expect(apply(session, { kind: "char", char: "b", at: 1200 })).toEqual([]);
+    expect(session.finishedAt).toBe(1000);
+    expect(session.log).toHaveLength(1);
   });
 });
