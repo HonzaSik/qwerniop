@@ -1,6 +1,8 @@
 <script lang="ts">
 import { apply, createSession, type ErrorMode } from "../../core/engine/engine";
+import { enUs } from "../../core/layouts/en-us";
 import { attachInput } from "../../input/input";
+import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
 import TextView from "../components/TextView.svelte";
 
@@ -65,6 +67,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       {/if}
     </div>
   </div>
+  <div class="board"><Keyboard layout={enUs} /></div>
 </main>
 
 <style>
@@ -74,6 +77,12 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     min-height: 100vh;
     padding: var(--space-4);
     place-content: center stretch;
+  }
+
+  .board {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-6);
   }
 
   .stage {

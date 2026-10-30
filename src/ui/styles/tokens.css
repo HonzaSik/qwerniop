@@ -28,7 +28,24 @@
   --space-4: 16px;
   --space-6: 32px;
   --radius-control: 8px;
+  --radius-group: 12px;
+  --radius-key: 6px;
   --focus-ring-width: 2px;
+
+  --keyboard-max-width: 44rem;
+  --keyboard-gap: 2px;
+  --keyboard-key-ratio: 0.9;
+  --keyboard-label-ratio: 0.36;
+
+  --finger-l5: #f2c9d4;
+  --finger-l4: #f6d3b8;
+  --finger-l3: #f2e4a6;
+  --finger-l2: #c5e5b4;
+  --finger-r2: #b5e3d9;
+  --finger-r3: #b8d9f2;
+  --finger-r4: #cdc8f2;
+  --finger-r5: #e6c5ec;
+  --finger-t: #e5e5ea;
 
   --caret-width: 2px;
   --caret-height: 1.3em;
@@ -51,6 +68,15 @@
     --correct: #f2f2f7;
     --error: #ff7b72;
     --error-bg: #4a2220;
+    --finger-l5: #5a3340;
+    --finger-l4: #5a4030;
+    --finger-l3: #55502a;
+    --finger-l2: #35502f;
+    --finger-r2: #2c5048;
+    --finger-r3: #2f4a63;
+    --finger-r4: #443f66;
+    --finger-r5: #583d62;
+    --finger-t: #3a3a3c;
   }
 }
 
@@ -70,4 +96,13 @@
   --correct: #f2f2f7;
   --error: #ff7b72;
   --error-bg: #4a2220;
+  --finger-l5: #5a3340;
+  --finger-l4: #5a4030;
+  --finger-l3: #55502a;
+  --finger-l2: #35502f;
+  --finger-r2: #2c5048;
+  --finger-r3: #2f4a63;
+  --finger-r4: #443f66;
+  --finger-r5: #583d62;
+  --finger-t: #3a3a3c;
 }

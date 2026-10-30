@@ -97,6 +97,9 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 ## On-screen keyboard
 
 - Drawn from layout data, ISO or ANSI geometry.
+- Geometry: five rows from the layout data, one key unit is 1/15 of the keyboard width (at most `--keyboard-max-width`, 44 rem), so it scales with the viewport and never scrolls. Key height and label size are fixed ratios of the unit. In the Space row Space starts 3.75 units from the left, where it sits on a physical ANSI board. The keyboard is below the text, decorative (`aria-hidden`), and each key element carries `data-code` (the `KeyboardEvent.code`) and `data-finger`.
+- Labels: letters show the capital only; symbol and digit keys show the shifted character above the base; Shift, Caps, Tab, Enter and Backspace show their names; Space is blank.
+- Finger colours: each finger has a `--finger-*` token (L5 … R5, plus T for the thumb) in a light and a dark set; they are the default key fill until the display modes land.
 - Each key shows its label; base and shift characters for symbol keys.
 - Modes (setting): **Finger colours** (keys tinted by finger), **Next key only**, **Hidden**. Beginners default to finger colours.
 - The next key is outlined in accent; for shifted characters, the opposite Shift is outlined as well.
