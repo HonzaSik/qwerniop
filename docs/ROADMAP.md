@@ -7,7 +7,7 @@ Each milestone is small enough to finish and review in one sitting, and ends wit
 While milestone 1 is in progress, the `check`, `test` and `build` scripts are added step by step. Verify each item with the tools it adds (for example `pnpm exec vite build`, `pnpm exec tsc --noEmit`). The rule that every commit passes all three applies from the end of milestone 1.
 
 - [x] Vite + Svelte 5 + TypeScript (`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) with no template leftovers: no demo components, no sample assets, no counter. Creates `index.html`, `src/main.ts` and an empty `src/App.svelte` as the entry point described in ARCHITECTURE.md. Pins the pnpm version in the `packageManager` field.
-- [ ] Biome configured; verify `.svelte` support, add `svelte-check` for components
+- [x] Biome configured; verify `.svelte` support, add `svelte-check` for components
 - [ ] Vitest with one passing test
 - [ ] `scripts/size-check.mjs` enforcing the budgets in PERFORMANCE.md
 - [ ] Import boundary check: `src/core/` imports nothing outside itself
