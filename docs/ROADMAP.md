@@ -39,7 +39,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] `strokesFor`, `fingerFor` with tests
 - [x] On-screen keyboard component from layout data, ANSI geometry
 - [x] Next-key highlight, opposite Shift, pressed and wrong flashes
-- [ ] Keyboard display modes: finger colours, next key only, hidden
+- [x] Keyboard display modes: finger colours, next key only, hidden
 
 ## 5. Lessons and offline text
 

@@ -5,6 +5,7 @@ import { attachInput } from "../../input/input";
 import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
 import TextView from "../components/TextView.svelte";
+import { KEYBOARD_MODES, ui } from "../state.svelte";
 
 interface Props {
   text: string;
@@ -18,10 +19,11 @@ let session = $state.raw(newSession());
 let finished = $state(false);
 let paused = $state(false);
 let view: TextView | undefined;
-let board: Keyboard | undefined;
+let board: Keyboard | undefined = $state();
 // Keydown precedes the input it produces, so this is the key behind a wrong character.
 let lastCode = "";
 
+// Runs for a new session and when the board mounts (hidden mode off); keystrokes call next() directly.
 $effect(() => {
   board?.next(session.chars[session.cursor]?.expected);
 });
@@ -85,7 +87,15 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       {/if}
     </div>
   </div>
-  <div class="board"><Keyboard bind:this={board} layout={enUs} /></div>
+  {#if ui.keyboardMode !== "hidden"}
+    <div class="board"><Keyboard bind:this={board} layout={enUs} mode={ui.keyboardMode} /></div>
+  {/if}
+  <label class="mode">
+    Keyboard
+    <select bind:value={ui.keyboardMode}>
+      {#each KEYBOARD_MODES as m}<option value={m.value}>{m.label}</option>{/each}
+    </select>
+  </label>
 </main>
 
 <style>
@@ -101,6 +111,23 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     display: flex;
     justify-content: center;
     margin-top: var(--space-6);
+  }
+
+  .mode {
+    justify-self: center;
+    margin-top: var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
+  }
+
+  select {
+    margin-left: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--separator);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
   }
 
   .stage {

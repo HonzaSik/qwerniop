@@ -5,9 +5,11 @@ import { keyLabel } from "./keyboard-labels";
 
 interface Props {
   layout: Layout;
+  /** "hidden" is the caller's job: it unmounts the board. */
+  mode: "fingers" | "next";
 }
 
-let { layout }: Props = $props();
+let { layout, mode }: Props = $props();
 
 let highlighter: ReturnType<typeof createHighlighter> | undefined;
 
@@ -51,7 +53,7 @@ const SPACE_ROW_OFFSET = 3.75;
 </script>
 
 <!-- Decorative: the practice text is the accessible surface. Keys are addressable by data-code. -->
-<div class="keyboard" aria-hidden="true">
+<div class="keyboard" data-mode={mode} aria-hidden="true">
   <div class="board" use:highlight>
   {#each ROWS as row}
     <div class="row">
@@ -158,6 +160,11 @@ const SPACE_ROW_OFFSET = 3.75;
 
   .shift {
     color: var(--text-2);
+  }
+
+  /* The thumb tone is the neutral key fill. */
+  .keyboard[data-mode="next"] .key {
+    --finger-bg: var(--finger-t);
   }
 
   .key[data-finger="L5"] { --finger-bg: var(--finger-l5); }
