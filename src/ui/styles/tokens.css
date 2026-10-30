@@ -17,8 +17,16 @@
   --text-size-xl: 2rem;
   /* Scales so a full column fits the viewport, at about 0.6em per character, until the minimum. */
   --text-size-practice: clamp(1.375rem, 2.6vw, 1.75rem);
+  --line-height-practice: 1.6;
   --practice-column: 64ch;
   --weight-semibold: 600;
+
+  --caret-width: 2px;
+  --caret-height: 1.3em;
+  --caret-blink: 1060ms;
+  --duration-caret: 120ms;
+  --duration-view: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
 }
 
 @media (prefers-color-scheme: dark) {

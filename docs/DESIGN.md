@@ -86,7 +86,8 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 ```
 
 - Caret is a 2 px bar that glides to the next character with a short transform transition. Its blink pauses while typing.
-- Three lines of text are visible; the view scrolls by whole lines, without animation if reduce motion is on.
+- Three lines of text are visible at all times, including for shorter passages, at a line height of 1.6; the view scrolls by whole lines, without animation if reduce motion is on.
+- The caret stays on the middle row after the first line. Near the end the scroll stops so the last three lines stay filled, and the caret drops to the bottom row: `top = max(0, min(line - 1, lineCount - 3))`. Backspace uses the same rule. At the end of the text the caret sits after the last character, with no extra line.
 - End of session: text fades out and a summary appears in place: WPM, accuracy, time, weakest keys, a sentence of feedback, and "Continue" (Enter) / "Repeat" (R).
 
 ## On-screen keyboard
@@ -100,8 +101,9 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 ## Motion
 
 - Durations: 80 ms (key press), 120 ms (caret), 200 ms (view changes). Easing: `cubic-bezier(0.2, 0, 0, 1)`.
+- Caret blink: 1060 ms cycle, 530 ms on and 530 ms off (`--caret-blink`), resuming after one 530 ms solid phase once typing stops.
 - Only `transform` and `opacity` animate.
-- With `prefers-reduced-motion` or the Reduce motion setting: no transitions except an instant caret move.
+- With `prefers-reduced-motion` or the Reduce motion setting: no transitions except an instant caret move, and a solid caret.
 
 ## Interaction
 
