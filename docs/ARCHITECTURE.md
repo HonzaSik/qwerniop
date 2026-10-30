@@ -136,6 +136,7 @@ interface Session {
   cursor: number
   startedAt?: number
   finishedAt?: number
+  lastKeyAt?: number      // last key that changed the session, Backspace included; sincePrevious measures from it
   log: Keystroke[]        // every attempt, for stats
 }
 

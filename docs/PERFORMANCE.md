@@ -29,7 +29,7 @@ Rules:
 
 - **Render text once per passage.** The passage becomes one `<span>` per character when it is shown. Keystrokes never re-render the list. In Svelte, the spans are rendered from a non-reactive array; per-character status is applied through a small imperative action (`use:charStatus`) that sets `className` on changed spans. Do not make the per-character array deeply reactive.
 - **Caret moves with `transform: translate3d()`.** Its position comes from the offsets of the target span, measured once per line when the line is laid out, not on each keystroke. Never read layout (`offsetLeft`, `getBoundingClientRect`) and then write styles in the same keystroke handler.
-- **No storage, no network, no `JSON.stringify` on keystrokes.** Keystrokes append to a preallocated array.
+- **No storage, no network, no `JSON.stringify` on keystrokes.** Keystrokes append to an in-memory array.
 - **No timers per keystroke.** Live WPM (if shown) updates at most every 500 ms from a single `requestAnimationFrame` loop that stops when idle.
 - **Keyboard highlight** toggles one class on the previous and next key elements. The keyboard DOM is static.
 - **Line scrolling** happens only when the caret moves to a new line, using `transform` on the text container.

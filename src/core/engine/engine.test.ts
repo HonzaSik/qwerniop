@@ -225,10 +225,35 @@ describe("sincePrevious", () => {
     ]);
   });
 
-  test("measures from the previous attempt across a Backspace", () => {
-    const session = run("abc", "continue", `ax${BACKSPACE}b`);
-    expect(session.log.map((stroke) => stroke.sincePrevious)).toEqual([
-      0, 100, 200,
-    ]);
+  test("measures from the last key, including a Backspace", () => {
+    const session = createSession({ text: "abc", errorMode: "continue" });
+    apply(session, { kind: "char", char: "x", at: 100 });
+    apply(session, { kind: "backspace", at: 200 });
+    apply(session, { kind: "char", char: "a", at: 300 });
+    expect(session.log.map((stroke) => stroke.sincePrevious)).toEqual([0, 100]);
+  });
+
+  test("a Backspace in stop mode does nothing, so it is not the last key", () => {
+    const session = createSession({ text: "abc", errorMode: "stop" });
+    apply(session, { kind: "char", char: "a", at: 100 });
+    apply(session, { kind: "backspace", at: 200 });
+    apply(session, { kind: "char", char: "b", at: 300 });
+    expect(session.log[1]?.sincePrevious).toBe(200);
+  });
+
+  test("a Backspace at index 0 does nothing, so it is not the last key", () => {
+    const session = createSession({ text: "abc", errorMode: "continue" });
+    apply(session, { kind: "char", char: "a", at: 100 });
+    apply(session, { kind: "backspace", at: 200 });
+    apply(session, { kind: "backspace", at: 300 });
+    apply(session, { kind: "char", char: "a", at: 400 });
+    expect(session.log[1]?.sincePrevious).toBe(200);
+  });
+
+  test("the first log entry records 0 after a Backspace that did nothing", () => {
+    const session = createSession({ text: "abc", errorMode: "continue" });
+    apply(session, { kind: "backspace", at: 100 });
+    apply(session, { kind: "char", char: "a", at: 200 });
+    expect(session.log[0]?.sincePrevious).toBe(0);
   });
 });

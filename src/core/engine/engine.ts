@@ -30,6 +30,7 @@ export interface Session {
   cursor: number;
   startedAt?: number;
   finishedAt?: number;
+  lastKeyAt?: number;
   log: Keystroke[];
 }
 
@@ -54,7 +55,7 @@ export function apply(session: Session, event: InputEvent): Change {
   if (session.finishedAt !== undefined) return [];
   return event.kind === "char"
     ? typeChar(session, event.char, event.at)
-    : backspace(session);
+    : backspace(session, event.at);
 }
 
 function typeChar(session: Session, typed: string, at: number): Change {
@@ -74,15 +75,15 @@ function typeChar(session: Session, typed: string, at: number): Change {
   current.typed = typed;
 
   session.startedAt ??= at;
-  const previous = session.log.at(-1);
   session.log.push({
     index,
     expected: current.expected,
     typed,
     correct,
     at,
-    sincePrevious: previous === undefined ? 0 : at - previous.at,
+    sincePrevious: session.lastKeyAt === undefined ? 0 : at - session.lastKeyAt,
   });
+  session.lastKeyAt = at;
 
   if (correct || session.config.errorMode === "continue") {
     session.cursor = index + 1;
@@ -91,7 +92,7 @@ function typeChar(session: Session, typed: string, at: number): Change {
   return [index];
 }
 
-function backspace(session: Session): Change {
+function backspace(session: Session, at: number): Change {
   const index = session.cursor - 1;
   const previous = session.chars[index];
   // Undefined at the start of the text, where there is nothing to move back over.
@@ -99,12 +100,14 @@ function backspace(session: Session): Change {
 
   session.chars[index] = { expected: previous.expected, status: "pending" };
   session.cursor = index;
+  session.lastKeyAt = at;
   return [index];
 }
 
 function attemptedBefore(session: Session, index: number): boolean {
-  // Attempts advance the cursor and Backspace retreats it, so equal counts mean
-  // no Backspace yet, which spares a clean run from scanning the log every time.
+  // Equal counts mean every attempt so far advanced the cursor and no Backspace
+  // moved it back, so no index was attempted twice and a clean run skips the scan.
+  // A stop-mode error or a Backspace makes them differ for the rest of the session.
   if (session.log.length === session.cursor) return false;
   return session.log.some((stroke) => stroke.index === index);
 }
