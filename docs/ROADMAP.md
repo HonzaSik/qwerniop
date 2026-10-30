@@ -38,7 +38,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] `en-us` layout data, verified against XKB
 - [x] `strokesFor`, `fingerFor` with tests
 - [x] On-screen keyboard component from layout data, ANSI geometry
-- [ ] Next-key highlight, opposite Shift, pressed and wrong flashes
+- [x] Next-key highlight, opposite Shift, pressed and wrong flashes
 - [ ] Keyboard display modes: finger colours, next key only, hidden
 
 ## 5. Lessons and offline text

@@ -34,6 +34,9 @@
 
   --keyboard-max-width: 44rem;
   --keyboard-gap: 2px;
+  --keyboard-next-ring: 2px;
+  --key-press-opacity: 0.18;
+  --key-wrong-opacity: 0.55;
   --keyboard-key-ratio: 0.9;
   --keyboard-label-ratio: 0.36;
 
@@ -50,6 +53,7 @@
   --caret-width: 2px;
   --caret-height: 1.3em;
   --caret-blink: 1060ms;
+  --duration-press: 80ms;
   --duration-caret: 120ms;
   --duration-view: 200ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);

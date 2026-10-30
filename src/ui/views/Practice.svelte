@@ -18,6 +18,13 @@ let session = $state.raw(newSession());
 let finished = $state(false);
 let paused = $state(false);
 let view: TextView | undefined;
+let board: Keyboard | undefined;
+// Keydown precedes the input it produces, so this is the key behind a wrong character.
+let lastCode = "";
+
+$effect(() => {
+  board?.next(session.chars[session.cursor]?.expected);
+});
 
 function newSession() {
   return createSession({ text, errorMode });
@@ -32,14 +39,25 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   const destroy = attachInput(textarea, {
     enterTypesNewline: text.includes("\n"),
     emit(event) {
+      const logged = session.log.length;
       view?.update(apply(session, event));
+      if (
+        session.log.length > logged &&
+        session.log.at(-1)?.correct === false
+      ) {
+        board?.wrong(lastCode);
+      }
+      board?.next(session.chars[session.cursor]?.expected);
       if (session.finishedAt !== undefined) {
         // Removing the focused textarea fires blur during Svelte's update, where a pause may not set state.
         destroy();
         finished = true;
       }
     },
-    onKeyDown() {},
+    onKeyDown(code) {
+      lastCode = code;
+      board?.keyDown(code);
+    },
     onComposingChange() {},
     onPausedChange(value) {
       paused = value;
@@ -67,7 +85,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       {/if}
     </div>
   </div>
-  <div class="board"><Keyboard layout={enUs} /></div>
+  <div class="board"><Keyboard bind:this={board} layout={enUs} /></div>
 </main>
 
 <style>

@@ -104,6 +104,8 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - Modes (setting): **Finger colours** (keys tinted by finger), **Next key only**, **Hidden**. Beginners default to finger colours.
 - The next key is outlined in accent; for shifted characters, the opposite Shift is outlined as well.
 - A pressed key darkens briefly; a wrong press flashes `--error` on the key actually pressed.
+- Implementation: the classes `next`, `pressed` and `wrong` are toggled on the static key elements (`key-highlight.ts`). Pressed and wrong are overlays whose opacity fades in 80 ms (`--duration-press`) and stays while the key is held, so no timer runs per keystroke and a quick tap still shows. With reduced motion they switch instantly. The key actually pressed is the `code` of the last keydown. Outline ring, dim and flash strengths are tokens.
+- Dead-key characters: the first step outlines the dead key (and the Shift for its shifted form); once that key goes down, the outline moves to the base letter. The Shift outline is the opposite-hand Shift from `strokesFor`.
 
 ## Motion
 

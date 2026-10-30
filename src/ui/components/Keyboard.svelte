@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { Layout } from "../../core/layouts/layout";
+import { createHighlighter, type KeyElement } from "./key-highlight";
 import { keyLabel } from "./keyboard-labels";
 
 interface Props {
@@ -8,6 +9,42 @@ interface Props {
 
 let { layout }: Props = $props();
 
+let highlighter: ReturnType<typeof createHighlighter> | undefined;
+
+/** The character to type next, or undefined when there is none. */
+export function next(char: string | undefined): void {
+  highlighter?.next(char);
+}
+
+export function keyDown(code: string): void {
+  highlighter?.keyDown(code);
+}
+
+export function wrong(code: string): void {
+  highlighter?.wrong(code);
+}
+
+// The key elements are looked up once: keystrokes only toggle classes on them.
+function highlight(root: HTMLElement): { destroy: () => void } {
+  const keys = new Map<string, KeyElement>();
+  for (const el of root.querySelectorAll<HTMLElement>("[data-code]")) {
+    keys.set(el.dataset.code ?? "", el);
+  }
+  const h = createHighlighter(layout, keys);
+  highlighter = h;
+  const controller = new AbortController();
+  const { signal } = controller;
+  document.addEventListener("keyup", (e) => h.release(e.code), { signal });
+  // A keyup can be lost with focus, which would leave a key dark.
+  window.addEventListener("blur", () => h.release(), { signal });
+  return {
+    destroy() {
+      controller.abort();
+      highlighter = undefined;
+    },
+  };
+}
+
 const ROWS = [0, 1, 2, 3, 4] as const;
 // Pushes Space to where it sits on a physical ANSI board: Ctrl, Win and Alt at 1.25 units each.
 const SPACE_ROW_OFFSET = 3.75;
@@ -15,7 +52,7 @@ const SPACE_ROW_OFFSET = 3.75;
 
 <!-- Decorative: the practice text is the accessible surface. Keys are addressable by data-code. -->
 <div class="keyboard" aria-hidden="true">
-  <div class="board">
+  <div class="board" use:highlight>
   {#each ROWS as row}
     <div class="row">
       {#if row === 4}
@@ -77,6 +114,46 @@ const SPACE_ROW_OFFSET = 3.75;
     background: var(--finger-bg);
     background-clip: padding-box;
     line-height: 1.2;
+    position: relative;
+  }
+
+  /* Overlays animate only opacity (DESIGN.md Motion). */
+  .key::before,
+  .key::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .key::before {
+    background: var(--text);
+  }
+
+  .key::after {
+    background: var(--error);
+  }
+
+  .key:global(.pressed)::before {
+    opacity: var(--key-press-opacity);
+  }
+
+  .key:global(.wrong)::after {
+    opacity: var(--key-wrong-opacity);
+  }
+
+  .key:global(.next) {
+    outline: var(--keyboard-next-ring) solid var(--accent);
+    outline-offset: calc(-1 * var(--keyboard-next-ring));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .key::before,
+    .key::after {
+      transition: opacity var(--duration-press) var(--ease);
+    }
   }
 
   .shift {
