@@ -662,9 +662,9 @@ coach
 sports
 wife
 bad
+provided
 chance
 distancing
-provided
 resources
 showed
 communities
@@ -1410,7 +1410,6 @@ interesting
 mostly
 nice
 notice
-sex
 sort
 survey
 treated
@@ -2646,7 +2645,6 @@ anticipated
 apparent
 edition
 fairly
-hell
 honest
 jumped
 landed
@@ -4626,7 +4624,6 @@ creator
 criticised
 cure
 curious
-damn
 debates
 declare
 define
@@ -4897,7 +4894,6 @@ salad
 salmon
 satellites
 sauce
-sexy
 shell
 shutting
 signals
@@ -8942,7 +8938,6 @@ paramedic
 pastry
 patrols
 pavement
-penis
 persuade
 pertaining
 petitions
@@ -9279,7 +9274,6 @@ corridors
 counters
 coup
 cracking
-crap
 craving
 crippled
 crispy
@@ -9975,7 +9969,6 @@ cursed
 curtain
 customary
 cyclist
-damned
 dams
 debacle
 debilitating
@@ -9992,3 +9985,16 @@ depressed
 depths
 derailed
 descent
+despair
+destined
+detached
+detecting
+diarrhea
+differing
+diminish
+dioxide
+directs
+disagreed
+disagreement
+discharge
+discord

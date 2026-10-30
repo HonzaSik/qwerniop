@@ -44,7 +44,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 5. Lessons and offline text
 
 - [x] Word list for English with license recorded in `src/data/SOURCES.md`
-- [ ] Normalization script in `scripts/`
+- [x] Normalization script in `scripts/`
 - [ ] Letter track unlock order, pseudo-word fallback for early lessons
 - [ ] Content types: words, punctuation and capitals, numbers, code (with built-in snippets)
 - [ ] Session length setting: word count or timer
