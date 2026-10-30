@@ -20,3 +20,9 @@ it("passes under budget and reports initial JS over budget", () => {
   expect(checkSizes(fakeDist(1000))).toEqual([]);
   expect(checkSizes(fakeDist(60 * 1024))[0]).toMatch(/^Initial JS/);
 });
+
+it("reports a word list over its gzip budget", () => {
+  const dist = fakeDist(1000);
+  writeFileSync(join(dist, "assets", "en-x.txt"), randomBytes(61 * 1024));
+  expect(checkSizes(dist)[0]).toMatch(/^Word list/);
+});

@@ -12,7 +12,7 @@ const GROUPS = [
 ];
 
 // Returns failure messages; empty means every budget holds.
-// shortcut: word list and `ai` chunk budgets are not checked because PERFORMANCE.md names no file pattern for them; add once chunk names exist.
+// shortcut: the `ai` chunk budget is not checked because PERFORMANCE.md names no file pattern for it; add once its chunk name exists.
 export function checkSizes(dist) {
   const html = readFileSync(join(dist, "index.html"), "utf8");
   const failures = [];
@@ -24,6 +24,12 @@ export function checkSizes(dist) {
     if (total > budget) failures.push(`${name}: ${total} B gzip > ${budget} B`);
   }
   for (const entry of readdirSync(dist, { recursive: true })) {
+    // Word lists are the only .txt assets, so any emitted .txt counts as one.
+    if (entry.endsWith(".txt")) {
+      const size = gzipSync(readFileSync(join(dist, entry))).length;
+      if (size > 60 * KB)
+        failures.push(`Word list ${entry}: ${size} B gzip > ${60 * KB} B`);
+    }
     if (!entry.endsWith(".woff2")) continue;
     const size = readFileSync(join(dist, entry)).length;
     if (size > 60 * KB)
