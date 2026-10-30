@@ -12,9 +12,6 @@ export interface GenerateOptions {
   rng: Rng;
 }
 
-const pick = <T>(items: readonly T[], rng: Rng): T =>
-  items[Math.floor(rng() * items.length)] as T;
-
 function pickWeighted(
   letters: readonly string[],
   weight: (letter: string) => number,
@@ -25,7 +22,7 @@ function pickWeighted(
     r -= weight(l);
     if (r < 0) return l;
   }
-  return letters[letters.length - 1] as string;
+  return letters.at(-1) ?? "";
 }
 
 // Letter pairs of the language, counted over the whole list. Add-one smoothing keeps every
@@ -60,13 +57,14 @@ export function generate({
   const fitting = words.filter((w) => [...w].every((c) => set.has(c)));
   const out: string[] = [];
   if (fitting.length >= MIN_WORDS) {
-    for (let i = 0; i < length; i++) out.push(pick(fitting, rng));
+    for (let i = 0; i < length; i++)
+      out.push(fitting[Math.floor(rng() * fitting.length)] ?? "");
   } else {
     const pairs = new Map<string, number>();
     for (const w of words) {
       for (let i = 1; i < w.length; i++) {
         const p = w.slice(i - 1, i + 1);
-        if (set.has(p[0] as string) && set.has(p[1] as string)) {
+        if (set.has(p.charAt(0)) && set.has(p.charAt(1))) {
           pairs.set(p, (pairs.get(p) ?? 0) + 1);
         }
       }
