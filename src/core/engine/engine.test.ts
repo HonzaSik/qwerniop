@@ -73,10 +73,13 @@ describe.each<ErrorMode>(["stop", "continue"])("%s mode, shared", (mode) => {
     expect(session.log).toEqual([]);
   });
 
-  test("Czech characters match as single characters", () => {
-    const session = run("čř", mode, "čř");
-    expect(statuses(session)).toEqual(["correct", "correct"]);
-    expect(session.finishedAt).toBe(200);
+  test("Czech characters are one position each and match as typed", () => {
+    const text = "ěščřžýáíéúůďňťóĚŠČŘŽÝÁÍÉÚŮĎŇŤÓ";
+    const session = run(text, mode, text);
+    expect(session.chars).toHaveLength(30);
+    expect(session.log).toHaveLength(30);
+    expect(session.chars.every((char) => char.status === "correct")).toBe(true);
+    expect(session.finishedAt).toBe(3000);
   });
 });
 
@@ -130,6 +133,14 @@ describe("stop mode", () => {
     expect(statuses(session)).toEqual(["correct", "wrong", "pending"]);
   });
 
+  test("a base letter is wrong for its accented form until the right key", () => {
+    const session = run("č", "stop", "c");
+    expect(session.cursor).toBe(0);
+    expect(statuses(session)).toEqual(["wrong"]);
+    apply(session, { kind: "char", char: "č", at: 900 });
+    expect(statuses(session)).toEqual(["corrected"]);
+  });
+
   test("a wrong last character does not finish; the right one does", () => {
     const session = run("ab", "stop", "ax");
     expect(session.finishedAt).toBeUndefined();
@@ -149,6 +160,10 @@ describe("continue mode", () => {
       status: "wrong",
     });
     expect(session.log[0]?.correct).toBe(false);
+  });
+
+  test("a base letter or the other case is wrong for a Czech character", () => {
+    expect(statuses(run("čĚ", "continue", "cě"))).toEqual(["wrong", "wrong"]);
   });
 
   test("Backspace moves back one and resets that character", () => {

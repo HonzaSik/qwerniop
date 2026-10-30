@@ -140,6 +140,16 @@ describe("sessions with nothing to measure", () => {
   });
 });
 
+describe("Czech text", () => {
+  test("each accented character counts as one character", () => {
+    const session = run("čĚřŮž", "continue", "čĚrŮž", 6000);
+    expect(session.log).toHaveLength(5);
+    expect(grossWpm(session)).toBeCloseTo(10);
+    expect(netWpm(session)).toBeCloseTo(8);
+    expect(accuracy(session)).toBe(4 / 5);
+  });
+});
+
 describe("skipped indentation", () => {
   test("counts in neither WPM nor accuracy", () => {
     const session = run("a:\n    b", "stop", "a:\nb");
