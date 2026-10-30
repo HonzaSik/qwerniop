@@ -3,6 +3,7 @@ import type { Layout } from "../core/layouts/layout";
 import { type Progress, parseProgress } from "../core/lessons/lessons";
 import { migrateSettings, type Settings } from "../core/settings/settings";
 import { type Database, openDatabase } from "./db";
+import { createWriteQueue } from "./queue";
 
 const SETTINGS_KEY = "current";
 
@@ -11,16 +12,12 @@ export interface Stored {
   progress: Progress;
 }
 
-/** Saves swallow failures: losing a write must never break typing, and the next change retries. */
+/** Saves only queue; failed writes stay queued and go out with the next flush. */
 export interface Store {
   saveSettings(settings: Settings): void;
   saveProgress(progress: Progress): void;
   addSession(record: SessionRecord): void;
 }
-
-const quiet = (write: Promise<unknown>): void => {
-  write.catch((error: unknown) => console.error("Storage write failed", error));
-};
 
 /**
  * Opens storage and reads what is saved. `store` is null when storage is
@@ -52,9 +49,23 @@ export async function loadStore(layout: Layout["id"]): Promise<{
 }
 
 function writer(db: Database, layout: Layout["id"]): Store {
-  return {
-    saveSettings: (s) => quiet(db.put("settings", s, SETTINGS_KEY)),
-    saveProgress: (p) => quiet(db.put("progress", p, layout)),
-    addSession: (r) => quiet(db.add("sessions", r)),
-  };
+  const queue = createWriteQueue(
+    {
+      putSettings: (s) => db.put("settings", s, SETTINGS_KEY),
+      putProgress: (p) => db.put("progress", p, layout),
+      addSession: (r) => db.add("sessions", r),
+    },
+    // Off the keystroke path: idle time, or a 0ms timeout where unsupported.
+    (flush) =>
+      typeof requestIdleCallback === "function"
+        ? requestIdleCallback(flush)
+        : setTimeout(flush, 0),
+  );
+  const flushNow = (): void => void queue.flush();
+  // pagehide covers browsers that skip visibilitychange when a page is discarded.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushNow();
+  });
+  addEventListener("pagehide", flushNow);
+  return queue;
 }
