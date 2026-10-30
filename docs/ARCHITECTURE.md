@@ -198,7 +198,7 @@ Two decisions:
 
 ### `core/lessons`
 
-- The unlock order per layout (see LAYOUTS.md).
+- The unlock order per layout (see LAYOUTS.md), as `unlockedLetters(layoutId, stage)`; a stage is one row of the order, and Space is always allowed. Layouts without an order yet (`cs-qwertz`, milestone 8) return `undefined`.
 - Content types, each selectable: `words`, `punctuation` (adds capitals and punctuation to word text), `numbers`, `code`. Punctuation and numbers have their own unlock tracks that start after the letter track reaches a configurable point.
 - A "free practice" mode with everything unlocked.
 
@@ -209,7 +209,8 @@ Offline text generation:
 - Word lists are frequency-ordered plain text, one word per line, loaded lazily per locale.
 - `generate({ allowed, weights, length, contentTypes, rng })` returns a passage. It filters words to those typable with allowed characters, then samples with `adaptive` weights.
 - When too few words fit (early lessons), it falls back to pseudo-words built from allowed letters using the language's common bigrams, so the first lesson is not "jjj fff".
-- Randomness comes from an injected seeded RNG, so tests are deterministic.
+- Randomness comes from an injected seeded RNG (`seededRng(seed)`, mulberry32), so tests are deterministic.
+- `generate({ words, allowed, length, rng })` takes the loaded word list as an argument; `core/` never fetches. Fallback rule: fewer than 100 distinct fitting words (`MIN_WORDS`) means the whole passage is pseudo-words. Pseudo-words are 3 to 5 letters, built letter by letter from pair counts over the whole word list with add-one smoothing, so any allowed letter set works.
 
 ### `core/settings`
 
