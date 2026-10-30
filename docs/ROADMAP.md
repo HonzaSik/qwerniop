@@ -64,7 +64,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Weighted word sampling toward weak characters
 - [x] Unlock rule with configurable targets
 - [x] Offline session feedback sentences
-- [ ] Tests with simulated learners (strong, weak on one key, inconsistent)
+- [x] Tests with simulated learners (strong, weak on one key, inconsistent)
 
 ## 8. Czech
 
