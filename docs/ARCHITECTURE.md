@@ -194,7 +194,7 @@ Smoothing factor `α = 0.1` per attempt, in log order; a character's first sampl
 
 Two decisions:
 
-1. **Which words to show.** Each candidate word gets weight `Σ weakness(char)` over its characters, where weakness grows as accuracy drops below target and as speed drops below target. Words are sampled by weight, with a floor so strong keys still appear. Never repeat a word within the same session line.
+1. **Which words to show.** `weakness(stat)` (`core/adaptive/weakness.ts`) is 0 to 1: the mean of an accuracy gap `1 - 0.05 / errorRate` and a speed gap `1 - targetMs / ms` (each 0 at or better than target, 1 with no timed samples), blended toward 1 by `min(1, attempts / 30)`, so unseen and newly unlocked characters count as fully weak. A word weighs `0.25 + Σ weakness(char)` over its characters; words are sampled by cumulative weight. A drawn word that is one of the previous 8 is redrawn up to 10 times. Pseudo-word letters are weighted by `0.25 + weakness`. Targets are fixed at the defaults until the unlock rule makes them configurable.
 2. **When to unlock the next key.** All currently unlocked characters must meet the targets (defaults: 95 % accuracy and 35 WPM equivalent speed, both configurable) over at least 30 recent attempts each. The next key is the next one in the lesson order for the current layout.
 
 ### `core/lessons`
@@ -208,12 +208,12 @@ Two decisions:
 Offline text generation:
 
 - Word lists are frequency-ordered plain text, one word per line, loaded lazily per locale.
-- `generate({ allowed, weights, length, contentTypes, rng })` returns a passage. It filters words to those typable with allowed characters, then samples with `adaptive` weights.
+- `generate(...)` returns a passage. It filters words to those typable with allowed characters, then samples with `adaptive` weights.
 - When too few words fit (early lessons), it falls back to pseudo-words built from allowed letters using the language's common bigrams, so the first lesson is not "jjj fff".
 - Randomness comes from an injected seeded RNG (`seededRng(seed)`, mulberry32), so tests are deterministic.
-- `generate({ words, allowed, length, rng })` takes the loaded word list as an argument; `core/` never fetches. Fallback rule: fewer than 100 distinct fitting words (`MIN_WORDS`) means the whole passage is pseudo-words. Pseudo-words are 3 to 5 letters, built letter by letter from pair counts over the whole word list with add-one smoothing, so any allowed letter set works.
+- `generate({ words, allowed, stats, length, rng })` takes the loaded word list as an argument; `core/` never fetches. `stats` (per-character stats, default none) weights sampling via `core/adaptive`. Fallback rule: fewer than 100 distinct fitting words (`MIN_WORDS`) means the whole passage is pseudo-words. Pseudo-words are 3 to 5 letters, built letter by letter from pair counts over the whole word list with add-one smoothing, so any allowed letter set works.
 
-- `generateContent({ type, words, snippets, letters, stage, length, rng })` (`core/text/content.ts`) dispatches on content type; `stage` is the stage within that type's track (`core/lessons/tracks.ts`: `tracksOpen`, `trackChars`, `trackStages`). Tracks open at letter step 8 for `en-us`.
+- `generateContent({ type, words, snippets, letters, stats, stage, length, rng })` (`core/text/content.ts`) dispatches on content type; words and punctuation are weighted by `stats`, numbers and code are not; `stage` is the stage within that type's track (`core/lessons/tracks.ts`: `tracksOpen`, `trackChars`, `trackStages`). Tracks open at letter step 8 for `en-us`.
 - **Punctuation** (4 stages: capitals; `. ,`; `? ! ' " : ; -`; brackets): word text is cut into sentences of 3 to 7 words. Each sentence starts with a capital, ends with a mark chosen from the unlocked `. ? !` (the passage ends with `.`), and unlocked marks are applied to a word with about 10 % chance each (`,` 20 %; `-` joins two words; `'s` only when `s` is unlocked).
 - **Numbers** (2 stages: `1`-`5`; all digits): `length` groups of 1 to 4 digits separated by spaces.
 - **Code** (4 stages, symbols as in LAYOUTS.md; `.` and `,` are not code symbols, so snippets avoid them, and digits): uses all lowercase letters regardless of the letter track, since identifiers need them. Stages 1 to 3 type single snippet lines (at least 4 characters, only symbols unlocked so far), about `length / 5` of them joined by spaces; stage 4 types whole snippets joined with `\n`.

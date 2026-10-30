@@ -39,9 +39,15 @@ const view = $derived(
   hash === "#lessons" ? "lessons" : hash === "#stats" ? "stats" : "practice",
 );
 
-// One practice run: the lesson, a seed so every run has new text, and the letters known when it began.
+// One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
 function begin(lesson: Lesson) {
-  return { lesson, seed: Date.now(), letterStage: ui.progress.letters };
+  // Stats are copied: finish() replaces them, and the text under the summary must not change for Repeat.
+  return {
+    lesson,
+    seed: Date.now(),
+    letterStage: ui.progress.letters,
+    stats: $state.snapshot(ui.progress.stats),
+  };
 }
 let run = $state(begin(ui.lesson));
 
@@ -73,6 +79,7 @@ const text = (words: string[], snippets: string) =>
     words,
     snippets: parseSnippets(snippets),
     letters: unlockedLetters(LAYOUT, run.letterStage) ?? "",
+    stats: run.stats,
     stage: run.lesson.track === "letters" ? 0 : run.lesson.stage,
     length:
       ui.settings.length.kind === "words"

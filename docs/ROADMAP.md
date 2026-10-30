@@ -61,7 +61,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 7. Adaptive practice
 
 - [x] Per-character EWMA stats
-- [ ] Weighted word sampling toward weak characters
+- [x] Weighted word sampling toward weak characters
 - [ ] Unlock rule with configurable targets
 - [ ] Offline session feedback sentences
 - [ ] Tests with simulated learners (strong, weak on one key, inconsistent)

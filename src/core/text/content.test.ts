@@ -61,6 +61,32 @@ describe("generateContent", () => {
     expect(only(make("words", 1), `${letters} `)).toBe(true);
   });
 
+  test("punctuation text is weighted toward weak letters", () => {
+    const strong = {
+      attempts: 30,
+      correct: 30,
+      accuracy: 1,
+      timed: 30,
+      totalMs: 9000,
+      ms: 300,
+    };
+    const all = Object.fromEntries([...letters].map((c) => [c, strong]));
+    const count = (stats: Record<string, typeof strong>) =>
+      generateContent({
+        type: "punctuation",
+        words,
+        snippets,
+        letters,
+        stats,
+        stage: 1,
+        length: 500,
+        rng: seededRng(1),
+      }).split("e").length;
+    expect(count({ ...all, e: { ...strong, accuracy: 0.5 } })).toBeGreaterThan(
+      count(all),
+    );
+  });
+
   test("punctuation stages add capitals, then marks, then brackets", () => {
     const base = `${letters}${letters.toUpperCase()} `;
     const s1 = make("punctuation", 1);
