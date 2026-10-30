@@ -158,7 +158,7 @@ Rules:
 
 - **stop mode:** a wrong character is logged as an error and the cursor stays. The character is marked `wrong` until the right key is pressed, then `corrected`. Backspace does nothing.
 - **continue mode:** a wrong character is marked `wrong` and the cursor advances. Backspace moves back one and resets that character to `pending`; a later correct entry there becomes `corrected`. Backspace can move back across words, but not before index 0.
-- The session starts on the first keystroke and finishes when the cursor passes the last character with no `wrong` characters left (in continue mode the last character typed wrong still finishes the session; the error counts).
+- The session starts on the first keystroke and finishes when the cursor passes the last character. In stop mode the cursor only passes a character once it is typed right, so no `wrong` characters remain. In continue mode, reaching the end of the text always finishes the session, even with `wrong` characters left; the errors simply count.
 - Newlines in code are typed with Enter. Leading indentation after a newline is skipped automatically, so the learner types code content, not spaces.
 
 Derived results (pure functions over the session): gross WPM, net WPM, accuracy, duration, errors per character. WPM uses the standard five characters per word.
