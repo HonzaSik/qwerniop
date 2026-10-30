@@ -62,17 +62,16 @@ export function foldSession(
   return out;
 }
 
+export const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
 const isCount = (v: unknown): v is number =>
   typeof v === "number" && Number.isInteger(v) && v >= 0;
 const isNonNegative = (v: unknown): v is number =>
   typeof v === "number" && Number.isFinite(v) && v >= 0;
 
 function parseStat(raw: unknown): CharStat | null {
-  if (typeof raw !== "object" || raw === null) return null;
-  const { attempts, correct, accuracy, timed, totalMs, ms } = raw as Record<
-    string,
-    unknown
-  >;
+  if (!isRecord(raw)) return null;
+  const { attempts, correct, accuracy, timed, totalMs, ms } = raw;
   if (
     !isCount(attempts) ||
     !isCount(correct) ||
@@ -91,9 +90,7 @@ function parseStat(raw: unknown): CharStat | null {
 /** Valid CharStats from anything read from storage; a bad entry or a key that is not one character is dropped alone. */
 export function parseCharStats(raw: unknown): CharStats {
   const out: CharStats = {};
-  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-    return out;
-  }
+  if (!isRecord(raw)) return out;
   for (const [key, value] of Object.entries(raw)) {
     if ([...key].length !== 1) continue;
     const stat = parseStat(value);

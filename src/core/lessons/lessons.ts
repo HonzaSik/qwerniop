@@ -1,5 +1,5 @@
 import type { Layout } from "../layouts/layout";
-import { type CharStats, parseCharStats } from "../stats/chars";
+import { type CharStats, isRecord, parseCharStats } from "../stats/chars";
 import { stageCount, unlockedLetters } from "./letters";
 import { type Track, trackChars, trackStages, tracksOpen } from "./tracks";
 
@@ -105,13 +105,13 @@ export function lessonTitle(id: Layout["id"], lesson: Lesson): string {
 /** Valid Progress from anything read from storage; each track falls back to 1 alone and is clamped to its stage count. */
 export function parseProgress(id: Layout["id"], raw: unknown): Progress {
   const out = initialProgress();
-  if (typeof raw !== "object" || raw === null) return out;
+  if (!isRecord(raw)) return out;
   for (const track of TRACKS) {
-    const v = (raw as Record<string, unknown>)[track];
+    const v = raw[track];
     if (typeof v === "number" && Number.isInteger(v) && v >= 1) {
       out[track] = Math.min(v, lessonCount(id, track));
     }
   }
-  out.stats = parseCharStats((raw as { stats?: unknown }).stats);
+  out.stats = parseCharStats(raw.stats);
   return out;
 }
