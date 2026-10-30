@@ -1,0 +1,53 @@
+function twice(value) {
+  return value + value
+}
+
+const total = price * count
+if (total > limit) {
+  total = limit
+}
+
+while (queue) {
+  const item = next(queue)
+  if (!item) break
+  handle(item)
+}
+
+const ready = left && right
+const either = left || right
+const label = ready ? "yes" : "no"
+
+const items = [first + second]
+const size = items[length - first]
+
+const empty = { name: "none" }
+const copy = { name: empty }
+if (copy < empty || copy > empty) {
+  stop()
+}
+
+function mark_all(list) {
+  for (const entry of list) {
+    set_flag(entry)
+  }
+}
+
+let count = start
+count += step
+count -= step
+count = count / step
+
+const text = 'plain'
+const other = "quoted"
+
+if (ready) {
+  run(task)
+} else {
+  wait(task)
+}
+
+open(door)
+show(items[first])
+use({ value })
+
+const left = right; const down = up; stop()

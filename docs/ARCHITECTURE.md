@@ -212,6 +212,12 @@ Offline text generation:
 - Randomness comes from an injected seeded RNG (`seededRng(seed)`, mulberry32), so tests are deterministic.
 - `generate({ words, allowed, length, rng })` takes the loaded word list as an argument; `core/` never fetches. Fallback rule: fewer than 100 distinct fitting words (`MIN_WORDS`) means the whole passage is pseudo-words. Pseudo-words are 3 to 5 letters, built letter by letter from pair counts over the whole word list with add-one smoothing, so any allowed letter set works.
 
+- `generateContent({ type, words, snippets, letters, stage, length, rng })` (`core/text/content.ts`) dispatches on content type; `stage` is the stage within that type's track (`core/lessons/tracks.ts`: `tracksOpen`, `trackChars`, `trackStages`). Tracks open at letter step 8 for `en-us`.
+- **Punctuation** (4 stages: capitals; `. ,`; `? ! ' " : ; -`; brackets): word text is cut into sentences of 3 to 7 words. Each sentence starts with a capital, ends with a mark chosen from the unlocked `. ? !` (the passage ends with `.`), and unlocked marks are applied to a word with about 10 % chance each (`,` 20 %; `-` joins two words; `'s` only when `s` is unlocked).
+- **Numbers** (2 stages: `1`-`5`; all digits): `length` groups of 1 to 4 digits separated by spaces.
+- **Code** (4 stages, symbols as in LAYOUTS.md; `.` and `,` are not code symbols, so snippets avoid them, and digits): uses all lowercase letters regardless of the letter track, since identifiers need them. Stages 1 to 3 type single snippet lines (at least 4 characters, only symbols unlocked so far), about `length / 5` of them joined by spaces; stage 4 types whole snippets joined with `\n`.
+- **Snippets:** `src/data/code/<lang>.txt`, plain text, snippets separated by a blank line, dedented, two-space indents, no tabs. `parseSnippets(raw)` splits them. The UI loads them with a dynamic `import("...?raw")`; word lists are fetched through a `?url` asset (`src/ui/content.ts`), so they are emitted as `.txt` files that `size-check` budgets.
+
 ### `core/settings`
 
 A single versioned `Settings` object with defaults and a `migrate(old)` function. Includes: layout, error mode, content types, session length (`words` count or `seconds`), live stats visibility, targets, appearance override, reduce motion, model server config.
