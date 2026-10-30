@@ -152,7 +152,7 @@ describe("Czech text", () => {
   test.each<ErrorMode>(["stop", "continue"])(
     "%s mode: a decomposed character counts as one character",
     (mode) => {
-      const session = run("ča", mode, "ča", 6000);
+      const session = run("c\u030Ca", mode, "\u010Da", 6000);
       expect(session.log).toHaveLength(2);
       expect(grossWpm(session)).toBeCloseTo(4);
       expect(netWpm(session)).toBeCloseTo(4);
