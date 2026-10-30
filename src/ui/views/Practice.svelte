@@ -22,10 +22,13 @@ interface Props {
   timeLimit?: number | undefined;
   /** Runs once when a session ends, whether the text ran out or the clock did. */
   onfinish: (session: Session) => void;
+  /** Weakest-key labels and a sentence, set by the parent once onfinish has run. */
+  feedback?: { weakest: string[]; sentence: string } | undefined;
   onnext: () => void;
 }
 
-let { text, title, errorMode, timeLimit, onfinish, onnext }: Props = $props();
+let { text, title, errorMode, timeLimit, onfinish, feedback, onnext }: Props =
+  $props();
 
 // Raw: a deep proxy would make every keystroke reactive. Only a new session is a change.
 let session = $state.raw(newSession());
@@ -133,7 +136,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     <!-- Stays mounted: a live region must exist before its content arrives. -->
     <div class="layer" aria-live="polite">
       {#if finished}
-        <SessionSummary {session} onrestart={restart} {onnext} />
+        <SessionSummary {session} {feedback} onrestart={restart} {onnext} />
       {/if}
     </div>
   </div>

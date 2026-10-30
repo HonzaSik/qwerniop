@@ -1,7 +1,10 @@
 <script lang="ts">
 import "./ui/styles/tokens.css";
+import { feedbackSentence, weakestKeys } from "./core/adaptive/feedback";
+import type { Targets } from "./core/adaptive/weakness";
 import type { Session } from "./core/engine/engine";
 import { sessionRecord } from "./core/engine/record";
+import { accuracy, netWpm } from "./core/engine/results";
 import { enUs } from "./core/layouts/en-us";
 import {
   completeLesson,
@@ -11,10 +14,11 @@ import {
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
 import { SESSION_LENGTHS } from "./core/settings/settings";
-import { foldSession } from "./core/stats/chars";
+import { type CharStats, foldSession } from "./core/stats/chars";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
+import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
 import {
   hydrate,
@@ -39,8 +43,18 @@ const view = $derived(
   hash === "#lessons" ? "lessons" : hash === "#stats" ? "stats" : "practice",
 );
 
+interface Run {
+  lesson: Lesson;
+  seed: number;
+  letterStage: number;
+  stats: CharStats;
+  targets: Targets;
+  /** Set when the session ends; not part of what the text depends on. */
+  feedback?: { weakest: string[]; sentence: string };
+}
+
 // One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
-function begin(lesson: Lesson) {
+function begin(lesson: Lesson): Run {
   // Stats are copied: finish() replaces them, and the text under the summary must not change for Repeat.
   return {
     lesson,
@@ -66,12 +80,38 @@ function finish(session: Session): void {
     ...ui.progress,
     stats: foldSession(ui.progress.stats, session.log),
   };
+  const track = run.lesson.track;
+  const before = ui.progress[track];
   ui.progress = completeLesson(
     LAYOUT,
     progress,
     run.lesson,
     ui.settings.targets,
   );
+  const after = ui.progress[track];
+  const labels = weakestKeys(
+    enUs,
+    ui.progress.stats,
+    session.log.map((s) => s.expected),
+    ui.settings.targets,
+    3,
+  ).map((code) => {
+    const key = enUs.keys.find((k) => k.code === code);
+    return key ? keyLabel(key).main : code;
+  });
+  run.feedback = {
+    weakest: labels,
+    sentence: feedbackSentence({
+      wpm: netWpm(session),
+      accuracy: accuracy(session),
+      targets: ui.settings.targets,
+      weakest: labels,
+      unlocked:
+        after > before
+          ? lessonTitle(LAYOUT, { track, stage: after })
+          : undefined,
+    }),
+  };
   saveProgress();
   saveSession(sessionRecord(session, LAYOUT, run.lesson, Date.now()));
 }
@@ -120,6 +160,7 @@ const text = (words: string[], snippets: string) =>
         title={lessonTitle(LAYOUT, run.lesson)}
         errorMode={ui.settings.errorMode}
         timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
+        feedback={run.feedback}
         onfinish={finish}
         onnext={() => start(nextLesson(LAYOUT, run.lesson))}
       />

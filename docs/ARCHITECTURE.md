@@ -192,10 +192,11 @@ Smoothing factor `α = 0.1` per attempt, in log order; a character's first sampl
 
 ### `core/adaptive`
 
-Two decisions:
+Three decisions:
 
 1. **Which words to show.** `weakness(stat)` (`core/adaptive/weakness.ts`) is 0 to 1: the mean of an accuracy gap `1 - 0.05 / errorRate` and a speed gap `1 - targetMs / ms` (each 0 at or better than target, 1 with no timed samples), blended toward 1 by `min(1, attempts / 30)`, so unseen and newly unlocked characters count as fully weak. A word weighs `0.25 + Σ weakness(char)` over its characters; words are sampled by cumulative weight. A drawn word that is one of the previous 8 is redrawn up to 10 times. Pseudo-word letters are weighted by `0.25 + weakness`. Targets come from Settings: `weakness(stat, targets)`.
 2. **When to unlock the next key.** All currently unlocked characters must meet the targets (defaults: 95 % accuracy and 35 WPM equivalent speed, both configurable) over at least 30 recent attempts each. A character meets the targets when its weakness is 0. Each track checks its own unlocked characters after the session's stats are folded, at most one stage per session. The next key is the next one in the lesson order for the current layout.
+3. **Session feedback.** `weakestKeys(layout, stats, chars, targets, n)` (`core/adaptive/feedback.ts`) ranks the distinct non-whitespace characters typed in the session by `weakness`, drops those at 0, maps each to the main key code of its `strokesFor` path (merging `a` and `A`) and returns up to `n` codes; the UI turns codes into labels. `feedbackSentence({ wpm, accuracy, targets, weakest, unlocked })` returns one sentence by the rule list in DESIGN.md. Pure and deterministic; a model-written summary (AI.md mode 4) replaces only the sentence.
 
 ### `core/lessons`
 

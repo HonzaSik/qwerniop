@@ -10,11 +10,12 @@ import {
 interface Props {
   /** Finished, so its results no longer change. */
   session: Session;
+  feedback?: { weakest: string[]; sentence: string } | undefined;
   onrestart: () => void;
   onnext: () => void;
 }
 
-let { session, onrestart, onnext }: Props = $props();
+let { session, feedback, onrestart, onnext }: Props = $props();
 
 function onkeydown(event: KeyboardEvent): void {
   if (isRestartKey(event, event.target instanceof HTMLButtonElement)) {
@@ -46,7 +47,14 @@ function focusOnShow(button: HTMLButtonElement): void {
       <dt>Time</dt>
       <dd>{formatDuration(duration(session))}</dd>
     </div>
+    {#if feedback && feedback.weakest.length > 0}
+      <div>
+        <dt>Weakest keys</dt>
+        <dd>{feedback.weakest.join(" ")}</dd>
+      </div>
+    {/if}
   </dl>
+  {#if feedback}<p>{feedback.sentence}</p>{/if}
   <div class="actions">
     <button class="primary" aria-keyshortcuts="Enter" onclick={onnext} use:focusOnShow>
       Continue
@@ -78,6 +86,12 @@ function focusOnShow(button: HTMLButtonElement): void {
     display: flex;
     gap: var(--space-6);
     margin: 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-size-md);
   }
 
   dt {
