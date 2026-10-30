@@ -12,7 +12,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] `scripts/size-check.mjs` enforcing the budgets in PERFORMANCE.md
 - [x] Import boundary check: `src/core/` imports nothing outside itself
 - [x] `package.json` scripts: `dev`, `build`, `preview`, `check`, `test`, `test:bench`
-- [ ] GitHub Actions workflow running check, test, build on pushes and pull requests
+- [x] GitHub Actions workflow running check, test, build on pushes and pull requests
 - [ ] `App.svelte` rendering the app name with tokens.css applied, in light and dark
 
 **Done when** a clean clone runs `pnpm install && pnpm check && pnpm test && pnpm build` with no warnings.
