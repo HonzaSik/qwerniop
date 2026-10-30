@@ -86,7 +86,7 @@ interface KeyDef {
   row: 0 | 1 | 2 | 3 | 4  // 0 = number row, 4 = space row
   width?: number          // in key units, default 1
   finger: Finger
-  base: string            // character without modifiers
+  base: string            // "" for keys that type nothing (Shift, CapsLock, Backspace)
   shift?: string          // character with Shift
   deadBase?: string       // dead key produced without Shift, e.g. "´"
   deadShift?: string      // dead key produced with Shift, e.g. "ˇ"

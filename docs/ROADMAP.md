@@ -35,7 +35,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 4. Layouts and keyboard
 
-- [ ] `en-us` layout data, verified against XKB
+- [x] `en-us` layout data, verified against XKB
 - [ ] `strokesFor`, `fingerFor` with tests
 - [ ] On-screen keyboard component from layout data, ANSI geometry
 - [ ] Next-key highlight, opposite Shift, pressed and wrong flashes

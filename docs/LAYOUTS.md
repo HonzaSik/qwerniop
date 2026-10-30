@@ -9,11 +9,13 @@ Layout data must match what the operating system actually produces. On Linux, th
 
 When creating or changing a layout file, compare every key against these and note any differences from the Windows and macOS layouts of the same name in the layout file's header comment. **The tables below are a starting point and must be verified key by key**, especially the Czech number row, the key left of `1`, and the dead keys.
 
+`tests/xkb-<id>.test.mjs` compares the layout with the XKB file and is skipped when the file is absent.
+
 Layouts live in `src/core/layouts/<id>.ts` as `Layout` objects (see ARCHITECTURE.md).
 
 ## Physical rows
 
-Use ISO geometry for `cs-qwertz` (extra key `IntlBackslash` left of `Z`/`Y`) and ANSI for `en-us`. The on-screen keyboard draws from this data, so the geometry is part of the layout.
+Use ISO geometry for `cs-qwertz` (extra key `IntlBackslash` left of `Z`/`Y`) and ANSI for `en-us`. The on-screen keyboard draws from this data, so the geometry is part of the layout. Only keys in the finger map are listed; row 4 is Space only.
 
 ## Finger map
 
