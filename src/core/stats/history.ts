@@ -19,7 +19,7 @@ export function recentSessions(
 
 /**
  * Wrong attempts per physical key, summed over all sessions of the layout.
- * Source is the session records' `errors`; milestone 7 can swap in per-character stats here.
+ * Source is the session records' `errors`.
  * Shift is credited too, since a shifted character needs it.
  */
 export function keyErrors(

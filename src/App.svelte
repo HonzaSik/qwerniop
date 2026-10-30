@@ -11,6 +11,7 @@ import {
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
 import { SESSION_LENGTHS } from "./core/settings/settings";
+import { foldSession } from "./core/stats/chars";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
@@ -52,7 +53,8 @@ function start(lesson: Lesson): void {
 
 // Storage loads alongside the word list, so it adds no wait of its own; any failure leaves the defaults.
 function finish(session: Session): void {
-  ui.progress = completeLesson(LAYOUT, ui.progress, run.lesson);
+  const done = completeLesson(LAYOUT, ui.progress, run.lesson);
+  ui.progress = { ...done, stats: foldSession(done.stats, session.log) };
   saveProgress();
   saveSession(sessionRecord(session, LAYOUT, run.lesson, Date.now()));
 }

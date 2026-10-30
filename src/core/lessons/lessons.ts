@@ -1,4 +1,5 @@
 import type { Layout } from "../layouts/layout";
+import { type CharStats, parseCharStats } from "../stats/chars";
 import { stageCount, unlockedLetters } from "./letters";
 import { type Track, trackChars, trackStages, tracksOpen } from "./tracks";
 
@@ -10,8 +11,8 @@ export interface Lesson {
   stage: number;
 }
 
-/** Stages unlocked per track. Interim rule until the adaptive unlock (milestone 7): finishing a lesson unlocks the next one in its track. */
-export type Progress = Record<LessonTrack, number>;
+/** Stages unlocked per track, and the per-character stats. Interim rule until the adaptive unlock (milestone 7): finishing a lesson unlocks the next one in its track. */
+export type Progress = Record<LessonTrack, number> & { stats: CharStats };
 
 export const TRACKS: readonly LessonTrack[] = [
   "letters",
@@ -25,6 +26,7 @@ export const initialProgress = (): Progress => ({
   punctuation: 1,
   numbers: 1,
   code: 1,
+  stats: {},
 });
 
 export function lessonCount(id: Layout["id"], track: LessonTrack): number {
@@ -110,5 +112,6 @@ export function parseProgress(id: Layout["id"], raw: unknown): Progress {
       out[track] = Math.min(v, lessonCount(id, track));
     }
   }
+  out.stats = parseCharStats((raw as { stats?: unknown }).stats);
   return out;
 }

@@ -79,4 +79,25 @@ describe("parseExport", () => {
     expect(r.ok && r.value.settings).toEqual(defaultSettings());
     expect(r.ok && r.value.progress["en-us"]).toEqual(initialProgress());
   });
+
+  it("keeps stats through a round trip and reads old progress as empty stats", () => {
+    const stat = {
+      attempts: 2,
+      correct: 1,
+      accuracy: 0.5,
+      timed: 1,
+      ms: 300,
+      totalMs: 300,
+    };
+    const data = {
+      settings: defaultSettings(),
+      progress: { "en-us": { ...initialProgress(), stats: { a: stat } } },
+      sessions: [],
+    };
+    const r = parseExport(JSON.parse(buildExport(data, new Date(0))));
+    expect(r.ok && r.value.progress["en-us"].stats).toEqual({ a: stat });
+    const { stats: _, ...old } = initialProgress();
+    const o = parseExport(file({ progress: { "en-us": old } }));
+    expect(o.ok && o.value.progress["en-us"].stats).toEqual({});
+  });
 });

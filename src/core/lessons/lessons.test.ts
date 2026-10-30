@@ -93,4 +93,19 @@ describe("parseProgress", () => {
       Object.keys(initialProgress()).sort(),
     );
   });
+
+  test("reads missing stats as empty and keeps valid ones", () => {
+    expect(parseProgress("en-us", { letters: 2 }).stats).toEqual({});
+    const stat = {
+      attempts: 1,
+      correct: 1,
+      accuracy: 1,
+      timed: 0,
+      ms: 0,
+      totalMs: 0,
+    };
+    expect(
+      parseProgress("en-us", { stats: { a: stat, ab: stat } }).stats,
+    ).toEqual({ a: stat });
+  });
 });

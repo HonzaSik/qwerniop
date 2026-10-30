@@ -13,7 +13,7 @@ export interface SessionRecord {
   wpm: number;
   accuracy: number;
   durationMs: number;
-  /** Wrong first-attempts per expected character. */
+  /** Wrong keystrokes per expected character. */
   errors: Record<string, number>;
 }
 
