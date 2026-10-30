@@ -109,6 +109,11 @@ describe("generateContent", () => {
 });
 
 describe("built-in snippets", () => {
+  test("each snippet is syntactically valid JavaScript", () => {
+    // Parse only: identifiers like `price` are deliberately left undeclared.
+    for (const s of snippets) expect(() => new Function(s)).not.toThrow();
+  });
+
   test("parse into several snippets, typable, no dots, commas, digits or tabs", () => {
     expect(snippets.length).toBeGreaterThanOrEqual(8);
     for (const s of snippets) {

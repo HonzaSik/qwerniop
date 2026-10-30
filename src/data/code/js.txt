@@ -2,7 +2,7 @@ function twice(value) {
   return value + value
 }
 
-const total = price * count
+let total = price * count
 if (total > limit) {
   total = limit
 }
