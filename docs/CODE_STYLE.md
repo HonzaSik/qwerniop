@@ -48,4 +48,4 @@ Biome formats and lints. These are the rules it can't enforce.
 ## Git
 
 - Small, focused commits. Imperative subject under 72 characters.
-- `main` is always green: `pnpm check && pnpm test && pnpm build` pass on every commit.
+- `main` is always green: `pnpm check && pnpm test && pnpm build` pass on every commit, starting from the end of milestone 1 (see ROADMAP.md).

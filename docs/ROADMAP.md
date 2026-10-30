@@ -4,14 +4,16 @@ Each milestone is small enough to finish and review in one sitting, and ends wit
 
 ## 1. Project setup
 
-- [ ] Vite + Svelte 5 + TypeScript (`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) with no template leftovers: no demo components, no sample assets, no counter
+While milestone 1 is in progress, the `check`, `test` and `build` scripts are added step by step. Verify each item with the tools it adds (for example `pnpm exec vite build`, `pnpm exec tsc --noEmit`). The rule that every commit passes all three applies from the end of milestone 1.
+
+- [ ] Vite + Svelte 5 + TypeScript (`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) with no template leftovers: no demo components, no sample assets, no counter. Creates `index.html`, `src/main.ts` and an empty `src/App.svelte` as the entry point described in ARCHITECTURE.md. Pins the pnpm version in the `packageManager` field.
 - [ ] Biome configured; verify `.svelte` support, add `svelte-check` for components
 - [ ] Vitest with one passing test
 - [ ] `scripts/size-check.mjs` enforcing the budgets in PERFORMANCE.md
 - [ ] Import boundary check: `src/core/` imports nothing outside itself
 - [ ] `package.json` scripts: `dev`, `build`, `preview`, `check`, `test`, `test:bench`
 - [ ] GitHub Actions workflow running check, test, build on pushes and pull requests
-- [ ] Empty `App.svelte` rendering the app name with tokens.css applied, in light and dark
+- [ ] `App.svelte` rendering the app name with tokens.css applied, in light and dark
 
 **Done when** a clean clone runs `pnpm install && pnpm check && pnpm test && pnpm build` with no warnings.
 
