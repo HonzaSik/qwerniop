@@ -162,7 +162,15 @@ Rules:
 - The session starts on the first keystroke and finishes when the cursor passes the last character. In stop mode the cursor only passes a character once it is typed right, so no `wrong` characters remain. In continue mode, reaching the end of the text always finishes the session, even with `wrong` characters left; the errors simply count.
 - Newlines in code are typed with Enter. Leading indentation after a newline is skipped automatically, so the learner types code content, not spaces.
 
-Derived results (pure functions over the session): gross WPM, net WPM, accuracy, duration, errors per character. WPM uses the standard five characters per word.
+Derived results are pure functions over the session. WPM uses the standard five characters per word, and minutes come from the duration.
+
+- **Duration:** `finishedAt - startedAt` when finished, `lastKeyAt - startedAt` when unfinished, 0 when unstarted.
+- **Gross WPM:** `log.length` / 5 / minutes.
+- **Net WPM:** (`correct` + `corrected` characters) / 5 / minutes.
+- **Accuracy:** positions whose first attempt was correct / positions attempted, as a fraction from 0 to 1.
+- WPM is 0 with no attempts or zero duration. Accuracy is 0 with no attempts. Values stay unrounded in `core/`.
+
+Errors per character is also derived from the session.
 
 ### `core/stats`
 

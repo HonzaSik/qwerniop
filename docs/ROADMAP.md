@@ -20,7 +20,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 2. Typing engine
 
 - [x] `core/engine` as specified in ARCHITECTURE.md, both error modes
-- [ ] Results: gross WPM, net WPM, accuracy, duration
+- [x] Results: gross WPM, net WPM, accuracy, duration
 - [ ] Code-mode newline and indentation handling
 - [ ] Tests covering: correct run, errors in both modes, Backspace at start, finish rules, Unicode (Czech characters), newline skipping
 - [ ] Benchmark with baseline recorded
