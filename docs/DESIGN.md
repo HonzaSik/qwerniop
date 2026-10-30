@@ -42,6 +42,21 @@ Defined in `src/ui/styles/tokens.css` as custom properties, with a light set and
 | `--error` | Wrong character |
 | `--error-bg` | Wrong character background tint |
 
+Values (contrast ratios measured against `--bg`; `--text-3` is at least 4.97:1 on `--surface` too, `--error` on `--error-bg` is 4.89:1 light and 5.40:1 dark):
+
+| Token | Light | Dark |
+|---|---|---|
+| `--bg` | `#ffffff` | `#1c1c1e` |
+| `--surface` | `#f2f2f7` | `#2c2c2e` |
+| `--text` | `#1c1c1e` (17.0) | `#f2f2f7` (15.3) |
+| `--text-2` | `#545458` (7.5) | `#aeaeb2` (7.7) |
+| `--text-3` | `#68686d` (5.5) | `#9a9aa0` (6.1) |
+| `--separator` | `#d1d1d6` | `#3a3a3c` |
+| `--accent` | `#0a64c8` (5.7) | `#4d9bff` (6.0) |
+| `--correct` | `#1c1c1e` | `#f2f2f7` |
+| `--error` | `#c4271d` (5.8) | `#ff7b72` (6.8) |
+| `--error-bg` | `#fde8e6` | `#4a2220` |
+
 Typed-correct text is shown as normal primary text and untyped text as `--text-3`; the contrast between the two is the progress indicator. Green is not used for "correct", only red for "wrong". One accent hue (a calm blue) across the app.
 
 Finger colours for the keyboard are eight muted hues with matching lightness, defined separately in light and dark. They are only shown on the keyboard, never in the text.
