@@ -11,14 +11,16 @@ interface Props {
   /** Finished, so its results no longer change. */
   session: Session;
   onrestart: () => void;
+  onnext: () => void;
 }
 
-let { session, onrestart }: Props = $props();
+let { session, onrestart, onnext }: Props = $props();
 
 function onkeydown(event: KeyboardEvent): void {
   if (isRestartKey(event, event.target instanceof HTMLButtonElement)) {
     event.preventDefault();
-    onrestart();
+    if (event.key === "Enter") onnext();
+    else onrestart();
   }
 }
 
@@ -46,7 +48,7 @@ function focusOnShow(button: HTMLButtonElement): void {
     </div>
   </dl>
   <div class="actions">
-    <button class="primary" aria-keyshortcuts="Enter" onclick={onrestart} use:focusOnShow>
+    <button class="primary" aria-keyshortcuts="Enter" onclick={onnext} use:focusOnShow>
       Continue
     </button>
     <button aria-keyshortcuts="R" onclick={onrestart}>Repeat</button>

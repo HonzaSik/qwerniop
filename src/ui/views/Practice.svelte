@@ -14,12 +14,17 @@ import { KEYBOARD_MODES, ui } from "../state.svelte";
 
 interface Props {
   text: string;
+  /** Names the lesson above the text, as in "Lesson 5 · e i". */
+  title: string;
   errorMode: ErrorMode;
   /** Milliseconds; absent for a session that ends with the text. */
   timeLimit?: number | undefined;
+  /** Runs once when a session ends, whether the text ran out or the clock did. */
+  onfinish: () => void;
+  onnext: () => void;
 }
 
-let { text, errorMode, timeLimit }: Props = $props();
+let { text, title, errorMode, timeLimit, onfinish, onnext }: Props = $props();
 
 // Raw: a deep proxy would make every keystroke reactive. Only a new session is a change.
 let session = $state.raw(newSession());
@@ -59,6 +64,7 @@ function end(): void {
   // Removing the focused textarea fires blur during Svelte's update, where a pause may not set state.
   stop?.();
   finished = true;
+  onfinish();
 }
 
 // One slow interval, not per keystroke. Keystroke times are timeStamp minus paused time, so this clock is too.
@@ -109,6 +115,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
 </script>
 
 <main aria-label="Practice">
+  <h1>{title}</h1>
   {#if timeLimit !== undefined}
     <p class="timer" aria-label="Time left">{secondsLeft}</p>
   {/if}
@@ -125,7 +132,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     <!-- Stays mounted: a live region must exist before its content arrives. -->
     <div class="layer" aria-live="polite">
       {#if finished}
-        <SessionSummary {session} onrestart={restart} />
+        <SessionSummary {session} onrestart={restart} {onnext} />
       {/if}
     </div>
   </div>
@@ -170,6 +177,14 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     background: var(--surface);
     color: var(--text);
     font: inherit;
+  }
+
+  h1 {
+    margin: 0 0 var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-size-md);
+    font-weight: normal;
+    text-align: center;
   }
 
   .timer {

@@ -13,6 +13,10 @@ const ADDS: Record<Track, readonly string[]> = {
   code: ["()[]{}", "=+-*/<>", "_&|!?:;'\"", ""],
 };
 
+/** The letter step at which the other tracks open; undefined for a layout without a letter order. */
+export const tracksStart = (id: Layout["id"]): number | undefined =>
+  START_STEP[id];
+
 export function tracksOpen(id: Layout["id"], letterStage: number): boolean {
   const start = START_STEP[id];
   return start !== undefined && letterStage >= start;

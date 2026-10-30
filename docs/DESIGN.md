@@ -88,12 +88,20 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - Caret is a 2 px bar that glides to the next character with a short transform transition. Its blink pauses while typing.
 - Three lines of text are visible at all times, including for shorter passages, at a line height of 1.6; the view scrolls by whole lines, without animation if reduce motion is on.
 - The caret stays on the middle row after the first line. Near the end the scroll stops so the last three lines stay filled, and the caret drops to the bottom row: `top = max(0, min(line - 1, lineCount - 3))`. Backspace uses the same rule. At the end of the text the caret sits after the last character, with no extra line.
-- Timed sessions show the seconds left in `text-2`, tabular numerals, centred above the text; it updates once a second and is outside the text view. Until Settings exists (milestone 6) the length is a select in `App.svelte` beside the content picker, and lives in `src/ui/state.svelte.ts`. Pausing (blur) stops the clock.
+- Timed sessions show the seconds left in `text-2`, tabular numerals, centred above the text; it updates once a second and is outside the text view. Until Settings exists (milestone 6) the length is a select at the top right of the Practice view (`App.svelte`), and lives in `src/ui/state.svelte.ts`. Pausing (blur) stops the clock.
 - End of session: text fades out and a summary appears in place: WPM, accuracy, time, weakest keys, a sentence of feedback, and "Continue" (Enter) / "Repeat" (R).
   - WPM is net WPM, as a whole number. Accuracy is a whole percent that shows 100 % only for a session with no errors. Time is `m:ss`.
   - Weakest keys and the feedback sentence appear once the data behind them exists: per-character stats and feedback sentences in roadmap milestone 7, with physical keys from `strokesFor` in milestone 4. A single session's error count is not what "weakest" means here, so the summary leaves both out until then rather than approximating them.
-  - "Continue" starts the next passage. Until lessons supply one in milestone 5 the only passage is the fixed one, so it starts that passage again and behaves like "Repeat".
+  - "Continue" (Enter) starts the next lesson of the same track, with newly generated text; after the last lesson of a track it stays on that lesson with new text. "Repeat" (R) restarts the same text.
   - The text keeps its place under the summary, faded out and hidden from assistive technology, so the view does not move. Focus lands on "Continue".
+
+## Lessons view
+
+- Reached from the nav links (Practice, Lessons) at the top left; the view is the location hash (`#practice`, `#lessons`), so Back works. Practice is the default and shows the current lesson, titled "Lesson 5 · e i" above the text (other tracks: "Numbers 2 · 6 7 8 9 0").
+- One section per track: Letters, Punctuation, Numbers, Code. Each lists its lessons as buttons in a grid, with "Unlocked n of m" under the heading. A lesson is a stage of its track and shows the keys it adds; capitals and whole code snippets, which add no key, are named instead. Done lessons say "Done", the current lesson has an accent outline, locked ones are disabled. A button starts its lesson (Enter or click).
+- The three non-letter tracks show "Opens at letter lesson 8" until the letter track reaches that step.
+- Interim unlock rule until the adaptive rule (milestone 7): finishing a session of a lesson, however it went, unlocks the next lesson of its track. Progress is the unlocked stage count per track, kept in memory in `src/ui/state.svelte.ts` until milestone 6 stores it as the `progress` record. The last lesson of a track shows no "Done", since an unlocked count cannot tell it from the current one.
+- Track lessons use the letters unlocked when the lesson started.
 
 ## On-screen keyboard
 
