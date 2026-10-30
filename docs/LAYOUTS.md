@@ -71,7 +71,7 @@ Note that `Y` and `Z` are swapped compared to US, and digits need Shift.
 | `ˇ` | č ď ě ň ř š ť ž, Č Ď Ě Ň Ř Š Ť Ž |
 | `¨` | ä ë ö ü (rare, supported but not taught) |
 
-A dead key followed by Space produces the accent character itself.
+A dead key followed by Space produces the accent character itself. That is expressed as a `" "` entry in `compose`, not computed.
 
 Characters with a dedicated key (`ě š č ř ž ý á í é ú ů`) are taught on that key. Characters only reachable through a dead key (`ó ď ň ť` and all uppercase accented letters) are taught as two strokes. `strokesFor` must return the dedicated key when one exists, so the trainer never teaches the slower path.
 

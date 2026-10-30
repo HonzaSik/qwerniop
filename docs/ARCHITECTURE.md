@@ -101,10 +101,10 @@ interface Layout {
 }
 ```
 
-Helpers derived once per layout and cached:
+Helpers derived once per layout and cached (`core/layouts/strokes.ts`):
 
-- `strokesFor(char)` returns the key presses that produce a character (one key, key plus Shift, or dead key then key). Used for finger guidance, for deciding whether a character is "unlocked", and for per-key stats.
-- `fingerFor(code)`.
+- `strokesFor(layout, char): readonly Stroke[] | undefined`, where `Stroke = { code, shift: 'ShiftLeft' | 'ShiftRight' | null }`. It returns the key presses that produce a character (one key, key plus opposite-hand Shift, or dead key then key), and `undefined` when the layout can't produce it. A dedicated key or the unshifted layer wins over a shifted or composed path. Used for finger guidance, for deciding whether a character is "unlocked", and for per-key stats.
+- `fingerFor(layout, code): Finger | undefined`.
 
 The full key data and finger map are specified in [LAYOUTS.md](LAYOUTS.md).
 
