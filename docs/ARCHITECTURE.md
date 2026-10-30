@@ -271,7 +271,9 @@ Export produces one JSON file:
 { "app": "tenfold", "schema": 1, "exportedAt": "…", "settings": {…}, "progress": {…}, "sessions": […] }
 ```
 
-Import validates the shape, runs migrations if `schema` is older, shows a summary, and asks before replacing current data. Model server settings are excluded from export.
+Import is a full replace, not a merge: settings, progress and every session are swapped for the file's. `parseExport(unknown)` (`core/export/export.ts`) returns `{ ok, value, droppedSessions }` or `{ ok: false, reason }`. It rejects a file that is not a Tenfold export, has no integer `schema` of at least 1, has a `schema` newer than the app, or has no `sessions` array. Settings and progress repair themselves field by field (`migrateSettings`, `parseProgress`; only `en-us` progress is read); invalid sessions are dropped and counted. There is no older schema than 1, so no migration step exists yet; it goes into `parseExport` with schema 2. Model server settings are excluded from export.
+
+The UI (`ui/components/DataTransfer.svelte`, at the bottom of the Stats view) reads the chosen file only if it is at most 5 MB, parses it and shows a modal `<dialog>` with the counts of what is replaced and what is skipped before anything is written. `Store.replaceAll` discards queued writes, then clears and fills all three stores in one readwrite transaction, so a failure changes nothing, and memory is updated only after it succeeds. With no database the import updates memory only and says so; sessions have no in-memory home, so they are not kept. Export downloads `tenfold-YYYY-MM-DD.json` through a Blob and object URL.
 
 ## Model integration (`src/ai/`)
 

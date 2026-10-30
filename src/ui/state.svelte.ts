@@ -1,4 +1,5 @@
 import type { SessionRecord } from "../core/engine/record";
+import type { AppData } from "../core/export/export";
 import {
   initialProgress,
   type Lesson,
@@ -62,3 +63,28 @@ export const readSessions = async (): Promise<SessionRecord[]> => {
     return [];
   }
 };
+
+/** The whole app state as export text. Memory-only has no saved sessions to include. */
+export async function exportText(): Promise<string> {
+  const { buildExport } = await import("../core/export/export");
+  return buildExport(
+    {
+      settings: $state.snapshot(ui.settings),
+      progress: { "en-us": $state.snapshot(ui.progress) },
+      sessions: await readSessions(),
+    },
+    new Date(),
+  );
+}
+
+/**
+ * Replaces everything. Saved data is written first, so a failed write throws
+ * and leaves memory as it was. Resolves false in memory-only mode.
+ */
+export async function replaceAll(data: AppData): Promise<boolean> {
+  await store?.replaceAll(data);
+  ui.settings = data.settings;
+  ui.progress = data.progress["en-us"];
+  ui.lesson = { track: "letters", stage: 1 };
+  return store !== null;
+}

@@ -2,16 +2,22 @@
 import type { SessionRecord } from "../../core/engine/record";
 import { enUs } from "../../core/layouts/en-us";
 import { heatScale, keyErrors, recentSessions } from "../../core/stats/history";
+import DataTransfer from "../components/DataTransfer.svelte";
 import Keyboard from "../components/Keyboard.svelte";
 import { keyLabel } from "../components/keyboard-labels";
 import LineChart from "../components/LineChart.svelte";
+import { readSessions } from "../state.svelte";
 
 interface Props {
   /** Resolves when storage has been read; opening the view starts the read. */
   sessions: Promise<SessionRecord[]>;
+  onimported: () => void;
 }
 
-let { sessions }: Props = $props();
+let { sessions: opened, onimported }: Props = $props();
+// Re-read after an import so the charts show the new data.
+let reread: Promise<SessionRecord[]> | null = $state(null);
+const sessions = $derived(reread ?? opened);
 
 const WORST_KEYS = 5;
 
@@ -58,6 +64,7 @@ function summarise(records: SessionRecord[]) {
   {:catch}
     <p class="note">Stats could not be loaded.</p>
   {/await}
+  <DataTransfer onimported={() => { reread = readSessions(); onimported(); }} />
 </main>
 
 <style>

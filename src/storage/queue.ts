@@ -9,8 +9,11 @@ export interface Writer {
   addSession(record: SessionRecord): Promise<unknown>;
 }
 
-export interface WriteQueue extends Omit<Store, "readSessions"> {
+export interface WriteQueue
+  extends Pick<Store, "saveSettings" | "saveProgress" | "addSession"> {
   flush(): Promise<void>;
+  /** Drops queued writes; a write already in flight finishes first when `flush` is awaited. */
+  discard(): void;
 }
 
 /**
@@ -86,5 +89,10 @@ export function createWriteQueue(
       request();
     },
     flush,
+    discard() {
+      settings = null;
+      progress = null;
+      sessions = [];
+    },
   };
 }

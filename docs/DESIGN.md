@@ -109,6 +109,8 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - History: two plain SVG line charts, Speed (net wpm) and Accuracy (percent, axis fixed 0 to 100), over the last 30 sessions of the layout, oldest left, one point per session; no x labels. Y axis has ticks at 0, half and a round top (1, 2 or 5 times a power of ten). Each chart has a text alternative (`role="img"` with latest, lowest and highest) and the latest value next to its title. Line is `--accent`, grid `--separator`, width `--chart-line-width`.
 - Errors by key: the keyboard in heat mode. A key's heat is its wrong-attempt count over all sessions of the layout, divided by the worst key's count; fill is `--finger-t` mixed toward `--error` by heat times `--heat-max-mix` (75 %). Shift is counted for shifted characters (via `strokesFor`). Colour is not the only signal: a "Most missed" line lists the top five keys with counts. Source is the session records' `errors`; milestone 7 replaces it with per-character stats in `core/stats/history.ts`. With no errors the board is replaced by "No errors recorded."
 
+- Your data: below the history, always shown, with Export and Import buttons and a status line (errors in `--error`, announced as an alert). Import asks first in a modal `<dialog>` (never `window.confirm`): "Replace your data?", the counts of settings, progress and sessions replaced, and a line for sessions skipped as invalid; buttons Cancel and Replace. After a successful import the current lesson resets to Lesson 1.
+
 ## On-screen keyboard
 
 - Drawn from layout data, ISO or ANSI geometry.

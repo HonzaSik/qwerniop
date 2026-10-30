@@ -82,4 +82,13 @@ describe("write queue", () => {
     await queue.flush();
     expect(log.at(-1)).toBe('settings:{"v":2}');
   });
+
+  it("discard drops queued writes", async () => {
+    const { queue, log } = setup();
+    queue.saveSettings({ a: 1 } as never);
+    queue.addSession(rec(1));
+    queue.discard();
+    await queue.flush();
+    expect(log).toEqual([]);
+  });
 });

@@ -91,7 +91,7 @@ const text = (words: string[], snippets: string) =>
   {#if view === "lessons"}
     <Lessons layout={LAYOUT} progress={ui.progress} current={ui.lesson} onstart={start} />
   {:else if view === "stats"}
-    {#key hash}<Stats sessions={readSessions()} />{/key}
+    {#key hash}<Stats sessions={readSessions()} onimported={() => (run = begin(ui.lesson))} />{/key}
   {:else}
     {#key `${run.seed}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
       <Practice

@@ -49,6 +49,33 @@ export class Database {
     });
   }
 
+  /**
+   * Replaces the contents of several stores in one transaction: all or nothing.
+   * A null key is for auto-increment stores.
+   */
+  replaceAll(
+    contents: Record<
+      string,
+      ReadonlyArray<readonly [IDBValidKey | null, unknown]>
+    >,
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const names = Object.keys(contents);
+      const tx = this.db.transaction(names, "readwrite");
+      for (const [name, rows] of Object.entries(contents)) {
+        const os = tx.objectStore(name);
+        os.clear();
+        for (const [key, value] of rows) {
+          if (key === null) os.put(value);
+          else os.put(value, key);
+        }
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  }
+
   close(): void {
     this.db.close();
   }

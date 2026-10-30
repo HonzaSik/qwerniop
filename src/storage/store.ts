@@ -1,4 +1,5 @@
 import { parseSessionRecord, type SessionRecord } from "../core/engine/record";
+import type { AppData } from "../core/export/export";
 import type { Layout } from "../core/layouts/layout";
 import { type Progress, parseProgress } from "../core/lessons/lessons";
 import { migrateSettings, type Settings } from "../core/settings/settings";
@@ -19,6 +20,8 @@ export interface Store {
   addSession(record: SessionRecord): void;
   /** Flushes queued writes first so a session just finished is included. Invalid records are dropped. */
   readSessions(): Promise<SessionRecord[]>;
+  /** Replaces everything saved, in one transaction; rejects with nothing changed on failure. */
+  replaceAll(data: AppData): Promise<void>;
 }
 
 /**
@@ -77,6 +80,16 @@ function writer(db: Database, layout: Layout["id"]): Store {
       await queue.flush();
       const rows = await db.getAll<unknown>("sessions");
       return rows.flatMap((row) => parseSessionRecord(row) ?? []);
+    },
+    async replaceAll(data) {
+      // Queued older values must not land on top of the import.
+      queue.discard();
+      await queue.flush();
+      await db.replaceAll({
+        settings: [[SETTINGS_KEY, data.settings]],
+        progress: Object.entries(data.progress),
+        sessions: data.sessions.map((r) => [null, r]),
+      });
     },
   };
 }
