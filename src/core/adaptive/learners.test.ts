@@ -119,9 +119,10 @@ describe("simulated learners", () => {
 
   test("strong learner climbs one lesson at a time", () => {
     expectSteady(strongRun);
-    // Five sessions to reach 30 attempts per letter, then roughly one lesson per two sessions.
-    expect(stagesOf(strongRun)[17]).toBeGreaterThanOrEqual(8);
-    expect(strongRun.at(-1)?.progress.letters).toBeGreaterThanOrEqual(7);
+    // Measured: 2,3,4,5,5,6,6,7,7,8,... 12 at session 24; bounds leave margin.
+    expect(stagesOf(strongRun)[0]).toBeGreaterThanOrEqual(2);
+    expect(stagesOf(strongRun)[11]).toBeGreaterThanOrEqual(8);
+    expect(strongRun.at(-1)?.progress.letters).toBeGreaterThanOrEqual(10);
     for (const r of strongRun) {
       expect(r.sentence).toMatch(UNLOCK);
       // The unlock sentence wins over every other rule.
@@ -147,18 +148,17 @@ describe("simulated learners", () => {
   test("learner weak on k unlocks lesson 2 but never lesson 3", () => {
     const stages = stagesOf(weakRun);
     expect(stages.at(-1)).toBe(2);
-    expect(stages[5]).toBe(2);
+    expect(stages[0]).toBe(2);
     expect(weakRun.at(-1)?.progress.stats.k?.accuracy).toBeLessThan(0.95);
   });
 
   test("learner weak on k is pointed at K", () => {
-    const after = weakRun.slice(6);
+    const after = weakRun.slice(1);
     for (const r of after) {
       expect(r.weakest[0]).toBe("K");
       expect(r.sentence).toMatch(/\bK\b/);
     }
-    // Whether a session misses the accuracy target depends on how often k was drawn.
-    expect(after.map((r) => r.sentence)).toContain(
+    expect(weakRun.at(-1)?.sentence).toBe(
       "Slow down and aim for accuracy, especially on K.",
     );
   });

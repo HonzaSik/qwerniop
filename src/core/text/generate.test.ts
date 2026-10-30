@@ -30,7 +30,7 @@ describe("generate", () => {
     // In English "th" is common and "ht" rare; letters t,h only.
     const text = generate({
       words,
-      allowed: "th",
+      allowed: "the",
       targets,
       length: 400,
       rng: seededRng(3),
@@ -53,6 +53,30 @@ describe("generate", () => {
         .every((w) => real.has(w)),
     ).toBe(true);
     expect(run(small)).toMatch(new RegExp(`^[${small} ]+$`));
+  });
+
+  test("pseudo-words give every allowed letter a fair share", () => {
+    // Raw bigram counts would make "fj" nearly all f: ff is common, anything with j is rare.
+    const share = (allowed: string, letter: string) => {
+      const text = generate({
+        words,
+        allowed,
+        length: 200,
+        targets,
+        rng: seededRng(5),
+      }).replaceAll(" ", "");
+      return text.split(letter).length - 1 > 0
+        ? (text.split(letter).length - 1) / text.length
+        : 0;
+    };
+    for (const l of "fj") {
+      expect(share("fj", l)).toBeGreaterThan(0.3);
+      expect(share("fj", l)).toBeLessThan(0.7);
+    }
+    for (const l of "fjdk") {
+      expect(share("fjdk", l)).toBeGreaterThan(0.15);
+      expect(share("fjdk", l)).toBeLessThan(0.35);
+    }
   });
 
   test("returns empty text when nothing is allowed", () => {

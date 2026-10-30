@@ -34,25 +34,24 @@ function pickWeighted(
 }
 
 // Letter pairs of the language, counted over the whole list. Add-one smoothing keeps every
-// allowed pair possible, so "fj" alone still yields words.
+// allowed pair possible, so "fj" alone still yields words. Each candidate's pair weight is divided
+// by its total incoming mass, so pairs decide which letter follows which but not how often a letter
+// appears: raw counts would make "fj" almost all f.
 function pseudoWord(
   letters: readonly string[],
   rng: Rng,
   pairs: Map<string, number>,
   need: (letter: string) => number,
+  incoming: ReadonlyMap<string, number>,
 ): string {
   const len = PSEUDO_MIN + Math.floor(rng() * PSEUDO_SPAN);
-  let out = pickWeighted(
-    letters,
-    (a) =>
-      need(a) * letters.reduce((n, b) => n + 1 + (pairs.get(a + b) ?? 0), 0),
-    rng,
-  );
+  let out = pickWeighted(letters, need, rng);
   while (out.length < len) {
     const prev = out.slice(-1);
     out += pickWeighted(
       letters,
-      (b) => need(b) * (1 + (pairs.get(prev + b) ?? 0)),
+      (b) =>
+        (need(b) * (1 + (pairs.get(prev + b) ?? 0))) / (incoming.get(b) ?? 1),
       rng,
     );
   }
@@ -107,9 +106,21 @@ export function generate({
         }
       }
     }
+    const incoming = new Map(
+      letters.map((b) => [
+        b,
+        letters.reduce((n, a) => n + 1 + (pairs.get(a + b) ?? 0), 0),
+      ]),
+    );
     for (let i = 0; i < length; i++)
       out.push(
-        pseudoWord(letters, rng, pairs, (l) => FLOOR + (need.get(l) ?? 0)),
+        pseudoWord(
+          letters,
+          rng,
+          pairs,
+          (l) => FLOOR + (need.get(l) ?? 0),
+          incoming,
+        ),
       );
   }
   return out.join(" ");
