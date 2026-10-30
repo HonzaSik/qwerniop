@@ -89,6 +89,10 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - Three lines of text are visible at all times, including for shorter passages, at a line height of 1.6; the view scrolls by whole lines, without animation if reduce motion is on.
 - The caret stays on the middle row after the first line. Near the end the scroll stops so the last three lines stay filled, and the caret drops to the bottom row: `top = max(0, min(line - 1, lineCount - 3))`. Backspace uses the same rule. At the end of the text the caret sits after the last character, with no extra line.
 - End of session: text fades out and a summary appears in place: WPM, accuracy, time, weakest keys, a sentence of feedback, and "Continue" (Enter) / "Repeat" (R).
+  - WPM is net WPM, as a whole number. Accuracy is a whole percent that shows 100 % only for a session with no errors. Time is `m:ss`.
+  - Weakest keys and the feedback sentence appear once the data behind them exists: per-character stats and feedback sentences in roadmap milestone 7, with physical keys from `strokesFor` in milestone 4. A single session's error count is not what "weakest" means here, so the summary leaves both out until then rather than approximating them.
+  - "Continue" starts the next passage. Until lessons supply one in milestone 5 the only passage is the fixed one, so it starts that passage again and behaves like "Repeat".
+  - The text keeps its place under the summary, faded out and hidden from assistive technology, so the view does not move. Focus lands on "Continue".
 
 ## On-screen keyboard
 

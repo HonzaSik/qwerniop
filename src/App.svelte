@@ -1,10 +1,13 @@
 <script lang="ts">
 import "./ui/styles/tokens.css";
+import Practice from "./ui/views/Practice.svelte";
+
+// Written for this project. Lesson text replaces it in milestone 5.
+const PASSAGE =
+  "The river bends twice before it reaches the old mill, where the water slows and the light falls through the trees. Keep your hands relaxed, look at the text, and let each word arrive at its own pace.";
 </script>
 
-<main>
-  <h1>Tenfold</h1>
-</main>
+<Practice text={PASSAGE} errorMode="stop" />
 
 <style>
   :global(body) {
@@ -12,17 +15,5 @@ import "./ui/styles/tokens.css";
     background: var(--bg);
     color: var(--text);
     font-family: var(--font-ui);
-  }
-
-  main {
-    display: grid;
-    min-height: 100vh;
-    place-items: center;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: var(--text-size-xl);
-    font-weight: var(--weight-semibold);
   }
 </style>

@@ -13,6 +13,15 @@ const MODIFIER_KEYS = new Set([
   "Shift",
 ]);
 
+/** Left to the browser while paused. AltGr types characters, and Windows reports it as Ctrl+Alt. */
+function isShortcut(
+  event: Pick<KeyboardEvent, "key" | "ctrlKey" | "metaKey" | "altKey">,
+): boolean {
+  return (
+    event.metaKey || event.ctrlKey !== event.altKey || /^F\d+$/.test(event.key)
+  );
+}
+
 export interface InputOptions {
   /** Set per passage from `text.includes("\n")`; Enter does nothing otherwise. */
   enterTypesNewline: boolean;
@@ -31,14 +40,32 @@ export function createTranslator(options: InputOptions) {
   let composing = false;
   let pausedAt: number | undefined;
   let pausedMs = 0;
+  // A composition's text waits here until `flush`: Chromium ends a composition on blur, committing
+  // its text just before the blur event, and only what follows can tell that from a real commit.
+  let committed: { data: string; timeStamp: number } | undefined;
 
   function emitChars(data: string, timeStamp: number): void {
     const at = timeStamp - pausedMs;
     for (const char of data.normalize("NFC")) emit({ kind: "char", char, at });
   }
 
+  // A browser need not end a composition when focus leaves, and input stays ignored while one runs.
+  function abandonComposition(): void {
+    if (!composing) return;
+    composing = false;
+    options.onComposingChange(false);
+  }
+
+  function flush(): void {
+    if (committed === undefined) return;
+    const { data, timeStamp } = committed;
+    committed = undefined;
+    emitChars(data, timeStamp);
+  }
+
   function resume(timeStamp: number): void {
     if (pausedAt === undefined) return;
+    abandonComposition();
     pausedMs += timeStamp - pausedAt;
     pausedAt = undefined;
     options.onPausedChange(false);
@@ -51,6 +78,7 @@ export function createTranslator(options: InputOptions) {
         "inputType" | "data" | "isComposing" | "timeStamp"
       >,
     ): boolean {
+      flush();
       // Composition updates fire for every intermediate state and cannot be cancelled in Chromium.
       if (composing || event.isComposing) return false;
       if (pausedAt !== undefined) return true;
@@ -63,11 +91,21 @@ export function createTranslator(options: InputOptions) {
     },
 
     keyDown(
-      event: Pick<KeyboardEvent, "key" | "code" | "isComposing" | "timeStamp">,
+      event: Pick<
+        KeyboardEvent,
+        | "key"
+        | "code"
+        | "isComposing"
+        | "timeStamp"
+        | "ctrlKey"
+        | "metaKey"
+        | "altKey"
+      >,
     ): boolean {
+      flush();
       options.onKeyDown(event.code);
       if (pausedAt !== undefined) {
-        if (MODIFIER_KEYS.has(event.key)) return false;
+        if (MODIFIER_KEYS.has(event.key) || isShortcut(event)) return false;
         resume(event.timeStamp);
         return true;
       }
@@ -77,22 +115,30 @@ export function createTranslator(options: InputOptions) {
     },
 
     compositionStart(): void {
+      flush();
       composing = true;
       options.onComposingChange(true);
     },
 
     compositionEnd(event: Pick<CompositionEvent, "data" | "timeStamp">): void {
+      // Already abandoned: a late end must not type what was left behind.
+      if (!composing) return;
       composing = false;
       options.onComposingChange(false);
-      if (pausedAt === undefined) emitChars(event.data, event.timeStamp);
+      if (pausedAt === undefined) {
+        committed = { data: event.data, timeStamp: event.timeStamp };
+      }
     },
 
     pause(timeStamp: number): void {
       if (pausedAt !== undefined) return;
+      abandonComposition();
+      committed = undefined;
       pausedAt = timeStamp;
       options.onPausedChange(true);
     },
 
     resume,
+    flush,
   };
 }

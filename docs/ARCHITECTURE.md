@@ -222,11 +222,12 @@ Defaults: `en-us`, `stop`, `words`, 30 words, live WPM hidden, appearance `syste
 Character input is read from a visually hidden, focused `<textarea>`:
 
 - `beforeinput` with `inputType` `insertText` gives the character. Call `preventDefault()` and keep the textarea empty. Other input types outside a composition are prevented and ignored.
-- During a composition `beforeinput` is ignored and not prevented: it fires for every intermediate state and is not always cancelable. `compositionend.data` gives the final character, including dead-key results like `č`, once. Empty `data` is a cancelled composition and emits nothing. The textarea is cleared there.
+- During a composition `beforeinput` is ignored and not prevented: it fires for every intermediate state and is not always cancelable. `compositionend.data` gives the final character, including dead-key results like `č`, once. Empty `data` is a cancelled composition and emits nothing. The textarea is cleared there. The character is held until a zero-delay timeout or the next input event, whichever comes first, because Chromium ends a composition on blur by firing `compositionend` with the pending text just before `blur`, in the same task. A pause drops a held character, so a dead key left pending when focus goes types nothing. This is the one timer near the keystroke path, and it runs per composed character only.
 - `beforeinput` with `deleteContentBackward` is Backspace.
 - `keydown` is used only to highlight the physical key (`event.code`) on the on-screen keyboard and for Enter. Enter types `\n` when the passage holds a newline (`text.includes("\n")`, set per passage by the caller) and otherwise does nothing; it is always prevented, and ignored during a composition. Never read characters from `keydown`: dead keys report `"Dead"` and layouts differ.
 - `compositionstart` / `compositionend` are tracked so a pending dead key shows a subtle indicator.
-- Losing focus pauses the session and shows "Click or press any key to continue". Focus returning by itself stays paused. A click or a key other than a lone modifier resumes; the resuming key is prevented and types nothing.
+- Losing focus pauses the session and shows "Click or press any key to continue". Focus returning by itself stays paused. A click or a key resumes; the resuming key is prevented and types nothing. Lone modifiers, function keys (`F1` and up) and combinations with Ctrl, Meta or Alt neither resume nor are prevented, so browser shortcuts such as Ctrl+R and F5 keep working. AltGr types characters and resumes, including where it reports as Ctrl+Alt on Windows.
+- Pausing and resuming both abandon a running composition, because a browser need not end one when focus leaves. A `compositionend` arriving afterwards emits nothing, and resuming clears the textarea.
 - Paused time, ending at the resuming event's `timeStamp`, is held in this module and subtracted from `at`, so the engine and results need no pause concept.
 - The caller renders and visually hides the textarea.
 
@@ -263,6 +264,8 @@ Loaded with a dynamic `import()` only when a model server is configured. Specifi
 ## UI (`src/ui/`)
 
 Views: **Practice** (default), **Lessons** (unlock progress per track), **Stats** (history and per-key heatmap), **Settings**. View switching is a `$state` value in `App.svelte`, mirrored to `location.hash` so Back works. No router library.
+
+The Practice view keeps its session in `$state.raw` and replaces it only for a new passage, so keystrokes mutate plain data and nothing reactive sees them. It calls `TextView.update(change)` once per `apply`. `App.svelte` passes the passage and the default `stop` error mode as props until lessons (milestone 5) and settings (milestone 6) supply them, and the view detaches input as the session finishes, because removing the focused textarea fires a blur during Svelte's update.
 
 Components get data through props. Shared app state lives in one module with `$state` runes (`src/ui/state.svelte.ts`), not in a global store library.
 

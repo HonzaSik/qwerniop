@@ -11,7 +11,11 @@ export function attachInput(
   const translator = createTranslator({
     ...options,
     onPausedChange(paused) {
-      if (!paused) textarea.focus({ preventScroll: true });
+      if (!paused) {
+        // A composition abandoned on blur may never end, so nothing else clears its text.
+        textarea.value = "";
+        textarea.focus({ preventScroll: true });
+      }
       options.onPausedChange(paused);
     },
   });
@@ -43,6 +47,8 @@ export function attachInput(
       translator.compositionEnd(event);
       // A composition cannot be prevented, so its text lands in the textarea.
       textarea.value = "";
+      // A blur that ended the composition fires in this same task, and a microtask would run before it.
+      setTimeout(translator.flush);
     },
     { signal },
   );

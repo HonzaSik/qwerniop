@@ -30,7 +30,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] `src/input/` with hidden textarea, `beforeinput`, composition, focus loss pausing
 - [x] Text view rendering spans once per passage; per-character updates through an action
 - [x] Caret moved by transform, line scrolling
-- [ ] Fixed English passage, end-of-session summary
+- [x] Fixed English passage, end-of-session summary
 - [ ] Frame-time check at 6× throttling in Chromium and Firefox (PERFORMANCE.md)
 
 ## 4. Layouts and keyboard

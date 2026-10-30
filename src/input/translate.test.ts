@@ -22,7 +22,15 @@ function insert(data: string | null, timeStamp = 0, isComposing = false) {
 }
 
 function key(key: string, timeStamp = 0, isComposing = false) {
-  return { key, code: `Code${key}`, isComposing, timeStamp };
+  return {
+    key,
+    code: `Code${key}`,
+    isComposing,
+    timeStamp,
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+  };
 }
 
 describe("beforeInput", () => {
@@ -91,6 +99,8 @@ describe("composition", () => {
     }
     expect(emitted).toEqual([]);
     translator.compositionEnd({ data: "č", timeStamp: 150 });
+    translator.flush();
+    translator.flush();
     expect(emitted).toEqual([{ kind: "char", char: "č", at: 150 }]);
     expect(composingChanges).toEqual([true, false]);
   });
@@ -119,6 +129,22 @@ describe("composition", () => {
     translator.compositionStart();
     translator.compositionEnd({ data: "", timeStamp: 100 });
     expect(emitted).toEqual([]);
+  });
+
+  it("types a finished composition before the next key, however early that comes", () => {
+    const { translator, emitted } = setup(true);
+    for (const next of [
+      () => translator.beforeInput(insert("a", 200)),
+      () => translator.keyDown(key("Enter", 200)),
+      () => translator.compositionStart(),
+    ]) {
+      emitted.length = 0;
+      translator.compositionStart();
+      translator.compositionEnd({ data: "č", timeStamp: 100 });
+      next();
+      expect(emitted[0]).toEqual({ kind: "char", char: "č", at: 100 });
+      translator.compositionEnd({ data: "", timeStamp: 200 });
+    }
   });
 
   it("takes plain input again after composition ends", () => {
@@ -182,6 +208,70 @@ describe("pausing", () => {
     expect(pausedChanges).toEqual([true]);
   });
 
+  it("leaves browser shortcuts and function keys alone", () => {
+    const { translator, pausedChanges } = setup();
+    translator.pause(100);
+    for (const shortcut of [
+      { ...key("r"), ctrlKey: true },
+      { ...key("r"), metaKey: true },
+      { ...key("ArrowLeft"), altKey: true },
+      key("F5"),
+      key("F12"),
+    ]) {
+      expect(translator.keyDown(shortcut)).toBe(false);
+    }
+    expect(pausedChanges).toEqual([true]);
+  });
+
+  it("resumes on a character typed with AltGr, which Windows reports as Ctrl+Alt", () => {
+    const { translator, pausedChanges } = setup();
+    translator.pause(100);
+    const altGr = { ...key("ł"), ctrlKey: true, altKey: true };
+    expect(translator.keyDown(altGr)).toBe(true);
+    expect(pausedChanges).toEqual([true, false]);
+  });
+
+  it("drops the text of a composition the blur itself ended", () => {
+    const { translator, emitted, composingChanges } = setup();
+    translator.compositionStart();
+    translator.compositionEnd({ data: "ˇ", timeStamp: 100 });
+    translator.pause(100);
+    translator.flush();
+    translator.resume(200);
+    expect(emitted).toEqual([]);
+    expect(composingChanges).toEqual([true, false]);
+  });
+
+  it("recovers from a blur during a composition that never ends", () => {
+    const { translator, emitted, composingChanges } = setup();
+    translator.compositionStart();
+    translator.pause(100);
+    translator.keyDown(key("f", 200));
+    translator.beforeInput(insert("a", 300));
+    expect(emitted).toEqual([{ kind: "char", char: "a", at: 200 }]);
+    expect(composingChanges).toEqual([true, false]);
+  });
+
+  it("recovers on resume from a composition started while paused", () => {
+    const { translator, emitted, composingChanges } = setup();
+    translator.pause(100);
+    translator.compositionStart();
+    translator.resume(200);
+    translator.beforeInput(insert("a", 300));
+    expect(emitted).toEqual([{ kind: "char", char: "a", at: 200 }]);
+    expect(composingChanges).toEqual([true, false]);
+  });
+
+  it("emits nothing when an abandoned composition ends after the resume", () => {
+    const { translator, emitted, composingChanges } = setup();
+    translator.compositionStart();
+    translator.pause(100);
+    translator.resume(200);
+    translator.compositionEnd({ data: "ˇ", timeStamp: 250 });
+    expect(emitted).toEqual([]);
+    expect(composingChanges).toEqual([true, false]);
+  });
+
   it("removes paused time from at, ending at the resuming event", () => {
     const { translator, emitted } = setup();
     translator.beforeInput(insert("a", 9_800));
@@ -209,6 +299,7 @@ describe("pausing", () => {
     });
     translator.compositionStart();
     translator.compositionEnd({ data: "a", timeStamp: 1_200 });
+    translator.flush();
     expect(emitted).toEqual([
       { kind: "char", char: "\n", at: 700 },
       { kind: "backspace", at: 800 },
