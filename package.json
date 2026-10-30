@@ -21,6 +21,6 @@
     "preview": "vite preview",
     "check": "biome check . && tsc --noEmit && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
-    "test:bench": "vitest bench --run --passWithNoTests"
+    "test:bench": "vitest bench --run"
   }
 }

@@ -23,7 +23,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Results: gross WPM, net WPM, accuracy, duration
 - [x] Code-mode newline and indentation handling
 - [x] Tests covering: correct run, errors in both modes, Backspace at start, finish rules, Unicode (Czech characters), newline skipping
-- [ ] Benchmark with baseline recorded
+- [x] Benchmark with baseline recorded
 
 ## 3. Practice view
 
