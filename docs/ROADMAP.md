@@ -11,7 +11,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Vitest with one passing test
 - [x] `scripts/size-check.mjs` enforcing the budgets in PERFORMANCE.md
 - [x] Import boundary check: `src/core/` imports nothing outside itself
-- [ ] `package.json` scripts: `dev`, `build`, `preview`, `check`, `test`, `test:bench`
+- [x] `package.json` scripts: `dev`, `build`, `preview`, `check`, `test`, `test:bench`
 - [ ] GitHub Actions workflow running check, test, build on pushes and pull requests
 - [ ] `App.svelte` rendering the app name with tokens.css applied, in light and dark
 

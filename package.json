@@ -14,5 +14,13 @@
     "typescript": "~6.0.3",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/size-check.mjs",
+    "preview": "vite preview",
+    "check": "biome check . && tsc --noEmit && svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
+    "test:bench": "vitest bench --run --passWithNoTests"
   }
 }
