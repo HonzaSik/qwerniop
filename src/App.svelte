@@ -4,7 +4,7 @@ import { enUs } from "./core/layouts/en-us";
 import {
   completeLesson,
   type Lesson,
-  lessonKeys,
+  lessonTitle,
   nextLesson,
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
@@ -49,12 +49,6 @@ const text = (words: string[], snippets: string) =>
         : ui.length.amount * WORDS_PER_SECOND,
     rng: seededRng(run.seed),
   });
-
-function title(lesson: Lesson): string {
-  const keys = lessonKeys(LAYOUT, lesson);
-  const name = lesson.track === "letters" ? "Lesson" : lesson.track;
-  return `${name} ${lesson.stage}${keys ? ` · ${keys}` : ""}`;
-}
 </script>
 
 <svelte:window onhashchange={() => (hash = location.hash)} />
@@ -70,7 +64,7 @@ function title(lesson: Lesson): string {
     {#key `${run.seed}${run.lesson.track}${run.lesson.stage}${ui.length.kind}${ui.length.amount}`}
       <Practice
         text={text(words, snippets)}
-        title={title(run.lesson)}
+        title={lessonTitle(LAYOUT, run.lesson)}
         errorMode="stop"
         timeLimit={ui.length.kind === "seconds" ? ui.length.amount * 1000 : undefined}
         onfinish={() => (ui.progress = completeLesson(LAYOUT, ui.progress, run.lesson))}

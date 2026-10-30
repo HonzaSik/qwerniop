@@ -5,8 +5,9 @@ import {
   type Lesson,
   type LessonTrack,
   lessonCount,
-  lessonKeys,
+  lessonTitle,
   type Progress,
+  TRACK_NAMES,
   TRACKS,
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
@@ -20,30 +21,17 @@ interface Props {
 
 let { layout, progress, current, onstart }: Props = $props();
 
-const NAMES: Record<LessonTrack, string> = {
-  letters: "Letters",
-  punctuation: "Punctuation",
-  numbers: "Numbers",
-  code: "Code",
-};
-
 const stages = (track: LessonTrack) =>
   Array.from({ length: lessonCount(layout, track) }, (_, i) => i + 1);
 
 const isOpen = (track: LessonTrack) =>
   track === "letters" || tracksOpen(layout, progress.letters);
-
-function label(track: LessonTrack, stage: number): string {
-  const keys = lessonKeys(layout, { track, stage });
-  const noun = track === "letters" ? "Lesson" : NAMES[track];
-  return `${noun} ${stage}${keys ? ` · ${keys}` : ""}`;
-}
 </script>
 
 <main aria-label="Lessons">
   {#each TRACKS as track}
     <section aria-labelledby="track-{track}">
-      <h2 id="track-{track}">{NAMES[track]}</h2>
+      <h2 id="track-{track}">{TRACK_NAMES[track]}</h2>
       {#if isOpen(track)}
         <p class="note">Unlocked {progress[track]} of {lessonCount(layout, track)}</p>
         <ul>
@@ -57,7 +45,7 @@ function label(track: LessonTrack, stage: number): string {
                 aria-current={current.track === track && current.stage === stage}
                 onclick={() => onstart(lesson)}
               >
-                {label(track, stage)}
+                {lessonTitle(layout, lesson)}
                 {#if open && stage < progress[track]}<span class="state">Done</span>{/if}
               </button>
             </li>

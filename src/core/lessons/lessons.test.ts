@@ -4,6 +4,7 @@ import {
   initialProgress,
   isUnlocked,
   lessonKeys,
+  lessonTitle,
   nextLesson,
 } from "./lessons";
 
@@ -55,6 +56,16 @@ describe("lessons", () => {
     expect(lessonKeys("en-us", { track: "punctuation", stage: 2 })).toBe(". ,");
     expect(lessonKeys("en-us", { track: "punctuation", stage: 1 })).toBe(
       "capitals",
+    );
+  });
+
+  test("titles use the display names", () => {
+    expect(lessonTitle("en-us", letter(5))).toBe("Lesson 5 · e i");
+    expect(lessonTitle("en-us", { track: "numbers", stage: 2 })).toBe(
+      "Numbers 2 · 6 7 8 9 0",
+    );
+    expect(lessonTitle("en-us", { track: "punctuation", stage: 1 })).toBe(
+      "Punctuation 1 · capitals",
     );
   });
 });

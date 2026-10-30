@@ -84,3 +84,18 @@ export function lessonKeys(id: Layout["id"], lesson: Lesson): string {
     (NO_NEW_KEYS[`${lesson.track} ${lesson.stage}`] ?? "")
   );
 }
+
+export const TRACK_NAMES: Record<LessonTrack, string> = {
+  letters: "Letters",
+  punctuation: "Punctuation",
+  numbers: "Numbers",
+  code: "Code",
+};
+
+/** "Lesson 5 · e i" for letters, "Numbers 2 · 6 7 8 9 0" for the other tracks. */
+export function lessonTitle(id: Layout["id"], lesson: Lesson): string {
+  const keys = lessonKeys(id, lesson);
+  const noun =
+    lesson.track === "letters" ? "Lesson" : TRACK_NAMES[lesson.track];
+  return `${noun} ${lesson.stage}${keys ? ` · ${keys}` : ""}`;
+}
