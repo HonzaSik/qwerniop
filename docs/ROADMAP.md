@@ -52,7 +52,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 6. Storage and stats
 
-- [ ] IndexedDB wrapper with versioned upgrades
+- [x] IndexedDB wrapper with versioned upgrades
 - [ ] Settings, progress, sessions stores
 - [ ] Deferred saving, flush on `visibilitychange`
 - [ ] Stats view: history chart of WPM and accuracy (plain SVG, no chart library), per-key heatmap on the keyboard

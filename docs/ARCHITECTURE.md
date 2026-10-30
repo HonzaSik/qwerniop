@@ -251,6 +251,10 @@ IndexedDB database `tenfold`, versioned with explicit upgrade steps.
 | `progress` | layout id | unlocked characters per track, per-character stats |
 | `sessions` | auto | summary of each finished session: date, layout, mode, WPM, accuracy, duration, per-character error counts |
 
+Upgrades are an ordered list in `src/storage/migrations.ts` (versions 1, 2, 3, ... with no gaps); the database version is the list length and `onupgradeneeded` runs every step newer than `oldVersion`. Version 1 creates the three stores above, all with out-of-line keys (`sessions` uses an auto-increment key). A failed step aborts the upgrade transaction. Connections close on `versionchange` so another tab can upgrade.
+
+`openDatabase()` resolves `null` when IndexedDB is missing, errors (private mode) or is blocked by an older tab. Callers then run memory-only: the app works, nothing persists.
+
 Raw keystroke logs are **not** stored long term; they are folded into stats at the end of a session.
 
 Writes happen when a session finishes, or when the page is hidden (`visibilitychange`), never per keystroke.
