@@ -136,3 +136,19 @@ Setup: model server disabled in Settings (the default); DevTools Network open wi
 3. Enable the server, enter an address and press the connection test: `ai-openai-compatible-*.js` loads now.
 
 Pass: the `ai-*` chunks load only after the server is enabled and used.
+
+## README screenshots
+
+Re-capture before a release if the UI changed. `--virtual-time-budget` leaves the page blank (IndexedDB never resolves), so use `--timeout`.
+
+```sh
+pnpm build && pnpm preview --port 4173 &
+for m in light dark; do
+  chromium --headless=new --no-sandbox --hide-scrollbars --window-size=1280,800 \
+    --timeout=4000 --run-all-compositor-stages-before-draw \
+    --blink-settings=preferredColorScheme=$([ $m = dark ] && echo 0 || echo 1) \
+    --screenshot=docs/screenshots/practice-$m.png http://localhost:4173/
+done
+```
+
+Open both PNGs: the page must be rendered (not blank) and the two must differ. Stop the preview server afterwards.

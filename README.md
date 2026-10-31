@@ -4,6 +4,11 @@ A calm, fast touch-typing trainer that runs in any modern browser.
 
 Tenfold teaches ten-finger typing step by step: it starts on the home row, adds keys as you master them, and keeps drilling the keys you miss. It works fully offline. An optional local language model can generate practice text, teach you a topic while you type, or give feedback on a session.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/practice-dark.png">
+  <img alt="Tenfold practice view with the on-screen keyboard showing finger colours" src="docs/screenshots/practice-light.png">
+</picture>
+
 > Status: in development. See [the roadmap](docs/ROADMAP.md).
 
 ## Features

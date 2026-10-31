@@ -97,7 +97,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 11. Open-source release
 
-- [ ] README screenshots in light and dark
+- [x] README screenshots in light and dark
 - [ ] Issue and pull request templates
 - [ ] GitHub Pages deployment workflow
 - [ ] Release notes for 1.0
