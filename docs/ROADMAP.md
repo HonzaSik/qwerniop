@@ -84,7 +84,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Touch-device message
 - [x] Service worker, manifest, offline test
 - [x] Font subset and preload
-- [ ] Performance pass: all budgets met, throttled tests in both browsers
+- [x] Performance pass: all budgets met, throttled tests in both browsers
 
 ## 10. Model integration
 

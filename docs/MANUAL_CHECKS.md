@@ -119,3 +119,15 @@ Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile, DevTools ope
 4. Network panel, throttle to Slow 3G, reload: text is readable straight away in the monospace fallback and swaps once the font arrives.
 
 Pass: one font request, no fallback glyphs, and the text stays monospace before and after the swap.
+
+## Performance pass
+
+Setup: `pnpm build && pnpm preview`.
+
+1. Build budgets: `pnpm build` ends with `size-check: all budgets hold` (initial JS 50 KB, CSS 10 KB, font 60 KB, each word list 60 KB, all gzip except the font). Recorded 2026-10-31: JS 36.7 KB, CSS 3.2 KB, font 9.3 KB, word lists 36.5 KB (en) and 38.9 KB (cs).
+2. Lazy loading: Network panel, reload with cache disabled, the word list `.txt` for the current layout is requested after the page scripts, and the other locale's list is not requested.
+3. Time to interactive: Chromium, Lighthouse (Navigation, Mobile), throttling Slow 4G and 4× CPU, incognito with no extensions. Run three times; the median TTI must be under 2 s.
+4. Frame time: run the "Frame time at 6× CPU throttling" check above in Chromium and in Firefox.
+5. `pnpm test:bench`: each case under 0.05 ms per event and within 20 % of `tests/bench/BASELINE.md`.
+
+Pass: every number is inside its budget in `docs/PERFORMANCE.md`. Record the measured TTI and the long-frame count here when run.
