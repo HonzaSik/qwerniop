@@ -18,3 +18,4 @@
 - `Esc` pauses a session by blurring the textarea, which reuses the existing blur pause; on Lessons and Stats it returns to Practice. Reason: no second pause path.
 - The `,` (settings) shortcut is not implemented until the Settings view exists, and the help sheet lists only working shortcuts. Reason: a shortcut to nowhere would be a placeholder.
 - One global `:focus-visible` rule in App.svelte draws the ring; per-component ring rules are deleted. Reason: one rule covers every present and future control.
+- Screen reader support: `<html lang>` is set from the UI language at startup, the timer has `role="timer"` (implicitly not live, so seconds are not announced), and the textarea is described by the passage element (read once on focus). Lessons and Stats keep landmark plus `h2` sections without an `h1`. Reason: a per-keystroke position description would add DOM work on the keystroke path, and the landmark names already identify each view.

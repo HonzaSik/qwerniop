@@ -42,6 +42,8 @@ let systemReduced = $state(systemReduce.matches);
 systemReduce.addEventListener("change", () => {
   systemReduced = systemReduce.matches;
 });
+// index.html ships "en"; follow the UI language so a screen reader picks the right voice.
+document.documentElement.lang = t.language;
 // One attribute on the root drives every motion rule in CSS.
 $effect(() => {
   const m = ui.settings.reduceMotion;

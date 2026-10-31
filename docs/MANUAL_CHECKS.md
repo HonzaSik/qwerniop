@@ -68,3 +68,19 @@ Check each screen in light and dark (system setting, then `data-theme` set to `l
 4. In a session type `?` and Esc: `?` is typed as a character and Esc pauses. Press any key to resume.
 5. On Lessons and Stats press Esc: Practice opens. On the summary Enter continues and R repeats.
 6. With a screen reader, opening the sheet announces its title "Keyboard shortcuts" (or the Czech title) and the shortcut list is readable as pairs.
+
+## Screen reader (Orca on Linux, VoiceOver on macOS)
+
+Setup: `pnpm build && pnpm preview`. Orca: Firefox or Chromium, start with `orca` (Super+Alt+S on GNOME). VoiceOver: Safari, Cmd+F5. Repeat once with the browser language set to Czech: speech should switch to a Czech voice and all labels be Czech.
+
+1. Landmarks: jump by landmark (Orca: `m`; VoiceOver: rotor, Landmarks). Announced: navigation named "Views" (or Czech), main named "Practice". Headings (Orca: `h`; rotor) list the lesson title as level 1. Lessons and Stats list their section headings and name their main landmark.
+2. Controls: Tab through Practice. Each select is announced with its label (Layout, Length, Reduce motion, Keyboard) and current value. The current nav link is announced as current page.
+3. Practice text: Tab to the text field. Announced: "Type the text" and the passage as its description. The on-screen keyboard and caret are never announced or reachable in browse mode.
+4. Typing: type 20 characters, including errors. Nothing is announced per keystroke (no character echo from the app, no "correct" or "wrong"). Orca's own key echo may speak typed characters; turn it off in Orca preferences for this check.
+5. Pause: press Esc or click away. "Click or press any key to continue" is announced once. Resuming does not repeat it.
+6. Timed session: choose a seconds length and start. The countdown is not announced every second (browse to it to read it: "Time left").
+7. Summary: finish a session. "Session results" with WPM, accuracy, time and the feedback is announced once, politely, after the final key. Focus lands on Continue, announced with its shortcut. Repeat and Continue are reachable.
+8. Dialogs: press `?` outside a session. The dialog and title "Keyboard shortcuts" are announced, shortcuts read as pairs; Esc closes and focus returns. On Stats, Your data: Import of a file opens the replace dialog with its title announced, and error or success messages are announced.
+9. Stats chart: the line chart is one image with a text summary; the heatmap keys are readable.
+
+Pass: every item announces what is listed and nothing else. Record any extra announcement and its trigger.

@@ -130,13 +130,13 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
 <main aria-label={t.nav.practice}>
   <h1>{title}</h1>
   {#if timeLimit !== undefined}
-    <p class="timer" aria-label={t.practice.timeLeft}>{secondsLeft}</p>
+    <p class="timer" role="timer" aria-label={t.practice.timeLeft}>{secondsLeft}</p>
   {/if}
   <div class="stage">
     <div class="layer text" class:done={finished} aria-hidden={finished}>
       <TextView bind:this={view} {session} />
       {#if !finished}
-        <textarea aria-label={t.practice.typeText} use:capture></textarea>
+        <textarea aria-label={t.practice.typeText} aria-describedby="passage" use:capture></textarea>
       {/if}
       <p class="pause" role="status">
         {#if paused}{t.practice.paused}{/if}

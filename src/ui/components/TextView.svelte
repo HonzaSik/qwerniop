@@ -29,7 +29,7 @@ function connectCaret(move: () => void): void {
 <div class="view">
   {#key session}
     <!-- On one line: this element preserves white space, so template indentation would show. -->
-    <div class="text" use:charStatus={{ chars: session.chars, connect }}>{#each session.chars as char}<span>{charText(char.expected)}</span>{/each}<Caret {session} connect={connectCaret} /></div>
+    <div id="passage" class="text" use:charStatus={{ chars: session.chars, connect }}>{#each session.chars as char}<span>{charText(char.expected)}</span>{/each}<Caret {session} connect={connectCaret} /></div>
   {/key}
 </div>
 
