@@ -141,6 +141,26 @@ describe("parseProgress", () => {
     );
   });
 
+  test("keeps a saved lesson only while it is unlocked", () => {
+    const saved = (lesson: unknown, letters = 5) =>
+      parseProgress("en-us", { letters, lesson }).lesson;
+    expect(saved({ track: "letters", stage: 4 })).toEqual({
+      track: "letters",
+      stage: 4,
+    });
+    const first = { track: "letters", stage: 1 };
+    expect(saved({ track: "letters", stage: 6 })).toEqual(first);
+    expect(saved({ track: "letters", stage: 0 })).toEqual(first);
+    expect(saved({ track: "letters", stage: 1.5 })).toEqual(first);
+    expect(saved({ track: "code", stage: 1 })).toEqual(first);
+    expect(saved({ track: "nope", stage: 1 })).toEqual(first);
+    expect(saved("x")).toEqual(first);
+    expect(saved({ track: "numbers", stage: 1 }, 30)).toEqual({
+      track: "numbers",
+      stage: 1,
+    });
+  });
+
   test("reads missing stats as empty and keeps valid ones", () => {
     expect(parseProgress("en-us", { letters: 2 }).stats).toEqual({});
     const stat = {

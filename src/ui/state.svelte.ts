@@ -41,14 +41,20 @@ export function hydrate(loaded: {
   if (loaded.stored) {
     ui.settings = loaded.stored.settings;
     ui.progress = loaded.stored.progress;
+    ui.lesson = loaded.stored.progress.lesson;
   }
 }
 
 /** Call after changing `ui.settings`, never per keystroke. */
 export const saveSettings = (): void =>
   store?.saveSettings($state.snapshot(ui.settings));
+/** The lesson lives in `ui.lesson`; it joins progress only here, so there is one source while running. */
+const withLesson = (): Progress => ({
+  ...$state.snapshot(ui.progress),
+  lesson: $state.snapshot(ui.lesson),
+});
 export const saveProgress = (): void =>
-  store?.saveProgress(ui.settings.layout, $state.snapshot(ui.progress));
+  store?.saveProgress(ui.settings.layout, withLesson());
 export const saveSession: Store["addSession"] = (r) => store?.addSession(r);
 /** Topic history lives only in storage: it is neither exported nor kept in memory-only mode. */
 export const topicStore = {
@@ -62,7 +68,7 @@ let others: Partial<Record<Layout["id"], Progress>> = {};
 
 /** Progress of any layout; the one in use comes from `ui`, the rest from memory or storage. */
 async function progressOf(id: Layout["id"]): Promise<Progress> {
-  if (id === ui.settings.layout) return $state.snapshot(ui.progress);
+  if (id === ui.settings.layout) return withLesson();
   return others[id] ?? (await store?.readProgress(id)) ?? initialProgress();
 }
 
@@ -73,10 +79,10 @@ async function progressOf(id: Layout["id"]): Promise<Progress> {
  */
 export async function switchLayout(id: Layout["id"]): Promise<void> {
   const next = await progressOf(id);
-  others[ui.settings.layout] = $state.snapshot(ui.progress);
+  others[ui.settings.layout] = withLesson();
   ui.settings.layout = id;
   ui.progress = next;
-  ui.lesson = { track: "letters", stage: 1 };
+  ui.lesson = next.lesson;
   saveSettings();
 }
 
@@ -117,6 +123,6 @@ export async function replaceAll(data: AppData): Promise<boolean> {
   ui.settings = settings;
   others = { ...data.progress };
   ui.progress = data.progress[data.settings.layout];
-  ui.lesson = { track: "letters", stage: 1 };
+  ui.lesson = data.progress[data.settings.layout].lesson;
   return store !== null;
 }

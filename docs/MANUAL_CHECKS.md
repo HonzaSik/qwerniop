@@ -29,8 +29,9 @@ On failure, fix the cause on the keystroke path and repeat the check.
 ## Layout switcher and per-layout progress
 
 1. `pnpm dev`, open the app, finish a letter lesson with `en-us` and note the Lessons view unlock count.
-2. Choose "Czech (QWERTZ)" in the Layout select in Settings. The keyboard, lesson title and words become Czech and Lessons shows Czech progress from Lesson 1.
-3. Reload the page. Czech is still selected.
+2. Choose "Czech (QWERTZ)" in the Layout select in Settings. The keyboard, lesson title and words become Czech and Lessons shows Czech progress with Lesson 1 current.
+   Start a later unlocked Czech lesson, then switch to English and back: the later lesson is current again.
+3. Reload the page. Czech is still selected and its last lesson is current.
 4. Switch back to the English layout. Its earlier unlock count is unchanged.
 5. In Stats, history and heatmap show only the layout in use. Export, import the file and check both layouts keep their progress.
 

@@ -85,6 +85,19 @@ describe("parseExport", () => {
     });
   });
 
+  it("carries the saved lesson with progress", () => {
+    const cs = {
+      ...initialProgress(),
+      letters: 5,
+      lesson: { track: "letters", stage: 3 },
+    };
+    const r = parseExport(file({ progress: { "cs-qwertz": cs } }));
+    expect(r.ok && r.value.progress["cs-qwertz"].lesson.stage).toBe(3);
+    const bad = { ...cs, lesson: { track: "letters", stage: 9 } };
+    const b = parseExport(file({ progress: { "cs-qwertz": bad } }));
+    expect(b.ok && b.value.progress["cs-qwertz"].lesson.stage).toBe(1);
+  });
+
   it("keeps progress per layout", () => {
     const cs = { ...initialProgress(), letters: 5 };
     const r = parseExport(file({ progress: { "cs-qwertz": cs } }));

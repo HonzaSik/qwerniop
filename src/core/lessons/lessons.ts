@@ -12,8 +12,11 @@ export interface Lesson {
   stage: number;
 }
 
-/** Stages unlocked per track, and the per-character stats. */
-export type Progress = Record<LessonTrack, number> & { stats: CharStats };
+/** Stages unlocked per track, the per-character stats and the lesson last chosen. */
+export type Progress = Record<LessonTrack, number> & {
+  stats: CharStats;
+  lesson: Lesson;
+};
 
 export const TRACKS: readonly LessonTrack[] = [
   "letters",
@@ -28,6 +31,7 @@ export const initialProgress = (): Progress => ({
   numbers: 1,
   code: 1,
   stats: {},
+  lesson: { track: "letters", stage: 1 },
 });
 
 export function lessonCount(id: Layout["id"], track: LessonTrack): number {
@@ -94,6 +98,9 @@ export function lessonKeys(id: Layout["id"], lesson: Lesson): string {
   return [...upTo(lesson.stage).slice(upTo(lesson.stage - 1).length)].join(" ");
 }
 
+const isLessonTrack = (v: string): v is LessonTrack =>
+  TRACKS.some((t) => t === v);
+
 /** Valid Progress from anything read from storage; each track falls back to 1 alone and is clamped to its stage count. */
 export function parseProgress(id: Layout["id"], raw: unknown): Progress {
   const out = initialProgress();
@@ -105,5 +112,21 @@ export function parseProgress(id: Layout["id"], raw: unknown): Progress {
     }
   }
   out.stats = parseCharStats(raw.stats);
+  const l = raw.lesson;
+  if (
+    isRecord(l) &&
+    typeof l.track === "string" &&
+    typeof l.stage === "number" &&
+    Number.isInteger(l.stage)
+  ) {
+    const lesson = { track: l.track, stage: l.stage };
+    // A saved lesson that is no longer unlocked would start text the person cannot reach.
+    if (
+      isLessonTrack(lesson.track) &&
+      isUnlocked(id, out, { ...lesson, track: lesson.track })
+    ) {
+      out.lesson = { ...lesson, track: lesson.track };
+    }
+  }
   return out;
 }

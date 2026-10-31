@@ -162,6 +162,7 @@ $effect(() => {
 // Zero wait: the model text is used only if it is already there.
 function start(lesson: Lesson): void {
   ui.lesson = lesson;
+  saveProgress();
   const next = begin(lesson);
   const server = $state.snapshot(ui.settings.modelServer);
   const key = textKey(server, {
