@@ -114,8 +114,16 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       paused = value;
     },
   });
-  stop = destroy;
-  return { destroy };
+  // Blur is what pauses, so Esc needs no pause path of its own.
+  const onEscape = (e: KeyboardEvent) => {
+    if (e.key === "Escape") textarea.blur();
+  };
+  textarea.addEventListener("keydown", onEscape);
+  stop = () => {
+    textarea.removeEventListener("keydown", onEscape);
+    destroy();
+  };
+  return { destroy: () => stop?.() };
 }
 </script>
 

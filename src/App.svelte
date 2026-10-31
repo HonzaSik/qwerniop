@@ -20,6 +20,7 @@ import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
+import { isBackKey, isHelpKey } from "./ui/shortcuts";
 import {
   hydrate,
   REDUCE_MOTION_MODES,
@@ -184,9 +185,32 @@ const text = (snippets: string) =>
         : ui.settings.length.amount * WORDS_PER_SECOND,
     rng: seededRng(run.seed),
   });
+
+// Window, not document: input's document listener runs first, so a key it used (resume, typed text) arrives prevented.
+function onkeydown(event: KeyboardEvent): void {
+  if (help?.open) return;
+  const target = event.target instanceof Element ? event.target : null;
+  if (isHelpKey(event, target)) {
+    event.preventDefault();
+    help?.showModal();
+  } else if (isBackKey(event, target) && view !== "practice") {
+    event.preventDefault();
+    location.hash = "#practice";
+  }
+}
+
+let help: HTMLDialogElement | undefined = $state();
 </script>
 
-<svelte:window onhashchange={() => (hash = location.hash)} />
+<svelte:window onhashchange={() => (hash = location.hash)} {onkeydown} />
+
+<dialog bind:this={help} aria-labelledby="help-title">
+  <h2 id="help-title">{t.help.title}</h2>
+  <dl>
+    {#each t.help.items as [key, what]}<dt>{key}</dt><dd>{what}</dd>{/each}
+  </dl>
+  <form method="dialog"><button type="submit">{t.help.close}</button></form>
+</dialog>
 
 {#await data then snippets}
   <nav aria-label={t.nav.label}>
@@ -305,9 +329,41 @@ const text = (snippets: string) =>
     color: var(--text);
   }
 
-  nav a:focus-visible {
+  :global(:focus-visible) {
     outline: var(--focus-ring-width) solid var(--accent);
     outline-offset: var(--focus-ring-width);
+  }
+
+  dialog {
+    max-width: 24rem;
+    padding: var(--space-5);
+    border: 1px solid var(--separator);
+    border-radius: var(--radius-group);
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  dialog h2 {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-size-md);
+    font-weight: var(--weight-semibold);
+  }
+
+  dialog dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2) var(--space-4);
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-size-sm);
+  }
+
+  dialog dt {
+    font-family: var(--font-practice);
+  }
+
+  dialog dd {
+    margin: 0;
+    color: var(--text-2);
   }
 
   .controls {

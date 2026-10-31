@@ -33,6 +33,16 @@ export const cs: Strings = {
   },
   wordListError: "Seznam slov se nepodařilo načíst.",
   tryAgain: "Zkusit znovu",
+  help: {
+    title: "Klávesové zkratky",
+    close: "Zavřít",
+    items: [
+      ["Enter", "Pokračovat na další lekci"],
+      ["R", "Zopakovat lekci"],
+      ["Esc", "Pozastavit při psaní, jinde zpět na Procvičování"],
+      ["?", "Zobrazit tuto nápovědu"],
+    ],
+  },
   lesson: "Lekce",
   trackNames: {
     letters: "Písmena",

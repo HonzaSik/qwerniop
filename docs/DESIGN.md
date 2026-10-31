@@ -137,7 +137,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 ## Interaction
 
 - The whole app works from the keyboard. Visible focus ring (`--accent`, 2 px, offset 2 px) on every interactive element.
-- Shortcuts outside a session: `Enter` start/continue, `R` repeat, `Esc` back / pause, `,` settings. Shown in a help sheet (`?`).
+- Shortcuts outside a session: `Enter` start/continue, `R` repeat, `Esc` back / pause, `,` settings. Shown in a help sheet (`?`), a native dialog that Esc closes. Shortcuts ignore keys typed into a field and keys already used by the session. `,` arrives with the Settings view.
 - During a session no shortcut uses a printable key; `Esc` pauses.
 
 ## Copy

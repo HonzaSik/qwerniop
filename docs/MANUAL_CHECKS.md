@@ -59,3 +59,12 @@ Check each screen in light and dark (system setting, then `data-theme` set to `l
 1. With the setting on System and the OS "reduce motion" preference off: the caret glides and blinks, the text scrolls smoothly, keys fade, the summary fades in.
 2. Turn the OS preference on (no reload): the caret is solid and jumps instantly, the text scrolls by whole lines with no animation, key highlights and the summary switch instantly.
 3. Set the select to Off with the OS preference on: motion returns. Set it to On with the OS preference off: motion stops. Reload: the choice is kept.
+
+## Keyboard navigation and help sheet
+
+1. On Practice, Lessons and Stats, press Tab from the page start through every control to the end and back with Shift+Tab: the order follows the visual order and nothing is skipped or trapped. Use Enter or Space on each button and link, and arrow keys on each select.
+2. Every focused element shows a 2 px accent ring with a 2 px gap, in light and in dark (set `data-theme` on `<html>`).
+3. Outside a session press `?`: the help sheet opens, focus moves into it, and Tab stays inside. Esc closes it and focus returns to where it was. Repeat with the Close button.
+4. In a session type `?` and Esc: `?` is typed as a character and Esc pauses. Press any key to resume.
+5. On Lessons and Stats press Esc: Practice opens. On the summary Enter continues and R repeats.
+6. With a screen reader, opening the sheet announces its title "Keyboard shortcuts" (or the Czech title) and the shortcut list is readable as pairs.

@@ -37,6 +37,16 @@ export const en = {
   } as Record<KeyboardMode, string>,
   wordListError: "The word list could not be loaded.",
   tryAgain: "Try again",
+  help: {
+    title: "Keyboard shortcuts",
+    close: "Close",
+    items: [
+      ["Enter", "Continue to the next lesson"],
+      ["R", "Repeat the lesson"],
+      ["Esc", "Pause while typing, go back to Practice elsewhere"],
+      ["?", "Show this help"],
+    ] as readonly (readonly [string, string])[],
+  },
   lesson: "Lesson",
   trackNames: {
     letters: "Letters",

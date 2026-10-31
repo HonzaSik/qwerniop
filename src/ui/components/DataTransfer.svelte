@@ -149,8 +149,7 @@ async function confirm(): Promise<void> {
     opacity: 0;
   }
 
-  .file:focus-within,
-  button:focus-visible {
+  .file:focus-within {
     outline: var(--focus-ring-width) solid var(--accent);
     outline-offset: var(--focus-ring-width);
   }

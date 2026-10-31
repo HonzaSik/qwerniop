@@ -163,9 +163,4 @@ const isOpen = (track: LessonTrack) =>
   .state {
     color: var(--text-2);
   }
-
-  button:focus-visible {
-    outline: var(--focus-ring-width) solid var(--accent);
-    outline-offset: var(--focus-ring-width);
-  }
 </style>

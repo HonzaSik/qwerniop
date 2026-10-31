@@ -14,3 +14,7 @@
 - Accuracy uses a non-breaking space before `%` in both languages. Reason: Czech typography requires it and one format keeps `formatAccuracy` simple.
 - Reduce motion is a `system` / `on` / `off` select beside Length until the Settings view exists, and App sets `data-reduce-motion` on `<html>`; all motion CSS is scoped to `:root:not([data-reduce-motion])` instead of media queries. Reason: one mechanism lets the setting override the OS in both directions with no per-component logic.
 - `reduceMotion` is missing or unknown reads as `system` without a settings version bump. Reason: `migrateSettings` already repairs each field alone.
+- Help sheet is a native `<dialog>` in App, opened with `?` through `showModal()` and closed by Esc or its Close button. It opens only when the key target is not an input, select or textarea and the key was not already used, so `?` still types in a passage and a key that resumes a paused session does not open it. Reason: the browser supplies focus trapping, Esc and the dialog role.
+- `Esc` pauses a session by blurring the textarea, which reuses the existing blur pause; on Lessons and Stats it returns to Practice. Reason: no second pause path.
+- The `,` (settings) shortcut is not implemented until the Settings view exists, and the help sheet lists only working shortcuts. Reason: a shortcut to nowhere would be a placeholder.
+- One global `:focus-visible` rule in App.svelte draws the ring; per-component ring rules are deleted. Reason: one rule covers every present and future control.

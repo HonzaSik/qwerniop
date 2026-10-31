@@ -79,7 +79,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 - [x] Design pass against DESIGN.md in both appearances
 - [x] Reduce motion setting and system preference
-- [ ] Full keyboard navigation, focus states, shortcut help sheet
+- [x] Full keyboard navigation, focus states, shortcut help sheet
 - [ ] Screen reader checks (Orca on Linux, VoiceOver on macOS if available)
 - [ ] Touch-device message
 - [ ] Service worker, manifest, offline test

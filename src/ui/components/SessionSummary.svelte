@@ -125,9 +125,4 @@ function focusOnShow(button: HTMLButtonElement): void {
     /* Meets AA on the accent in both appearances: the ratios DESIGN.md gives against --bg. */
     color: var(--bg);
   }
-
-  button:focus-visible {
-    outline: var(--focus-ring-width) solid var(--accent);
-    outline-offset: var(--focus-ring-width);
-  }
 </style>
