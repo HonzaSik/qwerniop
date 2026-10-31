@@ -1,0 +1,6 @@
+{
+  "model": "gemma4:12b",
+  "system": "You write typing practice material. Reply with plain text only: no Markdown, no lists, no quotes around the answer, no introduction.",
+  "prompt": "Write one realistic TypeScript snippet of 3 to 12 lines. Comments at most one line. Indent with spaces. Example: function sum(a: number, b: number): number {\\n  return a + b;\\n}",
+  "output": "interface User {\n  id: number;\n  name: string;\n  role: string;\n}\nfunction findAdmin(users: User[]): User | undefined {\n  return users.find(u => u.role === 'admin');\n}"
+}

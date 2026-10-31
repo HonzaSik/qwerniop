@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You are a helpful assistant.",
+  "prompt": "Show me a short Python snippet that reads a JSON file and prints a summary.",
+  "output": "Here's a short Python snippet that reads a JSON file and prints a summary:\n\n```python\nimport json\n\n# read the JSON file\nwith open('data.json') as f:\n    data = json.load(f)\n\n# print a summary of the data\nfor key in data:\n    print(key, ':', data[key])\n```\n\nThis assumes that the JSON file is named \"data.json\" and is in the same directory as the script. The `json.load()` function reads the file and converts it into a Python dictionary. The `for` loop then iterates over the keys in the dictionary and prints out the key-value pairs."
+}

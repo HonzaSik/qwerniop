@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "Píšeš materiál pro nácvik psaní na klávesnici. Odpovídej pouze prostým textem: žádný Markdown, žádné seznamy, žádné uvozovky kolem odpovědi, žádný úvod.",
+  "prompt": "Dej dvě nebo tři prosté věty rady k psaní. Statistiky: 34 slov za minutu, přesnost 93 procent, nejslabší klávesy ř a č (levý ukazováček), rychlost za posledních 5 lekcí roste. Příklad: Nejslabší byly klávesy ř a č. Zpomal u nich a drž přesnost nad 95 procenty.",
+  "output": "Usiluj se konzistentně. Rozděluj text na krátké části. Opakujvět příběhy nebo texty."
+}

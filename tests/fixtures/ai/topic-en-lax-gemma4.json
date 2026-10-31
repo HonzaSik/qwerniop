@@ -1,0 +1,6 @@
+{
+  "model": "gemma4:12b",
+  "system": "You are a helpful assistant.",
+  "prompt": "Explain how vaccines work in a short passage of about 60 words, with a title and a key takeaway.",
+  "output": "### How Vaccines Work\n\nVaccines work by mimicking an infection without causing the actual disease. They introduce a weakened or inactive part of a pathogen, such as a virus or bacteria, into your body. This trains your immune system to recognize the threat and produce antibodies. If you encounter the real pathogen later, your body remembers how to fight it off, preventing serious illness.\n\n**Key Takeaway:** Vaccines \"train\" your immune system to recognize and defeat pathogens before you can get sick."
+}

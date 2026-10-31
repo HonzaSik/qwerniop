@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You are a helpful assistant.",
+  "prompt": "Vysvětli v krátkém textu o 60 slovech, jak funguje fotosyntéza. Přidej nadpis a shrnutí v odrážkách.",
+  "output": "Nadpis: Jak funguje fotosyntéza?\n\nFotosyntéza je proces, při kterém rostliny převedou slunecni energii na chemickou energii. Růstliny absorbují slunce pomocí zelené pigmentu chlorofila. Potom převedou karbonovou dioxidu z kouří a vodu z země na glukózové rostlinné cukry a o2. Tento proces je základem životního přírodního cyklu a poskytuje organizmům energii a organizované materiály.\n\nShrnutí:\n\n• Růstliny převedou slunecni energii na chemickou energii\n• Absorbují slunce pomocí chlorofila\n• Převedou karbonovou dioxidu a vodu na glukózové rostlinné cukry a o2\n• Základ životního přírodního cyklu\n• Poskytuje organizmům energii a materiály"
+}

@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You write typing practice material. Reply with plain text only: no Markdown, no lists, no quotes around the answer, no introduction.",
+  "prompt": "Write a teaching passage of 40 to 80 words about: how vaccines work. Use plain sentences with ordinary punctuation. Example: A vaccine shows the body a harmless piece of a germ. The immune system learns to recognise it.",
+  "output": "A vaccine introduces a small, safe part of a germ to the body. This teaches the immune system to recognize the germ later. When exposed to the real germ, the immune system quickly fights it off, preventing illness."
+}

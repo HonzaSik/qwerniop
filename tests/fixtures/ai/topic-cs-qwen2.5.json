@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "Píšeš materiál pro nácvik psaní na klávesnici. Odpovídej pouze prostým textem: žádný Markdown, žádné seznamy, žádné uvozovky kolem odpovědi, žádný úvod.",
+  "prompt": "Napiš výukový odstavec o 40 až 80 slovech na téma: jak fungují vakcíny. Používej obyčejné věty s běžnou interpunkcí. Příklad: Vakcína ukáže tělu neškodnou část viru. Imunitní systém se ji naučí rozpoznat.",
+  "output": "Vakcína ukáže tělu neškodnou část viru. Imunitní systém se ji naučí rozpoznat a si ji zapamatovat. Když se poté setká s plně škodlivým virusem, se rychle ochrání před oním. Vakcíny tak chráníme před nemocemi a šířením vírusů."
+}

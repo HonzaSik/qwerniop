@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You are a helpful assistant.",
+  "prompt": "Give me some typing practice sentences, using only the letters e t a o i n s h r d l. Make them interesting, and give a few of them.",
+  "output": "Sure! Here are some interesting typing practice sentences using only the letters e, t, a, o, i, n, s, h, r, d, l:\n\n1. \"The rain in Spain stays mainly in the plain.\"\n2. \"A rat in the hat hid a cat.\"\n3. \"Tin cans, tin cans, tin cans stuck in my brain.\"\n4. \"The old man sat on a rock and watched the ducks.\"\n5. \"Dan lived in a small hut near the lake.\"\n6. \"In the town of Atherton, the rats run mad.\"\n7. \"The lion roared and the deer hid in the trees.\"\n8. \"A tiny insect crawled up the shin of the man.\"\n9. \"The cat and the rat played tag in the attic.\"\n10. \"Dad sat on the mat and read a sad book.\"\n\nThese sentences should provide a good typing practice while using the specified letters."
+}

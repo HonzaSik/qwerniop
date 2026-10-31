@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You write typing practice material. Reply with plain text only: no Markdown, no lists, no quotes around the answer, no introduction.",
+  "prompt": "Write one realistic TypeScript snippet of 3 to 12 lines. Comments at most one line. Indent with spaces. Example: function sum(a: number, b: number): number {\\n  return a + b;\\n}",
+  "output": "```\nclass User {\n  name: string;\n  age: number;\n\n  constructor(name: string, age: number) {\n    this.name = name;\n    this.age = age;\n  }\n\n  greet(): string {\n    return `Hello, my name is ${this.name} and I am ${this.age} years old.`;\n  }\n}\n\nconst user = new User(\"Alice\", 30);\nconsole.log(user.greet());\n```"
+}

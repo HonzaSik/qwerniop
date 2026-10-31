@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You are a helpful assistant.",
+  "prompt": "Dej mi pár českých vět na cvičení psaní, jen z písmen a e o i n t s v r k l. Ať jsou zajímavé.",
+  "output": "Zde jsou některé zajímavé české věty, které se skládají pouze z písmen a e o i n t s v r k l:\n\n1. \"Vrtí\" - mluvíme o hmotě, která se pohybuje rychle kolem něčeho.\n2. \"Kvetí\" - popisuje, jak květ červí.\n3. \"Rokl\" - to je starší sloveso pro \"řekl\".\n4. \"Slno\" - zdroj světla a tepla, který ohřívá naše planétu.\n5. \"Tikl\" - znamená \"skáká\", ale používáme ji mírně jinými okolnostmi.\n6. \"Třel\" - to je starší sloveso pro \"vtrhl\".\n7. \"Nosl\" - to znamená \"nosil\".\n8. \"Virtuální\" - slovo z angličtiny, které se stalo českým.\n9. \"Krivě\" - znamená \"nepřímo\" nebo \"nepravo\".\n10. \"Stříhl\" - znamená \"strhával\".\n\nTyto věty vám mohou pomoci cvičit psaní na konkrétních písmenách, zároveň vám poskytují některé zajímavé příklady použití těchto písmen v českém jazyce."
+}

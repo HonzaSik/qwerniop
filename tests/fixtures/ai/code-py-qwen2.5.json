@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You write typing practice material. Reply with plain text only: no Markdown, no lists, no quotes around the answer, no introduction.",
+  "prompt": "Write one realistic Python snippet of 3 to 12 lines. Comments at most one line. Indent with spaces. Example: def total(items):\\n    return sum(items)",
+  "output": "def calculate_average(numbers):\n    total_sum = sum(numbers)  # Summing up all the numbers\n    count = len(numbers)      # Counting the total number of elements\n    average = total_sum / count if count != 0 else 0  # Calculating average, handling division by zero\n    return average"
+}

@@ -1,0 +1,6 @@
+{
+  "model": "gemma4:12b",
+  "system": "You are a helpful assistant.",
+  "prompt": "Vysvětli v krátkém textu o 60 slovech, jak funguje fotosyntéza. Přidej nadpis a shrnutí v odrážkách.",
+  "output": "**Jak funguje fotosyntéza**\n\nFotosyntéza je základní biologický proces, při kterém rostliny přeměňují sluneční energii na chemickou energii. Rostliny využívají vodu, oxid uhličitý z ovzduší a světlo k výrobě glukózy, což je jejich hlavní zdroj potravy. Během tohoto procesu se do atmosféry uvolňuje kyslík, který je nezbytný pro dýchání většiny živočichů. Je to klíčový mechanismus pro udržení života na Zemi.\n\n**Shrnutí:**\n* **Vstupní složky:** Sluneční světlo, voda a oxid uhličitý.\n* **Výsledek:** Výroba glukózy (cukru) pro rostlinu a uvolnění kyslíku.\n* **Význam:** Základní zdroj energie a kyslíku pro celý život na planetě."
+}

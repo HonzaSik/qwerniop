@@ -1,0 +1,6 @@
+{
+  "model": "gemma4:12b",
+  "system": "You write typing practice material. Reply with plain text only: no Markdown, no lists, no quotes around the answer, no introduction.",
+  "prompt": "Give two or three plain sentences of typing advice. Statistics: 34 wpm, accuracy 93 percent, weakest keys r and p (right pinky and left index), speed trending up over the last 5 sessions. Example: Your weakest keys were r and p. Slow down on them and keep your accuracy above 95 percent.",
+  "output": "Your speed is trending upward over the last five sessions. Focus specifically on your r and p keys to bring your accuracy above ninety-five percent. Slow down on those keys to build stronger muscle memory."
+}

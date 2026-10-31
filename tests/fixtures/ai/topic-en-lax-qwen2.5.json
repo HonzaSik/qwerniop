@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You are a helpful assistant.",
+  "prompt": "Explain how vaccines work in a short passage of about 60 words, with a title and a key takeaway.",
+  "output": "Title: Understanding How Vaccines Work\n\nKey Takeaway: Vaccines stimulate the immune system to recognize and fight off pathogens before they cause illness.\n\nVaccines are weakened or inactivated pathogens or components of pathogens that are introduced into the body to stimulate an immune response. When the immune system encounters the vaccine, it recognizes the pathogen as foreign and produces antibodies to fight it off. If the actual pathogen enters the body later, the immune system can quickly recognize and destroy it, preventing illness. This process is known as immunization and provides long-term protection against disease."
+}

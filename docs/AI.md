@@ -106,6 +106,8 @@ Applied to all generated text:
 5. For topic text: characters that the current layout can't produce are transliterated (for example `ß` → `ss`) or the word is removed.
 6. Length clamp to the requested range.
 
+`validate(raw, options)` returns the cleaned text or `undefined` (use offline content). Beyond the rules above, it drops a leading preamble line ending in `:`, and in code mode takes the first fenced block and discards the snippet if any character is untypable. Lengths are in characters; text over the maximum is cut at the last word (or line) boundary, text under the minimum is discarded.
+
 Validation is pure and lives conceptually with `core/text` rules; it has thorough unit tests with real messy model output as fixtures in `tests/fixtures/ai/`.
 
 ## Testing

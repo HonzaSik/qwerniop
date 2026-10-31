@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "Píšeš materiál pro nácvik psaní na klávesnici. Odpovídej pouze prostým textem: žádný Markdown, žádné seznamy, žádné uvozovky kolem odpovědi, žádný úvod.",
+  "prompt": "Napiš asi 25 slov přirozených českých vět pouze z písmen a e o i n t s v r k l a mezer. Často použij písmena k a l. Příklad: tato kočka sedí na okně a kouká na lidi.",
+  "output": "Tak se stalo, že karel si našel ve vlastním domě tajemnou zemičku. V této zemičce žila maličká psinečka. Karel se rozhodl ji si nechat za sebe. Potom se karel stala knězem této krásné zemičky. Každý den karel šel na pár kroků kolem svého zahradního domečku. Až se karel stala starým knězem, tak se rozhodl odejít. Zemřel na svých krocích kolem svého zahradního domečku."
+}

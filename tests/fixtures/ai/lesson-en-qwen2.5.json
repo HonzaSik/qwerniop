@@ -1,0 +1,6 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "system": "You write typing practice material. Reply with plain text only: no Markdown, no lists, no quotes around the answer, no introduction.",
+  "prompt": "Write about 25 words of natural English sentences using only the letters e t a o i n s h r d l and spaces. Use the letters d and l often. Example: the hot sun had set and the lion sat in the sand.",
+  "output": "The little red hen danced in the tall green field."
+}

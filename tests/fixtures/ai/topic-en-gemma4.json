@@ -1,0 +1,6 @@
+{
+  "model": "gemma4:12b",
+  "system": "You write typing practice material. Reply with plain text only: no Markdown, no lists, no quotes around the answer, no introduction.",
+  "prompt": "Write a teaching passage of 40 to 80 words about: how vaccines work. Use plain sentences with ordinary punctuation. Example: A vaccine shows the body a harmless piece of a germ. The immune system learns to recognise it.",
+  "output": "Vaccines are tools that train your body to fight diseases. They contain a small part of a germ or a weakened version of it. This part is harmless but helps your immune system recognize the threat. Your body then creates special proteins called antibodies. If the real germ enters your body later, your system knows how to fight it quickly. This keeps you healthy and safe."
+}
