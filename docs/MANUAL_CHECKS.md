@@ -232,4 +232,9 @@ After the first push to GitHub, open repository Settings, Pages, and set Source 
 
 Open https://wortschatz.uni-leipzig.de/en/usage in a browser (it sits behind a bot check) and confirm the corpora are still offered under CC BY, then update the quote in `src/data/SOURCES.md` if it differs.
 
-After the checks above pass and the license review is done: in `CHANGELOG.md` rename `[Unreleased]` to `[1.0.0] - <date>`, set `"version": "1.0.0"` in `package.json`, commit, tag `v1.0.0` and push the commit and the tag.
+After the checks above pass and the license review is done:
+
+- [x] 2026-10-31: `CHANGELOG.md` heading renamed to `[1.0.0] - 2026-10-31`.
+- [x] `package.json` version set to `1.0.0`; committed.
+- [x] Local tag `v1.0.0` created.
+- [ ] Push the commit and the tag (human step).
