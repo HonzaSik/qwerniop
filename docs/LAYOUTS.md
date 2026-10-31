@@ -72,6 +72,7 @@ Note that `Y` and `Z` are swapped compared to US, and digits need Shift.
 | `´` | á é í ó ú ý, Á É Í Ó Ú Ý |
 | `ˇ` | č ď ě ň ř š ť ž, Č Ď Ě Ň Ř Š Ť Ž |
 | `¨` | ä ë ö ü (rare, supported but not taught) |
+| `˚` | ů, Ů |
 
 A dead key followed by Space produces the accent character itself. That is expressed as a `" "` entry in `compose`, not computed.
 

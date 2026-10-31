@@ -99,5 +99,6 @@ export const csQwertz: Layout = {
     "´": { ...pairs("aeiouy", "áéíóúý"), " ": "´" },
     ˇ: { ...pairs("cdenrstz", "čďěňřšťž"), " ": "ˇ" },
     "¨": { ...pairs("aeou", "äëöü"), " ": "¨" },
+    "˚": { ...pairs("u", "ů"), " ": "˚" },
   },
 };

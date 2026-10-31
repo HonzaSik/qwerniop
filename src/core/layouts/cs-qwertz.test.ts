@@ -106,4 +106,13 @@ describe("cs-qwertz composition", () => {
       { code: "Space", shift: null },
     ]);
   });
+
+  test("ring above composes Ů, keeps ů on its own key", () => {
+    expect(strokesFor(csQwertz, "Ů")).toEqual([
+      { code: "Backquote", shift: "ShiftRight" },
+      { code: "KeyU", shift: "ShiftLeft" },
+    ]);
+    expect(strokesFor(csQwertz, "ů")).toHaveLength(1);
+    expect(csQwertz.compose["˚"]?.[" "]).toBe("˚");
+  });
 });
