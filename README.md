@@ -60,6 +60,7 @@ Then open Settings → Model server, keep the default address `http://localhost:
 - [Model integration](docs/AI.md)
 - [Code style](docs/CODE_STYLE.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## License

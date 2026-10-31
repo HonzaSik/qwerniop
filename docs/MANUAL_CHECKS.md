@@ -1,120 +1,173 @@
-# Model integration (optional)
+# Manual checks
 
-Tenfold can use a language model running on your own machine to generate practice material. This is an extra: every mode has an offline equivalent, and the app works identically with no model server.
+Checks that need a human at a real browser. Record the date and result in the commit or PR that closes the milestone.
 
-## Rules
+## Frame time at 6× CPU throttling (Chromium and Firefox)
 
-1. **Optional.** Nothing in `src/ai/` loads unless a model server is configured. The `ai` chunk is imported dynamically.
-2. **Never blocks typing.** Generation runs ahead of the learner: the next passage for the current mode and lesson is requested in the background (`src/ui/prefetch.ts` holds at most one result per key and aborts a request whose key changed). A session uses it only if it is already ready; otherwise the offline generator fills in with no wait.
-3. **Fails quietly.** Network errors, timeouts, bad output or a stopped server fall back to offline content. A small status dot in Settings shows the connection state; no modal errors.
-4. **Local by default.** The default address is `http://localhost:11434/v1`. No data is sent anywhere else unless the user enters another address. Only prompts and session statistics are sent, never typed text.
-5. **Validated.** Generated text is checked before it is shown (see Validation).
+Budget (PERFORMANCE.md): keystroke to painted frame under 16 ms at 6× CPU slowdown.
 
-## Provider interface
+Chromium:
 
-```ts
-interface TextProvider {
-  listModels(signal?: AbortSignal): Promise<string[]>
-  stream(request: GenerateRequest, signal?: AbortSignal): AsyncIterable<string>
-}
+1. `pnpm build && pnpm preview`, open the app in a fresh profile with extensions off.
+2. DevTools, Performance panel, CPU: 6× slowdown.
+3. Start a session. Record 20 s of fast, continuous typing (include a line wrap and a few errors).
+4. In the Frames and Main tracks, inspect every long frame and long task.
 
-interface GenerateRequest {
-  system: string
-  prompt: string
-  maxTokens: number
-  temperature: number
-}
-```
+Firefox:
 
-`openai-compatible.ts` implements this against:
+1. Same build. DevTools, Performance, record 20 s of the same typing. Firefox has no CPU throttle in DevTools, so throttle the machine instead, or use a device at least 6× slower than a desktop, and note which.
+2. Inspect the frames track for frames over 16 ms.
 
-- `GET {baseUrl}/models`
-- `POST {baseUrl}/chat/completions` with `stream: true`, parsing server-sent events.
+Pass:
 
-This works with Ollama, LM Studio, the llama.cpp server and other compatible servers. An optional API key is sent as `Authorization: Bearer …` only if set.
+- No frame over 16 ms caused by app code (scripting, style, layout, paint triggered by keystrokes).
+- No layout shift in the recording.
+- No layout read (`getBoundingClientRect`, `offsetLeft`) inside the keystroke handler.
 
-Timeouts: 5 s to first token, 30 s total; both abort through `AbortController`. Failures throw `ProviderError` (`network`, `http`, `timeout`, `bad-response`, `server`). The model name is set when the provider is created.
+On failure, fix the cause on the keystroke path and repeat the check.
 
-## Settings
+## Layout switcher and per-layout progress
 
-| Setting | Default |
-|---|---|
-| Enabled | off |
-| Topic | empty (the subject for Learn a topic) |
-| Base URL | `http://localhost:11434/v1` |
-| Model | none (chosen from the list returned by the server) |
-| API key | empty, stored locally, excluded from export |
-| Modes | each of the four modes can be turned on separately |
+1. `pnpm dev`, open the app, finish a letter lesson with `en-us` and note the Lessons view unlock count.
+2. Choose "Czech (QWERTZ)" in the Layout select at the top right. The keyboard, lesson title and words become Czech and Lessons shows Czech progress from Lesson 1.
+3. Reload the page. Czech is still selected.
+4. Switch back to the English layout. Its earlier unlock count is unchanged.
+5. In Stats, history and heatmap show only the layout in use. Export, import the file and check both layouts keep their progress.
 
-"Test connection" lists the models and reports success or the error in plain words, including the CORS hint below.
+## Czech UI
 
-## Browser access (CORS)
+1. In Chrome set the browser language to Czech (Settings, Languages) and reload `pnpm dev`; or run `navigator.language` in the console to confirm it starts with `cs`. The page language (`<html lang>`) is `cs`.
+2. Walk Practice, Lessons and Stats. Every label, button, select option, status message and the session summary is Czech with correct diacritics, and no English is left (the layout select reads "Čeština (QWERTZ)").
+3. Finish a session. The feedback sentence reads naturally, including with one, two and three weak keys.
+4. In Stats, export, then import a file: the replace dialog and its counts read correctly; import a non-export JSON and check the error is Czech.
+5. Check that text fits: nav, the two selects at the top right, Lessons buttons and the summary do not wrap badly or overflow at 1280 px and at 360 px.
+6. Switch the browser back to English and reload: the whole UI is English again.
 
-Browsers only allow the app to call a local server that permits its origin.
+## Design pass
 
-- **Ollama:** start with `OLLAMA_ORIGINS` including the app's origin, for example `OLLAMA_ORIGINS="http://localhost:5173,http://localhost:4173"`, or the hosted site's origin.
-- **LM Studio:** enable CORS in the server settings.
-- **Other servers:** see their documentation for allowing cross-origin requests.
+Check each screen in light and dark (system setting, then `data-theme` set to `light` and `dark` on `<html>` in DevTools), at 1280 px and 360 px.
 
-When a request fails in a way that looks like CORS (a `TypeError` from `fetch` with no response), Settings shows these instructions.
+1. Practice: typed text reads as primary, untyped as clearly dimmer; caret and next key are accent; a wrong character is red and underlined on a tinted background. Spacing around the nav, selects, timer and keyboard is even.
+2. Keyboard: all eight finger colours are distinct and muted in both appearances, labels are legible on every key, next-key outline and Shift outline are visible.
+3. Summary: numbers are tabular, accuracy shows "97 %" with no wrap between number and sign, Continue has a visible focus ring.
+4. Lessons: locked buttons are readable but clearly disabled, the current lesson has an accent outline, "Unlocked n of m" is secondary text.
+5. Stats: chart ticks match the size of other small text, line is accent, grid is hairline; the heatmap tints toward red without losing key labels; the Your data status error is red.
+6. Nothing uses a colour, size or gap that looks off the scale (4, 8, 12, 16, 24, 32 px), and no gradients, shadows or glows appear.
 
-## Modes
+## Reduce motion
 
-### 1. Lesson text
+1. With the setting on System and the OS "reduce motion" preference off: the caret glides and blinks, the text scrolls smoothly, keys fade, the summary fades in.
+2. Turn the OS preference on (no reload): the caret is solid and jumps instantly, the text scrolls by whole lines with no animation, key highlights and the summary switch instantly.
+3. Set the select to Off with the OS preference on: motion returns. Set it to On with the OS preference off: motion stops. Reload: the choice is kept.
 
-Generates sentences for the current lesson.
+## Keyboard navigation and help sheet
 
-- Input: allowed characters, the weakest characters (top 5), language, target length.
-- Prompt asks for natural words using only allowed letters, favouring the weak ones.
-- Output is always validated; models are unreliable at character restrictions, so expect to discard words.
-- Useful mostly from the middle of the letter track on. Before that, the offline generator is usually better, so this mode is only used once at least 12 letters are unlocked.
+1. On Practice, Lessons and Stats, press Tab from the page start through every control to the end and back with Shift+Tab: the order follows the visual order and nothing is skipped or trapped. Use Enter or Space on each button and link, and arrow keys on each select.
+2. Every focused element shows a 2 px accent ring with a 2 px gap, in light and in dark (set `data-theme` on `<html>`).
+3. Outside a session press `?`: the help sheet opens, focus moves into it, and Tab stays inside. Esc closes it and focus returns to where it was. Repeat with the Close button.
+4. In a session type `?` and Esc: `?` is typed as a character and Esc pauses. Press any key to resume.
+5. On Lessons and Stats press Esc: Practice opens. On the summary Enter continues and R repeats.
+6. With a screen reader, opening the sheet announces its title "Keyboard shortcuts" (or the Czech title) and the shortcut list is readable as pairs.
 
-### 2. Learn a topic
+## Screen reader (Orca on Linux, VoiceOver on macOS)
 
-The learner types a topic (for example "how vaccines work" or "Rust ownership"), and the model writes a series of short teaching passages, each building on the last.
+Setup: `pnpm build && pnpm preview`. Orca: Firefox or Chromium, start with `orca` (Super+Alt+S on GNOME). VoiceOver: Safari, Cmd+F5. Repeat once with the browser language set to Czech: speech should switch to a Czech voice and all labels be Czech.
 
-- Available once all letters of the layout are unlocked, plus punctuation if the topic text needs it (otherwise punctuation is stripped).
-- Passages are 40–80 words. The next one is requested as soon as the current one is shown, with a short summary of previous passages for continuity.
-- After every 3rd passage, an optional one-line recap question is shown (not typed) under the session feedback.
-- The topic history is kept locally so the learner can continue later.
+1. Landmarks: jump by landmark (Orca: `m`; VoiceOver: rotor, Landmarks). Announced: navigation named "Views" (or Czech), main named "Practice". Headings (Orca: `h`; rotor) list the lesson title as level 1. Lessons and Stats list their section headings and name their main landmark.
+2. Controls: Tab through Practice. Each select is announced with its label (Layout, Length, Reduce motion, Keyboard) and current value. The current nav link is announced as current page.
+3. Practice text: Tab to the text field. Announced: "Type the text" and the passage as its description. The on-screen keyboard and caret are never announced or reachable in browse mode.
+4. Typing: type 20 characters, including errors. Nothing is announced per keystroke (no character echo from the app, no "correct" or "wrong"). Orca's own key echo may speak typed characters; turn it off in Orca preferences for this check.
+5. Pause: press Esc or click away. "Click or press any key to continue" is announced once. Resuming does not repeat it.
+6. Timed session: choose a seconds length and start. The countdown is not announced every second (browse to it to read it: "Time left").
+7. Summary: finish a session. "Session results" with WPM, accuracy, time and the feedback is announced once, politely, after the final key. Focus lands on Continue, announced with its shortcut. Repeat and Continue are reachable.
+8. Dialogs: press `?` outside a session. The dialog and title "Keyboard shortcuts" are announced, shortcuts read as pairs; Esc closes and focus returns. On Stats, Your data: Import of a file opens the replace dialog with its title announced, and error or success messages are announced.
+9. Stats chart: the line chart is one image with a text summary; the heatmap keys are readable.
 
-### 3. Code snippets
+Pass: every item announces what is listed and nothing else. Record any extra announcement and its trigger.
 
-- Input: programming language, allowed symbols, length.
-- Output: one realistic snippet, 3–12 lines, no comments longer than one line.
-- Validated for allowed characters; indentation is normalized to spaces.
+## Touch-device message
 
-### 4. Session feedback
+Setup: `pnpm build && pnpm preview`.
 
-- Input: session statistics only: WPM, accuracy, weakest characters and fingers, trend over the last sessions.
-- Output: two or three plain sentences of advice.
-- Offline equivalent: a rule-based summary such as "Your weakest keys were ř and č, both on your left index finger. Slow down on the number row."
+1. Phone: open Practice. "Connect a keyboard to practice" shows above the passage. Tapping to raise the on-screen keyboard and typing does not hide it if the keyboard sends no key code.
+2. Tablet with a hardware keyboard: the message shows on load and disappears on the first hardware key press; typing works normally.
+3. Desktop with DevTools touch emulation (Chromium device mode, reload after enabling): the message shows; press any key and it disappears.
+4. Desktop with mouse and no emulation: the message never shows.
 
-## Prompts
+Pass: the message appears only on touch-first devices and never returns after a physical key.
 
-One file per mode in `src/ai/prompts/`, each exporting a function `(input) => GenerateRequest`. Prompts are written in the target language (English or Czech), request plain text only (no Markdown, no lists, no quotes around the answer) and include a short example of the desired output.
+## Offline and install
 
-Prompts are part of the product. Changes to them should be tested against at least two small local models and noted in the pull request.
+Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile.
 
-## Validation (`validate.ts`)
+1. Open the preview URL and let it load. DevTools, Application, Service Workers: `sw.js` is activated.
+2. Network panel: tick Offline and reload. The app loads and a session works.
+3. Back online, switch Layout to Czech (QWERTZ) once so its word list loads. Go offline, reload, switch between layouts. Both work.
+4. Update flow: change any source file, run `pnpm build` again (preview serves the new `dist`), reload the open tab. "Update available" shows. Click Reload: the page reloads and Application shows the new worker as activated.
+5. Application, Manifest: no errors, name "Tenfold", icon shown, installable (install icon in the address bar).
+6. With a model server configured, requests to it are not listed under Cache Storage.
 
-Applied to all generated text:
+Pass: offline reload works for both layouts, the update message appears only after a rebuild, and the manifest has no warnings.
 
-1. Unicode NFC normalization, trim, collapse whitespace (except newlines in code mode).
-2. Strip Markdown artifacts: backticks, asterisks, leading list markers, surrounding quotes.
-3. Replace typographic characters with typable ones: curly quotes → straight, en/em dash → `-`, ellipsis → `...`, non-breaking space → space.
-4. For lesson text: remove every word that contains a character not in the allowed set. If fewer than 60 % of the words survive, discard the result and use offline text.
-5. For topic text: characters that the current layout can't produce are transliterated (for example `ß` → `ss`) or the word is removed.
-6. Length clamp to the requested range.
+## Practice font
 
-`validate(raw, options)` returns the cleaned text or `undefined` (use offline content). Beyond the rules above, it drops a leading preamble line ending in `:`, and in code mode takes the first fenced block and discards the snippet if any character is untypable. Lengths are in characters; text over the maximum is cut at the last word (or line) boundary, text under the minimum is discarded.
+Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile, DevTools open.
 
-Validation is pure and lives conceptually with `core/text` rules; it has thorough unit tests with real messy model output as fixtures in `tests/fixtures/ai/`.
+1. Network panel, reload with cache disabled: `JetBrainsMono-Regular-subset.woff2` loads, is under 60 KB, and its Initiator is "Other" (the preload link in `index.html`), with no second request for it.
+2. Practice with layout Czech (QWERTZ): a passage with `ě š č ř ž ý á í é ú ů ď ť ň` renders in JetBrains Mono. DevTools, Elements, Computed, Rendered Fonts on `#passage` lists only "JetBrains Mono" and no fallback.
+3. Switch to English: punctuation (`{ } [ ] < > | ~ ^ \ @ # $ %`) renders from the same font.
+4. Network panel, throttle to Slow 3G, reload: text is readable straight away in the monospace fallback and swaps once the font arrives.
 
-## Testing
+Pass: one font request, no fallback glyphs, and the text stays monospace before and after the swap.
 
-- Unit tests use a fake `TextProvider` that yields scripted chunks, including malformed ones, slow ones and failures.
-- No test requires a running model server.
+## Performance pass
+
+Setup: `pnpm build && pnpm preview`.
+
+1. Build budgets: `pnpm build` ends with `size-check: all budgets hold` (initial JS 50 KB, CSS 10 KB, font 60 KB, each word list 60 KB, all gzip except the font). Recorded 2026-10-31: JS 36.7 KB, CSS 3.2 KB, font 9.3 KB, word lists 36.5 KB (en) and 38.9 KB (cs).
+2. Lazy loading: Network panel, reload with cache disabled, the word list `.txt` for the current layout is requested after the page scripts, and the other locale's list is not requested.
+3. Time to interactive: Chromium, Lighthouse (Navigation, Mobile), throttling Slow 4G and 4× CPU, incognito with no extensions. Run three times; the median TTI must be under 2 s.
+4. Frame time: run the "Frame time at 6× CPU throttling" check above in Chromium and in Firefox.
+5. `pnpm test:bench`: each case under 0.05 ms per event and within 20 % of `tests/bench/BASELINE.md`.
+
+Pass: every number is inside its budget in `docs/PERFORMANCE.md`. Record the measured TTI and the long-frame count here when run.
+
+## Model provider
+
+Setup: a local OpenAI-compatible server (for example Ollama on `http://localhost:11434/v1`) with CORS allowing the dev origin.
+
+1. In the browser console on the dev page: `const { createOpenAiProvider } = await import("/src/ai/openai-compatible.ts"); const p = createOpenAiProvider({ baseUrl: "http://localhost:11434/v1", model: "<a model>" }); await p.listModels()` returns model names.
+2. `for await (const t of p.stream({ system: "Reply briefly.", prompt: "Say hello.", maxTokens: 30, temperature: 0.7 })) console.log(t)` logs pieces as they arrive.
+3. Stop the server and repeat: both calls reject with `ProviderError` of kind `network`.
+
+Pass: text streams in pieces, and a stopped server gives a rejection, not a hang.
+
+## Settings: model server
+
+Setup: a local OpenAI-compatible server (for example Ollama), and `pnpm dev` or `pnpm preview`.
+
+1. DevTools Network with cache disabled, reload, open `#settings` (or press `,`): no `ai` chunk is requested yet.
+2. Click "Test connection" with CORS allowed (`OLLAMA_ORIGINS` includes the page origin): the `ai` chunk loads, the status reads "Connected. n models found." and the Model select lists them.
+3. Restart the server without the origin allowed and test again: the status reads "The server could not be reached." and the CORS help appears with the real origin.
+4. Use a wrong API key on a server that answers: an error without the CORS help. Reload: address, model and key are kept. Export the data: the file has no `modelServer`.
+5. Every field is reachable and operable by keyboard.
+
+Pass: the chunk loads only on the first test, and failures show plain words.
+
+## Model modes
+
+Setup: Ollama with a model pulled (for example `qwen2.5-coder:14b`), `OLLAMA_ORIGINS` including the page origin, `pnpm dev`. In Settings run "Test connection" and pick the model, then switch on "Use the model server".
+
+1. Lesson text: progress to at least 12 letters (lesson 7 on English), start a letters lesson. After a short wait the text is sentences using only the unlocked letters. With "Lesson text" off, it is the offline word text.
+2. Learn a topic: enter a topic in Settings, reach the last letter lesson (or import progress), start a letters lesson: the text is a short teaching passage on the topic, typable on the layout. The next lesson continues the topic.
+3. Code snippets: start code lesson 4 (whole snippets): the text is a short JavaScript snippet with indentation; Enter types a newline.
+4. Session feedback: finish any session: the offline sentence appears at once and is replaced by two or three model sentences within seconds.
+5. Learn a topic recap and history: finish three topic passages in a row. After the third, a line "Think about it:" with a question appears under the feedback sentence; it is not typed and does not appear after passages one and two. Reload the page and start another letters lesson: the passage continues the topic (DevTools, Application, IndexedDB `tenfold`, `topics` holds the topic with at most 6 passages).
+6. Stop the server and repeat 1 to 5: no error is shown, each lesson starts with offline text after at most 8 s, and the summary keeps the offline sentence.
+7. With "Use the model server" off, reload with cache disabled and open Practice: no `ai` chunk (`modes`, `openai-compatible`) is requested.
+
+Pass: every mode (and the recap) shows model text when the server runs, the offline text and sentence when it does not, and nothing blocks typing.
+
 
 ## Model prefetching
 
@@ -156,3 +209,7 @@ Open both PNGs: the page must be rendered (not blank) and the two must differ. S
 ## GitHub Pages
 
 After the first push to GitHub, open repository Settings, Pages, and set Source to "GitHub Actions"; then run the Pages workflow (or push again). Load `https://<user>.github.io/tenfold/` and check: the page renders with the monospace font, a lesson types, and both word lists load (switch layout to Czech). In DevTools, Application shows the worker active with scope `/tenfold/`. Go offline and reload: the app still loads. Install it from the browser menu and confirm it opens at `/tenfold/`.
+
+## Release
+
+After the checks above pass and the license review is done: in `CHANGELOG.md` rename `[Unreleased]` to `[1.0.0] - <date>`, set `"version": "1.0.0"` in `package.json`, commit, tag `v1.0.0` and push the commit and the tag.
