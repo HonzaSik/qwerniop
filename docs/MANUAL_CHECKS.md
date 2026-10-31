@@ -131,3 +131,13 @@ Setup: `pnpm build && pnpm preview`.
 5. `pnpm test:bench`: each case under 0.05 ms per event and within 20 % of `tests/bench/BASELINE.md`.
 
 Pass: every number is inside its budget in `docs/PERFORMANCE.md`. Record the measured TTI and the long-frame count here when run.
+
+## Model provider
+
+Setup: a local OpenAI-compatible server (for example Ollama on `http://localhost:11434/v1`) with CORS allowing the dev origin.
+
+1. In the browser console on the dev page: `const { createOpenAiProvider } = await import("/src/ai/openai-compatible.ts"); const p = createOpenAiProvider({ baseUrl: "http://localhost:11434/v1", model: "<a model>" }); await p.listModels()` returns model names.
+2. `for await (const t of p.stream({ system: "Reply briefly.", prompt: "Say hello.", maxTokens: 30, temperature: 0.7 })) console.log(t)` logs pieces as they arrive.
+3. Stop the server and repeat: both calls reject with `ProviderError` of kind `network`.
+
+Pass: text streams in pieces, and a stopped server gives a rejection, not a hang.

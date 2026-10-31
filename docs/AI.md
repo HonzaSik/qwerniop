@@ -33,7 +33,7 @@ interface GenerateRequest {
 
 This works with Ollama, LM Studio, the llama.cpp server and other compatible servers. An optional API key is sent as `Authorization: Bearer …` only if set.
 
-Timeouts: 5 s to first token, 30 s total; both abort through `AbortController`.
+Timeouts: 5 s to first token, 30 s total; both abort through `AbortController`. Failures throw `ProviderError` (`network`, `http`, `timeout`, `bad-response`, `server`). The model name is set when the provider is created.
 
 ## Settings
 
