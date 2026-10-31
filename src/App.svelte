@@ -5,7 +5,8 @@ import type { Targets } from "./core/adaptive/weakness";
 import type { Session } from "./core/engine/engine";
 import { sessionRecord } from "./core/engine/record";
 import { accuracy, netWpm } from "./core/engine/results";
-import { enUs } from "./core/layouts/en-us";
+import type { Layout } from "./core/layouts/layout";
+import { LAYOUTS, layoutById } from "./core/layouts/registry";
 import {
   completeLesson,
   type Lesson,
@@ -27,6 +28,7 @@ import {
   saveProgress,
   saveSession,
   saveSettings,
+  switchLayout,
   ui,
 } from "./ui/state.svelte";
 import Lessons from "./ui/views/Lessons.svelte";
@@ -35,10 +37,12 @@ import Stats from "./ui/views/Stats.svelte";
 
 // Words a timed session generates per second: 4 is 240 wpm, so nobody outruns the text.
 const WORDS_PER_SECOND = 4;
-const LAYOUT = enUs.id;
 
 // The hash is the view, so Back works and the nav is plain links.
 let hash = $state(location.hash);
+const layout = $derived(layoutById(ui.settings.layout));
+// Replaced when the layout changes; the list belongs to the layout in use.
+let words = $state.raw<string[]>([]);
 const view = $derived(
   hash === "#lessons" ? "lessons" : hash === "#stats" ? "stats" : "practice",
 );
@@ -67,6 +71,27 @@ function begin(lesson: Lesson): Run {
 }
 let run = $state(begin(ui.lesson));
 
+// An import can bring another layout, whose words are not loaded yet.
+async function afterImport(): Promise<void> {
+  try {
+    words = await loadWords(ui.settings.layout);
+  } catch (error) {
+    console.error("Word list failed to load", error);
+  }
+  run = begin(ui.lesson);
+}
+
+async function chooseLayout(id: Layout["id"]): Promise<void> {
+  try {
+    const loaded = await loadWords(id);
+    await switchLayout(id);
+    words = loaded;
+    run = begin(ui.lesson);
+  } catch (error) {
+    console.error("Layout switch failed", error);
+  }
+}
+
 function start(lesson: Lesson): void {
   ui.lesson = lesson;
   run = begin(lesson);
@@ -83,20 +108,20 @@ function finish(session: Session): void {
   const track = run.lesson.track;
   const before = ui.progress[track];
   ui.progress = completeLesson(
-    LAYOUT,
+    layout.id,
     progress,
     run.lesson,
     ui.settings.targets,
   );
   const after = ui.progress[track];
   const labels = weakestKeys(
-    enUs,
+    layout,
     ui.progress.stats,
     session.log.map((s) => s.expected),
     ui.settings.targets,
     3,
   ).map((code) => {
-    const key = enUs.keys.find((k) => k.code === code);
+    const key = layout.keys.find((k) => k.code === code);
     return key ? keyLabel(key).main : code;
   });
   run.feedback = {
@@ -108,28 +133,31 @@ function finish(session: Session): void {
       weakest: labels,
       unlocked:
         after > before
-          ? lessonTitle(LAYOUT, { track, stage: after })
+          ? lessonTitle(layout.id, { track, stage: after })
           : undefined,
     }),
   };
   saveProgress();
-  saveSession(sessionRecord(session, LAYOUT, run.lesson, Date.now()));
+  saveSession(sessionRecord(session, layout.id, run.lesson, Date.now()));
 }
 
+// The word list depends on the saved layout, so it loads once storage has answered.
 const data = Promise.all([
-  loadWords(),
   loadSnippets(),
-  loadStore(LAYOUT).then(hydrate),
-]).then(([words, snippets]) => {
+  loadStore()
+    .then(hydrate)
+    .then(() => loadWords(ui.settings.layout)),
+]).then(([snippets, loaded]) => {
+  words = loaded;
   run = begin(ui.lesson);
-  return [words, snippets] as const;
+  return snippets;
 });
-const text = (words: string[], snippets: string) =>
+const text = (snippets: string) =>
   generateContent({
     type: run.lesson.track === "letters" ? "words" : run.lesson.track,
     words,
     snippets: parseSnippets(snippets),
-    letters: unlockedLetters(LAYOUT, run.letterStage) ?? "",
+    letters: unlockedLetters(layout.id, run.letterStage) ?? "",
     stats: run.stats,
     targets: run.targets,
     stage: run.lesson.track === "letters" ? 0 : run.lesson.stage,
@@ -143,29 +171,36 @@ const text = (words: string[], snippets: string) =>
 
 <svelte:window onhashchange={() => (hash = location.hash)} />
 
-{#await data then [words, snippets]}
+{#await data then snippets}
   <nav aria-label="Views">
     <a href="#practice" aria-current={view === "practice" ? "page" : undefined}>Practice</a>
     <a href="#lessons" aria-current={view === "lessons" ? "page" : undefined}>Lessons</a>
     <a href="#stats" aria-current={view === "stats" ? "page" : undefined}>Stats</a>
   </nav>
   {#if view === "lessons"}
-    <Lessons layout={LAYOUT} progress={ui.progress} current={ui.lesson} onstart={start} />
+    <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} />
   {:else if view === "stats"}
-    {#key hash}<Stats sessions={readSessions()} onimported={() => (run = begin(ui.lesson))} />{/key}
+    {#key hash}<Stats sessions={readSessions()} onimported={afterImport} />{/key}
   {:else}
-    {#key `${run.seed}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
+    {#key `${run.seed}${layout.id}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
       <Practice
-        text={text(words, snippets)}
-        title={lessonTitle(LAYOUT, run.lesson)}
+        text={text(snippets)}
+        title={lessonTitle(layout.id, run.lesson)}
         errorMode={ui.settings.errorMode}
         timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
         feedback={run.feedback}
         onfinish={finish}
-        onnext={() => start(nextLesson(LAYOUT, run.lesson))}
+        onnext={() => start(nextLesson(layout.id, run.lesson))}
       />
     {/key}
-    <label class="length">
+    <div class="controls">
+    <label>
+      Layout
+      <select value={layout.id} onchange={(e) => chooseLayout(LAYOUTS[e.currentTarget.selectedIndex]?.id ?? layout.id)}>
+        {#each LAYOUTS as l}<option value={l.id}>{l.name}</option>{/each}
+      </select>
+    </label>
+    <label>
       Length
       <select
         value={SESSION_LENGTHS.findIndex((l) => l.kind === ui.settings.length.kind && l.amount === ui.settings.length.amount)}
@@ -180,6 +215,7 @@ const text = (words: string[], snippets: string) =>
         {#each SESSION_LENGTHS as l, i}<option value={i}>{lengthLabel(l)}</option>{/each}
       </select>
     </label>
+    </div>
   {/if}
 {:catch}
   <main class="error">
@@ -242,10 +278,12 @@ const text = (words: string[], snippets: string) =>
     outline-offset: var(--focus-ring-width);
   }
 
-  .length {
+  .controls {
     position: fixed;
     top: var(--space-4);
     right: var(--space-4);
+    display: flex;
+    gap: var(--space-4);
     color: var(--text-2);
     font-size: var(--text-size-sm);
   }

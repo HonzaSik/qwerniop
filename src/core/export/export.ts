@@ -5,7 +5,7 @@ import { migrateSettings, type Settings } from "../settings/settings";
 export const EXPORT_SCHEMA = 1;
 
 /** Layouts whose progress is kept; progress for any other id in a file is ignored. */
-export const PROGRESS_LAYOUTS = ["en-us"] as const;
+export const PROGRESS_LAYOUTS = ["en-us", "cs-qwertz"] as const;
 type ProgressLayout = (typeof PROGRESS_LAYOUTS)[number];
 
 export interface AppData {
@@ -60,7 +60,10 @@ export function parseExport(raw: unknown): ParsedExport {
     droppedSessions: raw.sessions.length - sessions.length,
     value: {
       settings: migrateSettings(raw.settings),
-      progress: { "en-us": parseProgress("en-us", progress["en-us"]) },
+      progress: {
+        "en-us": parseProgress("en-us", progress["en-us"]),
+        "cs-qwertz": parseProgress("cs-qwertz", progress["cs-qwertz"]),
+      },
       sessions,
     },
   };

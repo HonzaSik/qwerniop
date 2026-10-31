@@ -13,7 +13,7 @@ function setup(fail = false) {
   };
   const writer: Writer = {
     putSettings: (s) => gate(`settings:${JSON.stringify(s)}`),
-    putProgress: (p) => gate(`progress:${JSON.stringify(p)}`),
+    putProgress: (_, p) => gate(`progress:${JSON.stringify(p)}`),
     addSession: (r) => gate(`session:${r.at}`),
   };
   const tasks: Array<() => void> = [];
@@ -40,8 +40,8 @@ describe("write queue", () => {
     const { queue, log } = setup();
     queue.saveSettings({ v: 1 } as never);
     queue.saveSettings({ v: 2 } as never);
-    queue.saveProgress({ v: 1 } as never);
-    queue.saveProgress({ v: 3 } as never);
+    queue.saveProgress("en-us", { v: 1 } as never);
+    queue.saveProgress("en-us", { v: 3 } as never);
     queue.addSession(rec(1));
     queue.addSession(rec(2));
     await queue.flush();
@@ -51,6 +51,14 @@ describe("write queue", () => {
       "session:2",
       'settings:{"v":2}',
     ]);
+  });
+
+  it("keeps the latest progress of each layout", async () => {
+    const { queue, log } = setup();
+    queue.saveProgress("en-us", { v: 1 } as never);
+    queue.saveProgress("cs-qwertz", { v: 2 } as never);
+    await queue.flush();
+    expect(log.sort()).toEqual(['progress:{"v":1}', 'progress:{"v":2}']);
   });
 
   it("keeps failed writes for the next flush without retrying alone", async () => {

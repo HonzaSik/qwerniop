@@ -1,12 +1,12 @@
 <script lang="ts">
 import type { SessionRecord } from "../../core/engine/record";
-import { enUs } from "../../core/layouts/en-us";
+import { layoutById } from "../../core/layouts/registry";
 import { heatScale, keyErrors, recentSessions } from "../../core/stats/history";
 import DataTransfer from "../components/DataTransfer.svelte";
 import Keyboard from "../components/Keyboard.svelte";
 import { keyLabel } from "../components/keyboard-labels";
 import LineChart from "../components/LineChart.svelte";
-import { readSessions } from "../state.svelte";
+import { readSessions, ui } from "../state.svelte";
 
 interface Props {
   /** Resolves when storage has been read; opening the view starts the read. */
@@ -22,13 +22,14 @@ const sessions = $derived(reread ?? opened);
 const WORST_KEYS = 5;
 
 function summarise(records: SessionRecord[]) {
-  const recent = recentSessions(records, enUs.id);
-  const counts = keyErrors(enUs, records);
+  const layout = layoutById(ui.settings.layout);
+  const recent = recentSessions(records, layout.id);
+  const counts = keyErrors(layout, records);
   const worst = [...counts]
     .sort((a, b) => b[1] - a[1])
     .slice(0, WORST_KEYS)
     .flatMap(([code, n]) => {
-      const key = enUs.keys.find((k) => k.code === code);
+      const key = layout.keys.find((k) => k.code === code);
       return key ? [{ name: keyLabel(key).main || key.code, n }] : [];
     });
   return { recent, heat: heatScale(counts), worst };
@@ -53,7 +54,7 @@ function summarise(records: SessionRecord[]) {
         {#if s.worst.length === 0}
           <p class="note">No errors recorded.</p>
         {:else}
-          <div class="board"><Keyboard layout={enUs} mode="heat" heat={s.heat} /></div>
+          <div class="board"><Keyboard layout={layoutById(ui.settings.layout)} mode="heat" heat={s.heat} /></div>
           <p class="note">
             Most missed:
             {#each s.worst as w, i}{i > 0 ? ", " : ""}{w.name} ({w.n}){/each}

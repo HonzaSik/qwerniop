@@ -25,3 +25,11 @@ Pass:
 - No layout read (`getBoundingClientRect`, `offsetLeft`) inside the keystroke handler.
 
 On failure, fix the cause on the keystroke path and repeat the check.
+
+## Layout switcher and per-layout progress
+
+1. `pnpm dev`, open the app, finish a letter lesson with `en-us` and note the Lessons view unlock count.
+2. Choose "Czech (QWERTZ)" in the Layout select at the top right. The keyboard, lesson title and words become Czech and Lessons shows Czech progress from Lesson 1.
+3. Reload the page. Czech is still selected.
+4. Switch back to the English layout. Its earlier unlock count is unchanged.
+5. In Stats, history and heatmap show only the layout in use. Export, import the file and check both layouts keep their progress.

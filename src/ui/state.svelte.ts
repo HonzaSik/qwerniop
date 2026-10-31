@@ -1,5 +1,6 @@
 import type { SessionRecord } from "../core/engine/record";
 import type { AppData } from "../core/export/export";
+import type { Layout } from "../core/layouts/layout";
 import {
   initialProgress,
   type Lesson,
@@ -51,8 +52,31 @@ export function hydrate(loaded: {
 export const saveSettings = (): void =>
   store?.saveSettings($state.snapshot(ui.settings));
 export const saveProgress = (): void =>
-  store?.saveProgress($state.snapshot(ui.progress));
+  store?.saveProgress(ui.settings.layout, $state.snapshot(ui.progress));
 export const saveSession: Store["addSession"] = (r) => store?.addSession(r);
+
+// Progress of the layouts not in use, so memory-only mode keeps it across switches.
+let others: Partial<Record<Layout["id"], Progress>> = {};
+
+/** Progress of any layout; the one in use comes from `ui`, the rest from memory or storage. */
+async function progressOf(id: Layout["id"]): Promise<Progress> {
+  if (id === ui.settings.layout) return $state.snapshot(ui.progress);
+  return others[id] ?? (await store?.readProgress(id)) ?? initialProgress();
+}
+
+/**
+ * Makes `id` the layout in use and loads its progress. Rejects with nothing
+ * changed when the saved progress cannot be read, so a failed read is never
+ * saved over real progress.
+ */
+export async function switchLayout(id: Layout["id"]): Promise<void> {
+  const next = await progressOf(id);
+  others[ui.settings.layout] = $state.snapshot(ui.progress);
+  ui.settings.layout = id;
+  ui.progress = next;
+  ui.lesson = { track: "letters", stage: 1 };
+  saveSettings();
+}
 
 /** Read when the Stats view opens, never while typing. */
 export const readSessions = async (): Promise<SessionRecord[]> => {
@@ -70,7 +94,10 @@ export async function exportText(): Promise<string> {
   return buildExport(
     {
       settings: $state.snapshot(ui.settings),
-      progress: { "en-us": $state.snapshot(ui.progress) },
+      progress: {
+        "en-us": await progressOf("en-us"),
+        "cs-qwertz": await progressOf("cs-qwertz"),
+      },
       sessions: await readSessions(),
     },
     new Date(),
@@ -84,7 +111,8 @@ export async function exportText(): Promise<string> {
 export async function replaceAll(data: AppData): Promise<boolean> {
   await store?.replaceAll(data);
   ui.settings = data.settings;
-  ui.progress = data.progress["en-us"];
+  others = { ...data.progress };
+  ui.progress = data.progress[data.settings.layout];
   ui.lesson = { track: "letters", stage: 1 };
   return store !== null;
 }

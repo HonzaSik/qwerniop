@@ -6,7 +6,7 @@ import {
   expire,
   type Session,
 } from "../../core/engine/engine";
-import { enUs } from "../../core/layouts/en-us";
+import { layoutById } from "../../core/layouts/registry";
 import { attachInput } from "../../input/input";
 import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
@@ -141,7 +141,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     </div>
   </div>
   {#if ui.settings.keyboardMode !== "hidden"}
-    <div class="board"><Keyboard bind:this={board} layout={enUs} mode={ui.settings.keyboardMode} /></div>
+    <div class="board"><Keyboard bind:this={board} layout={layoutById(ui.settings.layout)} mode={ui.settings.keyboardMode} /></div>
   {/if}
   <label class="mode">
     Keyboard

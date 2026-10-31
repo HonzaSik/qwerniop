@@ -72,7 +72,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Dead-key composition and stroke mapping, preferring dedicated keys
 - [x] Czech word list with license recorded
 - [x] Czech lesson order including number-row letters
-- [ ] Layout switcher; progress kept per layout
+- [x] Layout switcher; progress kept per layout
 - [ ] Czech UI strings
 
 ## 9. Polish

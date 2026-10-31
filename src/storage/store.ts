@@ -16,7 +16,9 @@ export interface Stored {
 /** Saves only queue; failed writes stay queued and go out with the next flush. */
 export interface Store {
   saveSettings(settings: Settings): void;
-  saveProgress(progress: Progress): void;
+  saveProgress(layout: Layout["id"], progress: Progress): void;
+  /** Flushes queued writes first so progress just saved is read back. */
+  readProgress(layout: Layout["id"]): Promise<Progress>;
   addSession(record: SessionRecord): void;
   /** Flushes queued writes first so a session just finished is included. Invalid records are dropped. */
   readSessions(): Promise<SessionRecord[]>;
@@ -28,7 +30,7 @@ export interface Store {
  * Opens storage and reads what is saved. `store` is null when storage is
  * unavailable; `stored` is then null too and the app runs memory-only.
  */
-export async function loadStore(layout: Layout["id"]): Promise<{
+export async function loadStore(): Promise<{
   store: Store | null;
   stored: Stored | null;
 }> {
@@ -36,28 +38,26 @@ export async function loadStore(layout: Layout["id"]): Promise<{
   try {
     db = await openDatabase();
     if (!db) return { store: null, stored: null };
-    const [settings, progress] = await Promise.all([
-      db.get<unknown>("settings", SETTINGS_KEY),
-      db.get<unknown>("progress", layout),
-    ]);
+    const settings = migrateSettings(await db.get("settings", SETTINGS_KEY));
+    const progress = await db.get<unknown>("progress", settings.layout);
     return {
-      store: writer(db, layout),
+      store: writer(db),
       stored: {
-        settings: migrateSettings(settings),
-        progress: parseProgress(layout, progress),
+        settings,
+        progress: parseProgress(settings.layout, progress),
       },
     };
   } catch (error) {
     console.error("Storage read failed", error);
-    return { store: db ? writer(db, layout) : null, stored: null };
+    return { store: db ? writer(db) : null, stored: null };
   }
 }
 
-function writer(db: Database, layout: Layout["id"]): Store {
+function writer(db: Database): Store {
   const queue = createWriteQueue(
     {
       putSettings: (s) => db.put("settings", s, SETTINGS_KEY),
-      putProgress: (p) => db.put("progress", p, layout),
+      putProgress: (layout, p) => db.put("progress", p, layout),
       addSession: (r) => db.add("sessions", r),
     },
     // Off the keystroke path: idle time, but never later than 2s so a busy page still saves.
@@ -76,6 +76,10 @@ function writer(db: Database, layout: Layout["id"]): Store {
     saveSettings: queue.saveSettings,
     saveProgress: queue.saveProgress,
     addSession: queue.addSession,
+    async readProgress(layout) {
+      await queue.flush();
+      return parseProgress(layout, await db.get<unknown>("progress", layout));
+    },
     async readSessions() {
       await queue.flush();
       const rows = await db.getAll<unknown>("sessions");

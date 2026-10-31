@@ -12,6 +12,12 @@ describe("migrateSettings", () => {
     expect(migrateSettings(s)).toEqual(s);
   });
 
+  test("layout is kept when known and falls back to en-us otherwise", () => {
+    expect(migrateSettings({ layout: "cs-qwertz" }).layout).toBe("cs-qwertz");
+    expect(migrateSettings({ layout: "dvorak" }).layout).toBe("en-us");
+    expect(migrateSettings({}).layout).toBe("en-us");
+  });
+
   test.each([undefined, null, 5, "x", []])("falls back for %j", (v) => {
     expect(migrateSettings(v)).toEqual(defaultSettings());
   });

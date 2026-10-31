@@ -1,11 +1,12 @@
 import type { SessionRecord } from "../core/engine/record";
+import type { Layout } from "../core/layouts/layout";
 import type { Progress } from "../core/lessons/lessons";
 import type { Settings } from "../core/settings/settings";
 import type { Store } from "./store";
 
 export interface Writer {
   putSettings(settings: Settings): Promise<unknown>;
-  putProgress(progress: Progress): Promise<unknown>;
+  putProgress(layout: Layout["id"], progress: Progress): Promise<unknown>;
   addSession(record: SessionRecord): Promise<unknown>;
 }
 
@@ -27,7 +28,7 @@ export function createWriteQueue(
   schedule: (flush: () => void) => void,
 ): WriteQueue {
   let settings: Settings | null = null;
-  let progress: Progress | null = null;
+  let progress = new Map<Layout["id"], Progress>();
   let sessions: SessionRecord[] = [];
   let scheduled = false;
   let running: Promise<void> | null = null;
@@ -55,16 +56,23 @@ export function createWriteQueue(
     const p = progress;
     const batch = sessions;
     settings = null;
-    progress = null;
+    progress = new Map();
     sessions = [];
     const [sOk, pOk, ...sessionOk] = await Promise.all([
       s ? attempt(writer.putSettings(s)) : true,
-      p ? attempt(writer.putProgress(p)) : true,
+      Promise.all(
+        [...p].map(
+          async ([id, value]) =>
+            [id, value, await attempt(writer.putProgress(id, value))] as const,
+        ),
+      ),
       ...batch.map((r) => attempt(writer.addSession(r))),
     ]);
     // A value saved while the write was in flight is newer and wins.
     if (!sOk && s && !settings) settings = s;
-    if (!pOk && p && !progress) progress = p;
+    for (const [id, value, ok] of pOk) {
+      if (!ok && !progress.has(id)) progress.set(id, value);
+    }
     const failed = batch.filter((_, i) => !sessionOk[i]);
     sessions = [...failed, ...sessions];
   }
@@ -80,8 +88,8 @@ export function createWriteQueue(
       settings = value;
       request();
     },
-    saveProgress(value) {
-      progress = value;
+    saveProgress(layout, value) {
+      progress.set(layout, value);
       request();
     },
     addSession(record) {
@@ -91,7 +99,7 @@ export function createWriteQueue(
     flush,
     discard() {
       settings = null;
-      progress = null;
+      progress = new Map();
       sessions = [];
     },
   };

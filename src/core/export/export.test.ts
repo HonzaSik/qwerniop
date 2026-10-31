@@ -26,7 +26,10 @@ describe("parseExport", () => {
   it("round-trips an export", () => {
     const data = {
       settings: defaultSettings(),
-      progress: { "en-us": initialProgress() },
+      progress: {
+        "en-us": initialProgress(),
+        "cs-qwertz": initialProgress(),
+      },
       sessions: [],
     };
     const text = buildExport(data, new Date(0));
@@ -35,6 +38,13 @@ describe("parseExport", () => {
       value: data,
       droppedSessions: 0,
     });
+  });
+
+  it("keeps progress per layout", () => {
+    const cs = { ...initialProgress(), letters: 5 };
+    const r = parseExport(file({ progress: { "cs-qwertz": cs } }));
+    expect(r.ok && r.value.progress["cs-qwertz"].letters).toBe(5);
+    expect(r.ok && r.value.progress["en-us"]).toEqual(initialProgress());
   });
 
   it("keeps valid parts", () => {
@@ -91,7 +101,10 @@ describe("parseExport", () => {
     };
     const data = {
       settings: defaultSettings(),
-      progress: { "en-us": { ...initialProgress(), stats: { a: stat } } },
+      progress: {
+        "en-us": { ...initialProgress(), stats: { a: stat } },
+        "cs-qwertz": initialProgress(),
+      },
       sessions: [],
     };
     const r = parseExport(JSON.parse(buildExport(data, new Date(0))));

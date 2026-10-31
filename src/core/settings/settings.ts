@@ -1,5 +1,7 @@
 import type { Targets } from "../adaptive/weakness";
 import type { ErrorMode } from "../engine/engine";
+import type { Layout } from "../layouts/layout";
+import { LAYOUTS } from "../layouts/registry";
 
 export const KEYBOARD_MODE_VALUES = ["fingers", "next", "hidden"] as const;
 export type KeyboardMode = (typeof KEYBOARD_MODE_VALUES)[number];
@@ -24,6 +26,7 @@ export const SETTINGS_VERSION = 1;
 
 export interface Settings {
   version: number;
+  layout: Layout["id"];
   errorMode: ErrorMode;
   length: SessionLength;
   keyboardMode: KeyboardMode;
@@ -32,6 +35,7 @@ export interface Settings {
 
 export const defaultSettings = (): Settings => ({
   version: SETTINGS_VERSION,
+  layout: "en-us",
   errorMode: "stop",
   length: { kind: "words", amount: 30 },
   keyboardMode: "fingers",
@@ -44,7 +48,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 /**
  * Turns anything read from storage into valid Settings. Each field falls back
  * to its default on its own, so one bad or missing field loses nothing else.
- * Older versions are upgraded here (none yet differ from version 1).
+ * Older versions are upgraded here (none yet differ from version 1; a missing layout reads as en-us).
  */
 export function migrateSettings(old: unknown): Settings {
   const defaults = defaultSettings();
@@ -58,6 +62,7 @@ export function migrateSettings(old: unknown): Settings {
   const targets = isRecord(old.targets) ? old.targets : undefined;
   return {
     version: SETTINGS_VERSION,
+    layout: LAYOUTS.find((l) => l.id === old.layout)?.id ?? defaults.layout,
     errorMode:
       old.errorMode === "stop" || old.errorMode === "continue"
         ? old.errorMode
