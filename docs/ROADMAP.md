@@ -77,7 +77,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 9. Polish
 
-- [ ] Design pass against DESIGN.md in both appearances
+- [x] Design pass against DESIGN.md in both appearances
 - [ ] Reduce motion setting and system preference
 - [ ] Full keyboard navigation, focus states, shortcut help sheet
 - [ ] Screen reader checks (Orca on Linux, VoiceOver on macOS if available)

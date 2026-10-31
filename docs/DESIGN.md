@@ -22,7 +22,7 @@ The goal is a quiet, precise tool in the spirit of Apple's Human Interface Guide
 - **Interface:** `system-ui, -apple-system, "Segoe UI", Cantarell, "Noto Sans", sans-serif`. On Linux this resolves to the desktop font (Cantarell, Inter, Noto). Apple's SF fonts can't be redistributed, so they are never bundled.
 - **Practice text:** JetBrains Mono (OFL), bundled as a subset `woff2` covering Latin, Latin Extended-A (Czech) and code symbols. Monospace keeps the caret motion even and the line length predictable.
 - **Scale (rem):** 0.8125, 0.9375, 1.0625, 1.375, 2. Practice text uses 1.375–1.75 depending on viewport.
-- **Weights:** 400 and 600 only.
+- **Weights:** 400 and 600 only (`--weight-regular`, `--weight-semibold`).
 - Tabular numerals (`font-variant-numeric: tabular-nums`) for all stats.
 
 ## Colour
@@ -141,6 +141,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 
 ## Copy
 
+- A percent sign follows its number after a non-breaking space ("97 %"), so it never wraps onto its own line.
 - Plain, short, sentence case: "Continue", "Repeat lesson", "Model server".
 - No exclamation marks, no motivational slogans.
 - The UI ships in English and Czech; strings live in one file per language (`src/ui/strings/en.ts`, `cs.ts`). The English file is the type, so a missing Czech string fails the type check. The language is Czech when `navigator.language` starts with `cs`, English otherwise; there is no setting until the Settings view exists. Core returns codes (feedback rule, export error, lesson note), never display text.

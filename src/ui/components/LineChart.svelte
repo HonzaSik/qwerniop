@@ -79,7 +79,7 @@ const summary = $derived(
 
   .tick {
     fill: var(--text-2);
-    font-size: 13px;
+    font-size: var(--text-size-sm);
     text-anchor: end;
     dominant-baseline: middle;
     font-variant-numeric: tabular-nums;

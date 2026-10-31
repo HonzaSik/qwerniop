@@ -7,13 +7,13 @@ import {
 
 describe("formatAccuracy", () => {
   it("rounds to a whole percent", () => {
-    expect(formatAccuracy(0.974)).toBe("97 %");
-    expect(formatAccuracy(0)).toBe("0 %");
+    expect(formatAccuracy(0.974)).toBe("97\u00a0%");
+    expect(formatAccuracy(0)).toBe("0\u00a0%");
   });
 
   it("shows 100 % only for a session without errors", () => {
-    expect(formatAccuracy(1)).toBe("100 %");
-    expect(formatAccuracy(0.999)).toBe("99 %");
+    expect(formatAccuracy(1)).toBe("100\u00a0%");
+    expect(formatAccuracy(0.999)).toBe("99\u00a0%");
   });
 });
 

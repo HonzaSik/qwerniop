@@ -4,7 +4,7 @@ const SECONDS_PER_MINUTE = 60;
 /** A whole percent that never rounds a session with an error up to 100 %. */
 export function formatAccuracy(fraction: number): string {
   const percent = Math.round(fraction * 100);
-  return `${fraction < 1 ? Math.min(percent, 99) : percent} %`;
+  return `${fraction < 1 ? Math.min(percent, 99) : percent}\u00a0%`;
 }
 
 /** Minutes and seconds, as in 1:05. */

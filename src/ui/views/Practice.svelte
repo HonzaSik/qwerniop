@@ -197,7 +197,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     margin: 0 0 var(--space-4);
     color: var(--text-2);
     font-size: var(--text-size-md);
-    font-weight: normal;
+    font-weight: var(--weight-regular);
     text-align: center;
   }
 

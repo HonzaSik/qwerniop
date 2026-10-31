@@ -10,3 +10,5 @@
 - UI language follows `navigator.language` (`cs*` is Czech, else English) with no setting yet. Reason: DESIGN.md names no selector, and a setting would change the settings schema and export for no gain before the Settings view.
 - `src/core` returns codes instead of English sentences: `feedbackRule`, export `reason`, `noNewKeys`; `lessonTitle` moved to `src/ui/strings`. Reason: core must stay free of display text so each language file holds all of its strings.
 - Czech plural forms (1 / 2 to 4 / 5+) use one three-argument `plural` helper, and only where a form differs; other counts are phrased so the noun does not agree. Reason: no i18n package is allowed.
+- Design pass: `--space-1` was used but undefined, so the full `--space-1` to `--space-8` set is now in tokens.css; chart tick size and the heading weight use tokens. Reason: DESIGN.md requires every value from tokens.
+- Accuracy uses a non-breaking space before `%` in both languages. Reason: Czech typography requires it and one format keeps `formatAccuracy` simple.
