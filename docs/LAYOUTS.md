@@ -122,6 +122,7 @@ Letters unlock in pairs, one key per hand where possible, starting on the home r
 15. `ě š č` (number row, left hand)
 16. `ř ž ý`
 17. `ú ů`
+18. `ó ď ň ť` (two strokes each: `´` then `o`, `ˇ` then `d`, `n` or `t`)
 
 ### Other tracks
 

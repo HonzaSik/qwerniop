@@ -25,11 +25,23 @@ describe("en-us letter order", () => {
 describe("cs-qwertz letter order", () => {
   test("covers a to z and the number-row letters once, each typable", () => {
     const all = unlockedLetters("cs-qwertz", stageCount("cs-qwertz")) ?? "";
-    expect(new Set(all).size).toBe(37);
-    for (const c of "abcdefghijklmnopqrstuvwxyzáíéěščřžýúů") {
+    expect(new Set(all).size).toBe(41);
+    for (const c of "abcdefghijklmnopqrstuvwxyzáíéěščřžýúůóďňť") {
       expect(all).toContain(c);
     }
-    for (const c of all) expect(strokesFor(csQwertz, c)).toHaveLength(1);
+  });
+
+  test("teaches ó ď ň ť last, each as two dead-key strokes", () => {
+    expect(stageCount("cs-qwertz")).toBe(18);
+    expect(unlockedLetters("cs-qwertz", 17)).not.toContain("ó");
+    const all = unlockedLetters("cs-qwertz", 18) ?? "";
+    for (const c of "óďňť") {
+      expect(all).toContain(c);
+      expect(strokesFor(csQwertz, c)).toHaveLength(2);
+    }
+    for (const c of all.replace(/[óďňť]/g, "")) {
+      expect(strokesFor(csQwertz, c)).toHaveLength(1);
+    }
   });
 
   test("teaches number-row letters after the base letters", () => {

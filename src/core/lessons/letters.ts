@@ -36,6 +36,7 @@ const ORDER: Partial<Record<Layout["id"], readonly string[]>> = {
     "ěšč",
     "řžý",
     "úů",
+    "óďňť",
   ],
 };
 
