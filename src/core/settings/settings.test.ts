@@ -12,6 +12,15 @@ describe("migrateSettings", () => {
     expect(migrateSettings(s)).toEqual(s);
   });
 
+  test("reduceMotion is kept when known and falls back to system otherwise", () => {
+    expect(migrateSettings({ reduceMotion: "on" }).reduceMotion).toBe("on");
+    expect(migrateSettings({ reduceMotion: "off" }).reduceMotion).toBe("off");
+    expect(migrateSettings({ reduceMotion: "maybe" }).reduceMotion).toBe(
+      "system",
+    );
+    expect(migrateSettings({}).reduceMotion).toBe("system");
+  });
+
   test("layout is kept when known and falls back to en-us otherwise", () => {
     expect(migrateSettings({ layout: "cs-qwertz" }).layout).toBe("cs-qwertz");
     expect(migrateSettings({ layout: "dvorak" }).layout).toBe("en-us");

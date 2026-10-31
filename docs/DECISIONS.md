@@ -12,3 +12,5 @@
 - Czech plural forms (1 / 2 to 4 / 5+) use one three-argument `plural` helper, and only where a form differs; other counts are phrased so the noun does not agree. Reason: no i18n package is allowed.
 - Design pass: `--space-1` was used but undefined, so the full `--space-1` to `--space-8` set is now in tokens.css; chart tick size and the heading weight use tokens. Reason: DESIGN.md requires every value from tokens.
 - Accuracy uses a non-breaking space before `%` in both languages. Reason: Czech typography requires it and one format keeps `formatAccuracy` simple.
+- Reduce motion is a `system` / `on` / `off` select beside Length until the Settings view exists, and App sets `data-reduce-motion` on `<html>`; all motion CSS is scoped to `:root:not([data-reduce-motion])` instead of media queries. Reason: one mechanism lets the setting override the OS in both directions with no per-component logic.
+- `reduceMotion` is missing or unknown reads as `system` without a settings version bump. Reason: `migrateSettings` already repairs each field alone.

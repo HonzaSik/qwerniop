@@ -71,10 +71,8 @@ function focusOnShow(button: HTMLButtonElement): void {
     justify-items: center;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    section {
-      animation: appear var(--duration-view) var(--ease);
-    }
+  :global(:root:not([data-reduce-motion])) section {
+    animation: appear var(--duration-view) var(--ease);
   }
 
   @keyframes appear {

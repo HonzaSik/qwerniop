@@ -226,10 +226,8 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     pointer-events: none;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .text {
-      transition: opacity var(--duration-view) var(--ease);
-    }
+  :global(:root:not([data-reduce-motion])) .text {
+    transition: opacity var(--duration-view) var(--ease);
   }
 
   textarea {

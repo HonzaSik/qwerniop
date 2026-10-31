@@ -25,6 +25,8 @@ export const en = {
     "cs-qwertz": "Czech (QWERTZ)",
   } as Record<Layout["id"], string>,
   lengthLabel: "Length",
+  reduceMotionLabel: "Reduce motion",
+  reduceMotionModes: { system: "System", on: "On", off: "Off" },
   words: (n: number): string => `${n} words`,
   seconds: (n: number): string => `${n} s`,
   keyboardLabel: "Keyboard",

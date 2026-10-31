@@ -53,3 +53,9 @@ Check each screen in light and dark (system setting, then `data-theme` set to `l
 4. Lessons: locked buttons are readable but clearly disabled, the current lesson has an accent outline, "Unlocked n of m" is secondary text.
 5. Stats: chart ticks match the size of other small text, line is accent, grid is hairline; the heatmap tints toward red without losing key labels; the Your data status error is red.
 6. Nothing uses a colour, size or gap that looks off the scale (4, 8, 12, 16, 24, 32 px), and no gradients, shadows or glows appear.
+
+## Reduce motion
+
+1. With the setting on System and the OS "reduce motion" preference off: the caret glides and blinks, the text scrolls smoothly, keys fade, the summary fades in.
+2. Turn the OS preference on (no reload): the caret is solid and jumps instantly, the text scrolls by whole lines with no animation, key highlights and the summary switch instantly.
+3. Set the select to Off with the OS preference on: motion returns. Set it to On with the OS preference off: motion stops. Reload: the choice is kept.

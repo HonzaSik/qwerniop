@@ -153,11 +153,9 @@ const SPACE_ROW_OFFSET = 3.75;
     outline-offset: calc(-1 * var(--keyboard-next-ring));
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .key::before,
-    .key::after {
-      transition: opacity var(--duration-press) var(--ease);
-    }
+  :global(:root:not([data-reduce-motion])) .key::before,
+  :global(:root:not([data-reduce-motion])) .key::after {
+    transition: opacity var(--duration-press) var(--ease);
   }
 
   .shift {

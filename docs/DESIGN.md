@@ -131,6 +131,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - Durations: 80 ms (key press), 120 ms (caret), 200 ms (view changes). Easing: `cubic-bezier(0.2, 0, 0, 1)`.
 - Caret blink: 1060 ms cycle, 530 ms on and 530 ms off (`--caret-blink`), resuming after one 530 ms solid phase once typing stops.
 - Only `transform` and `opacity` animate.
+- The Reduce motion setting is System (default, follows `prefers-reduced-motion`), On or Off; until the Settings view exists it is a select beside Length. One `data-reduce-motion` attribute on `<html>` carries the result and all motion CSS keys off it.
 - With `prefers-reduced-motion` or the Reduce motion setting: no transitions except an instant caret move, and a solid caret.
 
 ## Interaction

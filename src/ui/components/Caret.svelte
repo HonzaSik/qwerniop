@@ -24,17 +24,16 @@ let { session, connect }: Props = $props();
     will-change: transform;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .caret {
-      transition: transform var(--duration-caret) var(--ease);
-      animation: caret-blink var(--caret-blink) step-end
-        calc(var(--caret-blink) / 2) infinite;
-    }
+  /* The root attribute is set by App from the setting and the system preference. */
+  :global(:root:not([data-reduce-motion])) .caret {
+    transition: transform var(--duration-caret) var(--ease);
+    animation: caret-blink var(--caret-blink) step-end
+      calc(var(--caret-blink) / 2) infinite;
+  }
 
-    /* Global because the action adds this class, so Svelte sees no element that has it. */
-    .caret:global(.restart) {
-      animation-name: caret-blink-restart;
-    }
+  /* Global because the action adds this class, so Svelte sees no element that has it. */
+  :global(:root:not([data-reduce-motion])) .caret:global(.restart) {
+    animation-name: caret-blink-restart;
   }
 
   /* Two identical sets, because only a change of name restarts an animation. */

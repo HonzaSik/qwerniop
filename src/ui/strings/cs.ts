@@ -21,6 +21,8 @@ export const cs: Strings = {
   layoutLabel: "Rozložení",
   layoutNames: { "en-us": "Angličtina (US)", "cs-qwertz": "Čeština (QWERTZ)" },
   lengthLabel: "Délka",
+  reduceMotionLabel: "Omezit pohyb",
+  reduceMotionModes: { system: "Podle systému", on: "Zapnuto", off: "Vypnuto" },
   words: (n) => `${n} ${plural(n, "slovo", "slova", "slov")}`,
   seconds: (n) => `${n} s`,
   keyboardLabel: "Klávesnice",

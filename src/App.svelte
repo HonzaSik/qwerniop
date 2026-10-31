@@ -22,6 +22,7 @@ import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
 import {
   hydrate,
+  REDUCE_MOTION_MODES,
   readSessions,
   saveProgress,
   saveSession,
@@ -33,6 +34,21 @@ import { feedbackText, lessonTitle, t } from "./ui/strings";
 import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
 import Stats from "./ui/views/Stats.svelte";
+
+// Reads the system preference live so changing it needs no reload.
+const systemReduce = matchMedia("(prefers-reduced-motion: reduce)");
+let systemReduced = $state(systemReduce.matches);
+systemReduce.addEventListener("change", () => {
+  systemReduced = systemReduce.matches;
+});
+// One attribute on the root drives every motion rule in CSS.
+$effect(() => {
+  const m = ui.settings.reduceMotion;
+  document.documentElement.toggleAttribute(
+    "data-reduce-motion",
+    m === "on" || (m === "system" && systemReduced),
+  );
+});
 
 // Words a timed session generates per second: 4 is 240 wpm, so nobody outruns the text.
 const WORDS_PER_SECOND = 4;
@@ -214,6 +230,21 @@ const text = (snippets: string) =>
         }}
       >
         {#each SESSION_LENGTHS as l, i}<option value={i}>{l.kind === "words" ? t.words(l.amount) : t.seconds(l.amount)}</option>{/each}
+      </select>
+    </label>
+    <label>
+      {t.reduceMotionLabel}
+      <select
+        value={ui.settings.reduceMotion}
+        onchange={(e) => {
+          const next = REDUCE_MOTION_MODES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.reduceMotion = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each REDUCE_MOTION_MODES as m}<option value={m}>{t.reduceMotionModes[m]}</option>{/each}
       </select>
     </label>
     </div>

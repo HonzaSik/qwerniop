@@ -6,6 +6,9 @@ import { LAYOUTS } from "../layouts/registry";
 export const KEYBOARD_MODE_VALUES = ["fingers", "next", "hidden"] as const;
 export type KeyboardMode = (typeof KEYBOARD_MODE_VALUES)[number];
 
+export const REDUCE_MOTION_VALUES = ["system", "on", "off"] as const;
+export type ReduceMotion = (typeof REDUCE_MOTION_VALUES)[number];
+
 export type SessionLength =
   | { kind: "words"; amount: number }
   | { kind: "seconds"; amount: number };
@@ -31,6 +34,7 @@ export interface Settings {
   length: SessionLength;
   keyboardMode: KeyboardMode;
   targets: Targets;
+  reduceMotion: ReduceMotion;
 }
 
 export const defaultSettings = (): Settings => ({
@@ -40,6 +44,7 @@ export const defaultSettings = (): Settings => ({
   length: { kind: "words", amount: 30 },
   keyboardMode: "fingers",
   targets: { accuracy: 0.95, wpm: 35 },
+  reduceMotion: "system",
 });
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -71,6 +76,9 @@ export function migrateSettings(old: unknown): Settings {
     keyboardMode:
       KEYBOARD_MODE_VALUES.find((m) => m === old.keyboardMode) ??
       defaults.keyboardMode,
+    reduceMotion:
+      REDUCE_MOTION_VALUES.find((m) => m === old.reduceMotion) ??
+      defaults.reduceMotion,
     targets: {
       accuracy:
         TARGET_ACCURACIES.find((a) => a === targets?.accuracy) ??

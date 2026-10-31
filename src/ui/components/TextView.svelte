@@ -54,10 +54,8 @@ function connectCaret(move: () => void): void {
     overflow-wrap: anywhere;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .text {
-      transition: transform var(--duration-view) var(--ease);
-    }
+  :global(:root:not([data-reduce-motion])) .text {
+    transition: transform var(--duration-view) var(--ease);
   }
 
   /* Global because setting className removes the scope class Svelte puts on elements. */
