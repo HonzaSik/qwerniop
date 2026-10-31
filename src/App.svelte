@@ -20,7 +20,7 @@ import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
-import { isBackKey, isHelpKey } from "./ui/shortcuts";
+import { isBackKey, isHelpKey, isSettingsKey } from "./ui/shortcuts";
 import {
   hydrate,
   REDUCE_MOTION_MODES,
@@ -34,6 +34,7 @@ import {
 import { feedbackText, lessonTitle, t } from "./ui/strings";
 import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
+import Settings from "./ui/views/Settings.svelte";
 import Stats from "./ui/views/Stats.svelte";
 import { applyUpdate, worker } from "./ui/worker.svelte";
 
@@ -63,7 +64,13 @@ const layout = $derived(layoutById(ui.settings.layout));
 // Replaced when the layout changes; the list belongs to the layout in use.
 let words = $state.raw<string[]>([]);
 const view = $derived(
-  hash === "#lessons" ? "lessons" : hash === "#stats" ? "stats" : "practice",
+  hash === "#lessons"
+    ? "lessons"
+    : hash === "#stats"
+      ? "stats"
+      : hash === "#settings"
+        ? "settings"
+        : "practice",
 );
 
 interface Run {
@@ -196,6 +203,9 @@ function onkeydown(event: KeyboardEvent): void {
   if (isHelpKey(event, target)) {
     event.preventDefault();
     help?.showModal();
+  } else if (isSettingsKey(event, target)) {
+    event.preventDefault();
+    location.hash = "#settings";
   } else if (isBackKey(event, target) && view !== "practice") {
     event.preventDefault();
     location.hash = "#practice";
@@ -227,9 +237,12 @@ let help: HTMLDialogElement | undefined = $state();
     <a href="#practice" aria-current={view === "practice" ? "page" : undefined}>{t.nav.practice}</a>
     <a href="#lessons" aria-current={view === "lessons" ? "page" : undefined}>{t.nav.lessons}</a>
     <a href="#stats" aria-current={view === "stats" ? "page" : undefined}>{t.nav.stats}</a>
+    <a href="#settings" aria-current={view === "settings" ? "page" : undefined}>{t.nav.settings}</a>
   </nav>
   {#if view === "lessons"}
     <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} />
+  {:else if view === "settings"}
+    <Settings />
   {:else if view === "stats"}
     {#key hash}<Stats sessions={readSessions()} onimported={afterImport} />{/key}
   {:else}

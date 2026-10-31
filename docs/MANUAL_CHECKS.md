@@ -141,3 +141,15 @@ Setup: a local OpenAI-compatible server (for example Ollama on `http://localhost
 3. Stop the server and repeat: both calls reject with `ProviderError` of kind `network`.
 
 Pass: text streams in pieces, and a stopped server gives a rejection, not a hang.
+
+## Settings: model server
+
+Setup: a local OpenAI-compatible server (for example Ollama), and `pnpm dev` or `pnpm preview`.
+
+1. DevTools Network with cache disabled, reload, open `#settings` (or press `,`): no `ai` chunk is requested yet.
+2. Click "Test connection" with CORS allowed (`OLLAMA_ORIGINS` includes the page origin): the `ai` chunk loads, the status reads "Connected. n models found." and the Model select lists them.
+3. Restart the server without the origin allowed and test again: the status reads "The server could not be reached." and the CORS help appears with the real origin.
+4. Use a wrong API key on a server that answers: an error without the CORS help. Reload: address, model and key are kept. Export the data: the file has no `modelServer`.
+5. Every field is reachable and operable by keyboard.
+
+Pass: the chunk loads only on the first test, and failures show plain words.

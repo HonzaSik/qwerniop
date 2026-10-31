@@ -70,4 +70,18 @@ describe("migrateSettings", () => {
       migrateSettings({ targets: { accuracy: 0.9, wpm: 60 } }).targets,
     ).toEqual({ accuracy: 0.9, wpm: 60 });
   });
+
+  test("validates each model server field alone", () => {
+    expect(
+      migrateSettings({
+        modelServer: { baseUrl: "http://x/v1", model: 3, apiKey: "k" },
+      }).modelServer,
+    ).toEqual({ baseUrl: "http://x/v1", model: "", apiKey: "k" });
+    expect(migrateSettings({ modelServer: 7 }).modelServer).toEqual(
+      defaultSettings().modelServer,
+    );
+    expect(defaultSettings().modelServer.baseUrl).toBe(
+      "http://localhost:11434/v1",
+    );
+  });
 });

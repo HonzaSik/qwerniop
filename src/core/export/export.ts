@@ -26,6 +26,8 @@ export function buildExport(data: AppData, now: Date): string {
     schema: EXPORT_SCHEMA,
     exportedAt: now.toISOString(),
     ...data,
+    // The key and server address stay on this device.
+    settings: { ...data.settings, modelServer: undefined },
   });
 }
 

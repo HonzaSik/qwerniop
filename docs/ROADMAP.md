@@ -89,7 +89,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 10. Model integration
 
 - [x] `TextProvider` interface and OpenAI-compatible implementation with streaming
-- [ ] Settings section with connection test and CORS help
+- [x] Settings section with connection test and CORS help
 - [ ] Validation with fixtures from real model output
 - [ ] Modes: lesson text, learn a topic, code snippets, session feedback
 - [ ] Prefetching so the learner never waits; silent fallback

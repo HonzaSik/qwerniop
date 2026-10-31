@@ -27,6 +27,17 @@ export const TARGET_WPMS = [20, 25, 30, 35, 40, 50, 60] as const;
 
 export const SETTINGS_VERSION = 1;
 
+/** Where the optional model server lives; excluded from export. */
+export interface ModelServer {
+  baseUrl: string;
+  /** Empty until chosen from the server's list. */
+  model: string;
+  /** Empty means no Authorization header. */
+  apiKey: string;
+}
+
+export const DEFAULT_BASE_URL = "http://localhost:11434/v1";
+
 export interface Settings {
   version: number;
   layout: Layout["id"];
@@ -35,6 +46,7 @@ export interface Settings {
   keyboardMode: KeyboardMode;
   targets: Targets;
   reduceMotion: ReduceMotion;
+  modelServer: ModelServer;
 }
 
 export const defaultSettings = (): Settings => ({
@@ -45,6 +57,7 @@ export const defaultSettings = (): Settings => ({
   keyboardMode: "fingers",
   targets: { accuracy: 0.95, wpm: 35 },
   reduceMotion: "system",
+  modelServer: { baseUrl: DEFAULT_BASE_URL, model: "", apiKey: "" },
 });
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -65,6 +78,9 @@ export function migrateSettings(old: unknown): Settings {
       l.amount === old.length.amount,
   );
   const targets = isRecord(old.targets) ? old.targets : undefined;
+  const server = isRecord(old.modelServer) ? old.modelServer : undefined;
+  const text = (v: unknown, fallback: string): string =>
+    typeof v === "string" ? v : fallback;
   return {
     version: SETTINGS_VERSION,
     layout: LAYOUTS.find((l) => l.id === old.layout)?.id ?? defaults.layout,
@@ -79,6 +95,11 @@ export function migrateSettings(old: unknown): Settings {
     reduceMotion:
       REDUCE_MOTION_VALUES.find((m) => m === old.reduceMotion) ??
       defaults.reduceMotion,
+    modelServer: {
+      baseUrl: text(server?.baseUrl, defaults.modelServer.baseUrl),
+      model: text(server?.model, defaults.modelServer.model),
+      apiKey: text(server?.apiKey, defaults.modelServer.apiKey),
+    },
     targets: {
       accuracy:
         TARGET_ACCURACIES.find((a) => a === targets?.accuracy) ??

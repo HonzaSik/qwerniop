@@ -1,3 +1,4 @@
+import type { ProviderErrorKind } from "../../ai/provider";
 import type { ExportError } from "../../core/export/export";
 import type { Layout } from "../../core/layouts/layout";
 import type { LessonTrack, NoNewKeys } from "../../core/lessons/lessons";
@@ -18,6 +19,7 @@ export const en = {
     practice: "Practice",
     lessons: "Lessons",
     stats: "Stats",
+    settings: "Settings",
   },
   updateAvailable: "Update available",
   updateReload: "Reload",
@@ -46,8 +48,39 @@ export const en = {
       ["Enter", "Continue to the next lesson"],
       ["R", "Repeat the lesson"],
       ["Esc", "Pause while typing, go back to Practice elsewhere"],
+      [",", "Open Settings"],
       ["?", "Show this help"],
     ] as readonly (readonly [string, string])[],
+  },
+  settings: {
+    title: "Settings",
+    modelServer: "Model server",
+    intro:
+      "Optional. A model on your own machine can write practice text. Tenfold works the same without one. Only prompts and session statistics are sent, never what you type.",
+    baseUrl: "Address",
+    model: "Model",
+    noModel: "Run the test to choose a model",
+    apiKey: "API key (optional)",
+    apiKeyNote: "Stored on this device only and left out of exports.",
+    test: "Test connection",
+    testing: "Testing",
+    connected: (n: number): string =>
+      `Connected. ${n} ${n === 1 ? "model" : "models"} found.`,
+    errors: {
+      network: "The server could not be reached.",
+      http: "The server refused the request. Check the address and the API key.",
+      timeout: "The server took too long to answer.",
+      "bad-response": "The server answered, but not in the expected format.",
+      server: "The server reported an error.",
+    } as Record<ProviderErrorKind, string>,
+    corsTitle: "If the server is running, it may be blocking this page",
+    corsIntro:
+      "Browsers only allow Tenfold to call a local server that permits its origin.",
+    corsOllama: (origin: string): string =>
+      `Ollama: start it with OLLAMA_ORIGINS including ${origin}, for example OLLAMA_ORIGINS="${origin}".`,
+    corsLmStudio: "LM Studio: enable CORS in the server settings.",
+    corsOther:
+      "Other servers: see their documentation for allowing cross-origin requests.",
   },
   lesson: "Lesson",
   trackNames: {

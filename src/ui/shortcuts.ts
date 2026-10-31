@@ -30,3 +30,6 @@ export const isHelpKey = (event: Key, target: Target | null): boolean =>
 
 export const isBackKey = (event: Key, target: Target | null): boolean =>
   plain(event, target) && event.key === "Escape";
+
+export const isSettingsKey = (event: Key, target: Target | null): boolean =>
+  plain(event, target) && event.key === ",";

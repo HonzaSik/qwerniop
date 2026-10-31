@@ -17,6 +17,7 @@ export const cs: Strings = {
     practice: "Procvičování",
     lessons: "Lekce",
     stats: "Statistiky",
+    settings: "Nastavení",
   },
   updateAvailable: "Je dostupná aktualizace",
   updateReload: "Načíst znovu",
@@ -42,8 +43,38 @@ export const cs: Strings = {
       ["Enter", "Pokračovat na další lekci"],
       ["R", "Zopakovat lekci"],
       ["Esc", "Pozastavit při psaní, jinde zpět na Procvičování"],
+      [",", "Otevřít Nastavení"],
       ["?", "Zobrazit tuto nápovědu"],
     ],
+  },
+  settings: {
+    title: "Nastavení",
+    modelServer: "Model server",
+    intro:
+      "Volitelné. Model běžící na vašem počítači může psát cvičné texty. Tenfold funguje stejně i bez něj. Odesílají se jen zadání a statistiky cvičení, nikdy to, co píšete.",
+    baseUrl: "Adresa",
+    model: "Model",
+    noModel: "Spusťte test a vyberte model",
+    apiKey: "Klíč API (volitelný)",
+    apiKeyNote: "Uložen jen v tomto zařízení a není součástí exportu.",
+    test: "Vyzkoušet připojení",
+    testing: "Zkouším",
+    connected: (n: number): string => `Připojeno. Nalezeno modelů: ${n}.`,
+    errors: {
+      network: "Server se nepodařilo zastihnout.",
+      http: "Server požadavek odmítl. Zkontrolujte adresu a klíč API.",
+      timeout: "Server odpovídal příliš dlouho.",
+      "bad-response": "Server odpověděl, ale v neočekávaném formátu.",
+      server: "Server hlásí chybu.",
+    },
+    corsTitle: "Pokud server běží, možná blokuje tuto stránku",
+    corsIntro:
+      "Prohlížeč dovolí Tenfoldu volat místní server jen tehdy, když server povolí jeho původ.",
+    corsOllama: (origin: string): string =>
+      `Ollama: spusťte ji s proměnnou OLLAMA_ORIGINS, která obsahuje ${origin}, například OLLAMA_ORIGINS="${origin}".`,
+    corsLmStudio: "LM Studio: zapněte CORS v nastavení serveru.",
+    corsOther:
+      "Jiné servery: povolení požadavků z jiných původů najdete v jejich dokumentaci.",
   },
   lesson: "Lekce",
   trackNames: {

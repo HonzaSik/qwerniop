@@ -22,6 +22,28 @@ const file = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
+describe("buildExport", () => {
+  it("leaves the model server out", () => {
+    const settings = {
+      ...defaultSettings(),
+      modelServer: { baseUrl: "http://h/v1", model: "m", apiKey: "secret" },
+    };
+    const text = buildExport(
+      {
+        settings,
+        progress: {
+          "en-us": initialProgress(),
+          "cs-qwertz": initialProgress(),
+        },
+        sessions: [],
+      },
+      new Date(0),
+    );
+    expect(text).not.toContain("secret");
+    expect(text).not.toContain("modelServer");
+  });
+});
+
 describe("parseExport", () => {
   it("round-trips an export", () => {
     const data = {

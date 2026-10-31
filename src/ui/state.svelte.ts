@@ -109,8 +109,10 @@ export async function exportText(): Promise<string> {
  * and leaves memory as it was. Resolves false in memory-only mode.
  */
 export async function replaceAll(data: AppData): Promise<boolean> {
-  await store?.replaceAll(data);
-  ui.settings = data.settings;
+  // The export carries no model server, so an import keeps this device's.
+  const settings = { ...data.settings, modelServer: ui.settings.modelServer };
+  await store?.replaceAll({ ...data, settings });
+  ui.settings = settings;
   others = { ...data.progress };
   ui.progress = data.progress[data.settings.layout];
   ui.lesson = { track: "letters", stage: 1 };
