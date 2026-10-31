@@ -144,6 +144,7 @@ function nextRequest() {
       stats: $state.snapshot(ui.progress.stats),
       targets: $state.snapshot(ui.settings.targets),
       words: targetWords(),
+      wordList: words,
     },
   };
 }
@@ -172,6 +173,7 @@ function start(lesson: Lesson): void {
     stats: next.stats,
     targets: next.targets,
     words: targetWords(),
+    wordList: words,
   });
   next.generated = key === undefined ? undefined : prefetch.take(key);
   run = next;

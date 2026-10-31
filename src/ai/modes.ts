@@ -31,16 +31,23 @@ export async function lessonText(
   provider: TextProvider,
   input: LessonInput,
   signal?: AbortSignal,
+  /** Offline words for the part of the session the model text does not cover. */
+  fill?: (words: number) => string,
 ): Promise<string | undefined> {
   const raw = await collect(provider, lessonRequest(input), signal);
-  return raw === undefined
-    ? undefined
-    : validate(raw.toLowerCase(), {
-        kind: "lesson",
-        allowed: input.letters,
-        min: 20,
-        max: input.words * 10,
-      });
+  if (raw === undefined) return undefined;
+  const text = validate(raw.toLowerCase(), {
+    kind: "lesson",
+    allowed: input.letters,
+    min: 20,
+    max: input.words * 10,
+  });
+  if (text === undefined) return undefined;
+  const words = text.split(" ").slice(0, input.words);
+  const missing = input.words - words.length;
+  return missing > 0 && fill
+    ? [...words, fill(missing)].join(" ")
+    : words.join(" ");
 }
 
 export async function topicText(

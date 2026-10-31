@@ -85,6 +85,31 @@ describe("modes", () => {
     expect(out).toBeDefined();
   });
 
+  test("short model text is topped up to the requested length", async () => {
+    const out = await lessonText(
+      fake(["the hot tea and the old lion sat in the sand"]),
+      { ...lesson, words: 15 },
+      undefined,
+      (n) => Array(n).fill("led").join(" "),
+    );
+    expect(out?.split(" ")).toHaveLength(15);
+    expect(out?.startsWith("the hot tea")).toBe(true);
+  });
+
+  test("long model text is clamped to the requested length", async () => {
+    const out = await lessonText(fake([Array(40).fill("the old").join(" ")]), {
+      ...lesson,
+      words: 15,
+    });
+    expect(out?.split(" ")).toHaveLength(15);
+  });
+
+  test("a timed-size request asks for at most 80 words", () => {
+    expect(lessonRequest({ ...lesson, words: 480 }).prompt).toContain(
+      "about 80 words",
+    );
+  });
+
   test("lesson text is rejected when too few words fit the letters", async () => {
     expect(
       await lessonText(

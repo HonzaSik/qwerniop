@@ -76,6 +76,7 @@ test("a disabled server never loads the ai chunk", async () => {
     stats: {},
     targets: { accuracy: 0.95, wpm: 40 },
     words: 20,
+    wordList: [],
   } as const;
   await generatedText(off, request, new AbortController().signal);
   await generatedRecap({ ...off, model: "m" }, "en-us", {

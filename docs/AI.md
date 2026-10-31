@@ -64,7 +64,7 @@ When a request fails in a way that looks like CORS (a `TypeError` from `fetch` w
 
 Generates sentences for the current lesson.
 
-- Input: allowed characters, the weakest characters (top 5), language, target length.
+- Input: allowed characters, the weakest characters (top 5), language, target length (the session length; at most 80 words are requested and the rest is topped up offline).
 - Prompt asks for natural words using only allowed letters, favouring the weak ones.
 - Output is always validated; models are unreliable at character restrictions, so expect to discard words.
 - Useful mostly from the middle of the letter track on. Before that, the offline generator is usually better, so this mode is only used once at least 12 letters are unlocked.

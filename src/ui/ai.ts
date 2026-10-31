@@ -7,6 +7,8 @@ import { stageCount, unlockedLetters } from "../core/lessons/letters";
 import { trackChars } from "../core/lessons/tracks";
 import type { ModelServer } from "../core/settings/settings";
 import type { CharStats } from "../core/stats/chars";
+import { generate } from "../core/text/generate";
+import { seededRng } from "../core/text/rng";
 import {
   addPassage,
   emptyTopic,
@@ -92,6 +94,8 @@ export interface TextRequest {
   stats: CharStats;
   targets: Targets;
   words: number;
+  /** Frequency-ordered list the offline top-up draws from. */
+  wordList: readonly string[];
 }
 
 /** Identifies what a generated text is for; a result is only used under the key it was requested with. */
@@ -170,8 +174,17 @@ export async function generatedText(
       .map((x) => x.c);
     const text = await modes.lessonText(
       provider,
-      { language, letters, weak, words: Math.min(r.words, 40) },
+      { language, letters, weak, words: r.words },
       signal,
+      (n) =>
+        generate({
+          words: r.wordList,
+          allowed: letters,
+          stats: r.stats,
+          targets: r.targets,
+          length: n,
+          rng: seededRng(Date.now()),
+        }),
     );
     return text === undefined ? undefined : { text };
   } catch {
