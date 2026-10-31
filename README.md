@@ -66,3 +66,5 @@ Then open Settings → Model server, keep the default address `http://localhost:
 ## License
 
 [MIT](LICENSE)
+
+Word lists are derived from the Leipzig Corpora Collection (CC BY), and the bundled font is JetBrains Mono (SIL OFL 1.1). Full credits are in [src/data/SOURCES.md](src/data/SOURCES.md).

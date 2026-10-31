@@ -101,4 +101,4 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Issue and pull request templates
 - [x] GitHub Pages deployment workflow
 - [x] Release notes for 1.0
-- [ ] Final license and data-source review
+- [x] Final license and data-source review

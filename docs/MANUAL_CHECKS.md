@@ -212,4 +212,6 @@ After the first push to GitHub, open repository Settings, Pages, and set Source 
 
 ## Release
 
+Open https://wortschatz.uni-leipzig.de/en/usage in a browser (it sits behind a bot check) and confirm the corpora are still offered under CC BY, then update the quote in `src/data/SOURCES.md` if it differs.
+
 After the checks above pass and the license review is done: in `CHANGELOG.md` rename `[Unreleased]` to `[1.0.0] - <date>`, set `"version": "1.0.0"` in `package.json`, commit, tag `v1.0.0` and push the commit and the tag.

@@ -62,3 +62,4 @@
 - Release notes live in `CHANGELOG.md` (Keep a Changelog) under `## [Unreleased]`, with no date. Reason: 1.0.0 is not tagged yet, and the heading becomes `[1.0.0] - <date>` in the release step.
 - `package.json` stays at `0.0.0`; the roadmap item covers notes only. Reason: bumping and tagging are human release steps, now listed in MANUAL_CHECKS.md.
 - `docs/MANUAL_CHECKS.md` was overwritten with a copy of AI.md in commit 93d2f13; it is restored from b04823a plus the later sections (prefetching, ai chunk, screenshots, Pages). Reason: the release step needed the file, and the manual checks were lost.
+- License holder stays "Tenfold contributors" in LICENSE, with no author field in package.json. Reason: no full name is recorded anywhere in the repository and one is not invented.

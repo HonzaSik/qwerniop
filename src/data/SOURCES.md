@@ -24,7 +24,7 @@
 - **Transformation:** `node scripts/normalize-words.mjs <raw> cs-qwertz --profanity scripts/profanity-cs.txt > src/data/words/cs.txt`. Same steps as `en.txt`, except there is no `--singles`, so every one-letter word is dropped. The layout filter uses `cs-qwertz`, so words with diacritics are kept.
 - **Profanity:** `scripts/profanity-cs.txt` is a hand-written exact-match blocklist (public domain, no third-party source), broad on purpose (also mild words, sex terms and slurs), with common inflections. It does not catch every inflected form.
 - **Result:** 10 000 lines, about 38 KB gzip. SHA-256 of `cs.txt`: `8fb6714bf8575961e10ca07d0a6529c0b448b7b21e29f8ed3cfeb2dca888023c`.
-- **Known limits:** news vocabulary; Czech inflection means many forms of one word. The list is not loaded by the app yet (layout switching is a later item), so `size-check` does not see it; its gzip size is under the 60 KB word-list budget.
+- **Known limits:** news vocabulary; Czech inflection means many forms of one word. Loaded through the layout switcher; its gzip size is under the 60 KB word-list budget.
 
 ## `public/fonts/JetBrainsMono-Regular-subset.woff2`
 
@@ -35,3 +35,33 @@
   `pyftsubset JetBrainsMono-Regular.woff2 --unicodes="U+0020-007E,U+00A0-00FF,U+0100-017F,U+01CE,U+02C7,U+02DA,U+2013,U+2014,U+2018-201D,U+2026,U+2192" --flavor=woff2 --layout-features='kern' --no-hinting --output-file=JetBrainsMono-Regular-subset.woff2`
   Covers ASCII, Latin-1 Supplement, Latin Extended-A (Czech), the layout characters outside those (`ˇ ˚ ǎ ´ ¨ § °`, dashes, arrows) and common typographic punctuation. Ligatures are dropped because practice text disables them. Weight 600 is not included.
 - **Result:** 9 300 bytes, 329 glyphs.
+
+## `src/data/code/js.txt`
+
+- **Source:** hand-written short JavaScript snippets for practice, no third-party code.
+- **License:** MIT, same as the repository.
+- **Processing:** none.
+
+## `public/icon.svg`
+
+- **Source:** drawn for this project (plain rectangles, no third-party artwork).
+- **License:** MIT, same as the repository.
+- **Processing:** none.
+
+## `docs/screenshots/*.png`
+
+- **Source:** captures of this app (light and dark), taken with headless Chromium as described in `docs/MANUAL_CHECKS.md`. They contain the app UI and bundled data only.
+- **License:** MIT, same as the repository.
+
+## `scripts/profanity-*.txt`
+
+- **Source:** hand-written blocklists, no third-party list. Public domain, covered by the repository MIT license. See the word list entries above for use.
+
+## `tests/fixtures/ai/*`
+
+- **Source:** recorded replies from local open-weight models (`gemma4:12b`, `qwen2.5`) served by a local OpenAI-compatible server, used only as test input for the output parsers.
+- **License:** model output; the model terms were not reviewed for these short test strings, and no claim of copyright is made on them. They are not shipped in the app bundle. Replace them with hand-written fixtures if a model's terms ever matter.
+
+## Dependencies
+
+`pnpm licenses list` (2026-10-31) shows every installed package under MIT, ISC, BSD-3-Clause, Apache-2.0 or `MIT OR Apache-2.0`, all compatible with MIT. The only runtime dependency is `svelte` (MIT). Everything else is a build or test tool and is not shipped.

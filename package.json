@@ -2,6 +2,7 @@
   "name": "tenfold",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@12.16.1",
   "dependencies": {
