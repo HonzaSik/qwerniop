@@ -2,7 +2,11 @@ import type { ProviderErrorKind } from "../../ai/provider";
 import type { ExportError } from "../../core/export/export";
 import type { Layout } from "../../core/layouts/layout";
 import type { LessonTrack, NoNewKeys } from "../../core/lessons/lessons";
-import type { AiMode, KeyboardMode } from "../../core/settings/settings";
+import type {
+  AiMode,
+  KeyboardMode,
+  Language,
+} from "../../core/settings/settings";
 
 /** "a, b and c". */
 const list = (keys: readonly string[]): string =>
@@ -54,6 +58,14 @@ export const en = {
   },
   settings: {
     title: "Settings",
+    general: "General",
+    practice: "Practice",
+    accessibility: "Accessibility",
+    languageLabel: "Language",
+    languageNames: { system: "System", en: "English", cs: "Čeština" } as Record<
+      Language,
+      string
+    >,
     modelServer: "Model server",
     intro:
       "Optional. A model on your own machine can write practice text. Tenfold works the same without one. Only prompts and session statistics are sent, never what you type.",

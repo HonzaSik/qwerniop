@@ -1,8 +1,18 @@
 <script lang="ts">
 import type { ProviderErrorKind } from "../../ai/provider";
-import { AI_MODES } from "../../core/settings/settings";
+import type { Layout } from "../../core/layouts/layout";
+import { LAYOUTS } from "../../core/layouts/registry";
+import {
+  AI_MODES,
+  LANGUAGE_VALUES,
+  REDUCE_MOTION_VALUES,
+  SESSION_LENGTHS,
+} from "../../core/settings/settings";
 import { saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
+
+// Switching layout loads its word list and progress, which App owns.
+const { onlayout }: { onlayout: (id: Layout["id"]) => void } = $props();
 
 type Result =
   | { state: "idle" }
@@ -51,6 +61,66 @@ async function test(): Promise<void> {
 
 <main aria-label={t.nav.settings}>
   <h2>{t.settings.title}</h2>
+  <section aria-labelledby="general">
+    <h3 id="general">{t.settings.general}</h3>
+    <label>
+      {t.settings.languageLabel}
+      <select
+        value={ui.settings.language}
+        onchange={(e) => {
+          const next = LANGUAGE_VALUES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.language = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each LANGUAGE_VALUES as l}<option value={l}>{t.settings.languageNames[l]}</option>{/each}
+      </select>
+    </label>
+    <label>
+      {t.layoutLabel}
+      <select value={ui.settings.layout} onchange={(e) => onlayout(LAYOUTS[e.currentTarget.selectedIndex]?.id ?? ui.settings.layout)}>
+        {#each LAYOUTS as l}<option value={l.id}>{t.layoutNames[l.id]}</option>{/each}
+      </select>
+    </label>
+  </section>
+  <section aria-labelledby="practice">
+    <h3 id="practice">{t.settings.practice}</h3>
+    <label>
+      {t.lengthLabel}
+      <select
+        value={SESSION_LENGTHS.findIndex((l) => l.kind === ui.settings.length.kind && l.amount === ui.settings.length.amount)}
+        onchange={(e) => {
+          const next = SESSION_LENGTHS[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.length = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each SESSION_LENGTHS as l, i}<option value={i}>{l.kind === "words" ? t.words(l.amount) : t.seconds(l.amount)}</option>{/each}
+      </select>
+    </label>
+  </section>
+  <section aria-labelledby="accessibility">
+    <h3 id="accessibility">{t.settings.accessibility}</h3>
+    <label>
+      {t.reduceMotionLabel}
+      <select
+        value={ui.settings.reduceMotion}
+        onchange={(e) => {
+          const next = REDUCE_MOTION_VALUES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.reduceMotion = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each REDUCE_MOTION_VALUES as m}<option value={m}>{t.reduceMotionModes[m]}</option>{/each}
+      </select>
+    </label>
+  </section>
   <section aria-labelledby="model-server">
     <h3 id="model-server">{t.settings.modelServer}</h3>
     <p class="note">{t.settings.intro}</p>
@@ -131,6 +201,7 @@ async function test(): Promise<void> {
 
   section {
     display: grid;
+    margin-bottom: var(--space-4);
     gap: var(--space-3);
     padding: var(--space-4);
     border-radius: var(--radius-group);

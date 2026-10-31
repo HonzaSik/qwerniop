@@ -29,7 +29,7 @@ On failure, fix the cause on the keystroke path and repeat the check.
 ## Layout switcher and per-layout progress
 
 1. `pnpm dev`, open the app, finish a letter lesson with `en-us` and note the Lessons view unlock count.
-2. Choose "Czech (QWERTZ)" in the Layout select at the top right. The keyboard, lesson title and words become Czech and Lessons shows Czech progress from Lesson 1.
+2. Choose "Czech (QWERTZ)" in the Layout select in Settings. The keyboard, lesson title and words become Czech and Lessons shows Czech progress from Lesson 1.
 3. Reload the page. Czech is still selected.
 4. Switch back to the English layout. Its earlier unlock count is unchanged.
 5. In Stats, history and heatmap show only the layout in use. Export, import the file and check both layouts keep their progress.
@@ -37,17 +37,18 @@ On failure, fix the cause on the keystroke path and repeat the check.
 ## Czech UI
 
 1. In Chrome set the browser language to Czech (Settings, Languages) and reload `pnpm dev`; or run `navigator.language` in the console to confirm it starts with `cs`. The page language (`<html lang>`) is `cs`.
-2. Walk Practice, Lessons and Stats. Every label, button, select option, status message and the session summary is Czech with correct diacritics, and no English is left (the layout select reads "Čeština (QWERTZ)").
+2. Walk Practice, Lessons and Stats. Every label, button, select option, status message and the session summary is Czech with correct diacritics, and no English is left (the layout select in Settings reads "Čeština (QWERTZ)").
 3. Finish a session. The feedback sentence reads naturally, including with one, two and three weak keys.
 4. In Stats, export, then import a file: the replace dialog and its counts read correctly; import a non-export JSON and check the error is Czech.
-5. Check that text fits: nav, the two selects at the top right, Lessons buttons and the summary do not wrap badly or overflow at 1280 px and at 360 px.
+5. Check that text fits: nav, the Settings rows, Lessons buttons and the summary do not wrap badly or overflow at 1280 px and at 360 px.
 6. Switch the browser back to English and reload: the whole UI is English again.
+7. In Settings choose Language "Čeština" with the browser in English: every string switches at once with no reload and `<html lang>` is `cs`. Choose "English": back to English, `lang` is `en`. Choose "System": it follows the browser. Reload: the choice is kept. Export, import: the choice comes back.
 
 ## Design pass
 
 Check each screen in light and dark (system setting, then `data-theme` set to `light` and `dark` on `<html>` in DevTools), at 1280 px and 360 px.
 
-1. Practice: typed text reads as primary, untyped as clearly dimmer; caret and next key are accent; a wrong character is red and underlined on a tinted background. Spacing around the nav, selects, timer and keyboard is even.
+1. Practice: typed text reads as primary, untyped as clearly dimmer; caret and next key are accent; a wrong character is red and underlined on a tinted background. Spacing around the nav, timer and keyboard is even.
 2. Keyboard: all eight finger colours are distinct and muted in both appearances, labels are legible on every key, next-key outline and Shift outline are visible.
 3. Summary: numbers are tabular, accuracy shows "97 %" with no wrap between number and sign, Continue has a visible focus ring.
 4. Lessons: locked buttons are readable but clearly disabled, the current lesson has an accent outline, "Unlocked n of m" is secondary text.
@@ -58,7 +59,7 @@ Check each screen in light and dark (system setting, then `data-theme` set to `l
 
 1. With the setting on System and the OS "reduce motion" preference off: the caret glides and blinks, the text scrolls smoothly, keys fade, the summary fades in.
 2. Turn the OS preference on (no reload): the caret is solid and jumps instantly, the text scrolls by whole lines with no animation, key highlights and the summary switch instantly.
-3. Set the select to Off with the OS preference on: motion returns. Set it to On with the OS preference off: motion stops. Reload: the choice is kept.
+3. In Settings, Accessibility, set the select to Off with the OS preference on: motion returns. Set it to On with the OS preference off: motion stops. Reload: the choice is kept.
 
 ## Keyboard navigation and help sheet
 
@@ -74,7 +75,7 @@ Check each screen in light and dark (system setting, then `data-theme` set to `l
 Setup: `pnpm build && pnpm preview`. Orca: Firefox or Chromium, start with `orca` (Super+Alt+S on GNOME). VoiceOver: Safari, Cmd+F5. Repeat once with the browser language set to Czech: speech should switch to a Czech voice and all labels be Czech.
 
 1. Landmarks: jump by landmark (Orca: `m`; VoiceOver: rotor, Landmarks). Announced: navigation named "Views" (or Czech), main named "Practice". Headings (Orca: `h`; rotor) list the lesson title as level 1. Lessons and Stats list their section headings and name their main landmark.
-2. Controls: Tab through Practice. Each select is announced with its label (Layout, Length, Reduce motion, Keyboard) and current value. The current nav link is announced as current page.
+2. Controls: Tab through Practice. Each select is announced with its label (Keyboard on Practice; Language, Layout, Length, Reduce motion in Settings) and current value. The current nav link is announced as current page.
 3. Practice text: Tab to the text field. Announced: "Type the text" and the passage as its description. The on-screen keyboard and caret are never announced or reachable in browse mode.
 4. Typing: type 20 characters, including errors. Nothing is announced per keystroke (no character echo from the app, no "correct" or "wrong"). Orca's own key echo may speak typed characters; turn it off in Orca preferences for this check.
 5. Pause: press Esc or click away. "Click or press any key to continue" is announced once. Resuming does not repeat it.

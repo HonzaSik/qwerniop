@@ -9,6 +9,9 @@ export type KeyboardMode = (typeof KEYBOARD_MODE_VALUES)[number];
 export const REDUCE_MOTION_VALUES = ["system", "on", "off"] as const;
 export type ReduceMotion = (typeof REDUCE_MOTION_VALUES)[number];
 
+export const LANGUAGE_VALUES = ["system", "en", "cs"] as const;
+export type Language = (typeof LANGUAGE_VALUES)[number];
+
 export type SessionLength =
   | { kind: "words"; amount: number }
   | { kind: "seconds"; amount: number };
@@ -53,6 +56,7 @@ export interface Settings {
   keyboardMode: KeyboardMode;
   targets: Targets;
   reduceMotion: ReduceMotion;
+  language: Language;
   modelServer: ModelServer;
 }
 
@@ -64,6 +68,7 @@ export const defaultSettings = (): Settings => ({
   keyboardMode: "fingers",
   targets: { accuracy: 0.95, wpm: 35 },
   reduceMotion: "system",
+  language: "system",
   modelServer: {
     enabled: false,
     modes: { lesson: true, topic: true, code: true, feedback: true },
@@ -80,7 +85,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 /**
  * Turns anything read from storage into valid Settings. Each field falls back
  * to its default on its own, so one bad or missing field loses nothing else.
- * Older versions are upgraded here (none yet differ from version 1; a missing layout reads as en-us).
+ * Older versions are upgraded here (none yet differ from version 1; a missing layout reads as en-us, a missing language as system).
  */
 export function migrateSettings(old: unknown): Settings {
   const defaults = defaultSettings();
@@ -112,6 +117,8 @@ export function migrateSettings(old: unknown): Settings {
     reduceMotion:
       REDUCE_MOTION_VALUES.find((m) => m === old.reduceMotion) ??
       defaults.reduceMotion,
+    language:
+      LANGUAGE_VALUES.find((l) => l === old.language) ?? defaults.language,
     modelServer: {
       enabled: flag(server?.enabled, defaults.modelServer.enabled),
       modes: {

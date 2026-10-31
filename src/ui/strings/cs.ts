@@ -1,4 +1,4 @@
-import type { AiMode } from "../../core/settings/settings";
+import type { AiMode, Language } from "../../core/settings/settings";
 import type { Strings } from "./en";
 
 /** Czech forms for 1, 2 to 4, and 5 or more. */
@@ -50,6 +50,15 @@ export const cs: Strings = {
   },
   settings: {
     title: "Nastavení",
+    general: "Obecné",
+    practice: "Cvičení",
+    accessibility: "Přístupnost",
+    languageLabel: "Jazyk",
+    languageNames: {
+      system: "Podle systému",
+      en: "English",
+      cs: "Čeština",
+    } as Record<Language, string>,
     modelServer: "Model server",
     intro:
       "Volitelné. Model běžící na vašem počítači může psát cvičné texty. Tenfold funguje stejně i bez něj. Odesílají se jen zadání a statistiky cvičení, nikdy to, co píšete.",

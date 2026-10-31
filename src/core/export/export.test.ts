@@ -49,6 +49,24 @@ describe("buildExport", () => {
   });
 });
 
+describe("language in export", () => {
+  it("travels with the settings", () => {
+    const text = buildExport(
+      {
+        settings: { ...defaultSettings(), language: "cs" },
+        progress: {
+          "en-us": initialProgress(),
+          "cs-qwertz": initialProgress(),
+        },
+        sessions: [],
+      },
+      new Date(0),
+    );
+    const r = parseExport(JSON.parse(text));
+    expect(r.ok && r.value.settings.language).toBe("cs");
+  });
+});
+
 describe("parseExport", () => {
   it("round-trips an export", () => {
     const data = {

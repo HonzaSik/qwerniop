@@ -6,14 +6,13 @@ import type { Session } from "./core/engine/engine";
 import { sessionRecord } from "./core/engine/record";
 import { accuracy, netWpm } from "./core/engine/results";
 import type { Layout } from "./core/layouts/layout";
-import { LAYOUTS, layoutById } from "./core/layouts/registry";
+import { layoutById } from "./core/layouts/registry";
 import {
   completeLesson,
   type Lesson,
   nextLesson,
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
-import { SESSION_LENGTHS } from "./core/settings/settings";
 import { type CharStats, foldSession } from "./core/stats/chars";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
@@ -31,11 +30,9 @@ import { createPrefetch } from "./ui/prefetch";
 import { isBackKey, isHelpKey, isSettingsKey } from "./ui/shortcuts";
 import {
   hydrate,
-  REDUCE_MOTION_MODES,
   readSessions,
   saveProgress,
   saveSession,
-  saveSettings,
   switchLayout,
   topicStore,
   ui,
@@ -54,7 +51,9 @@ systemReduce.addEventListener("change", () => {
   systemReduced = systemReduce.matches;
 });
 // index.html ships "en"; follow the UI language so a screen reader picks the right voice.
-document.documentElement.lang = t.language;
+$effect(() => {
+  document.documentElement.lang = t.language;
+});
 // One attribute on the root drives every motion rule in CSS.
 $effect(() => {
   const m = ui.settings.reduceMotion;
@@ -317,7 +316,7 @@ let help: HTMLDialogElement | undefined = $state();
   {#if view === "lessons"}
     <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} />
   {:else if view === "settings"}
-    <Settings />
+    <Settings onlayout={chooseLayout} />
   {:else if view === "stats"}
     {#key hash}<Stats sessions={readSessions()} onimported={afterImport} />{/key}
   {:else}
@@ -332,44 +331,6 @@ let help: HTMLDialogElement | undefined = $state();
         onnext={() => start(nextLesson(layout.id, run.lesson))}
       />
     {/key}
-    <div class="controls">
-    <label>
-      {t.layoutLabel}
-      <select value={layout.id} onchange={(e) => chooseLayout(LAYOUTS[e.currentTarget.selectedIndex]?.id ?? layout.id)}>
-        {#each LAYOUTS as l}<option value={l.id}>{t.layoutNames[l.id]}</option>{/each}
-      </select>
-    </label>
-    <label>
-      {t.lengthLabel}
-      <select
-        value={SESSION_LENGTHS.findIndex((l) => l.kind === ui.settings.length.kind && l.amount === ui.settings.length.amount)}
-        onchange={(e) => {
-          const next = SESSION_LENGTHS[e.currentTarget.selectedIndex];
-          if (next) {
-            ui.settings.length = next;
-            saveSettings();
-          }
-        }}
-      >
-        {#each SESSION_LENGTHS as l, i}<option value={i}>{l.kind === "words" ? t.words(l.amount) : t.seconds(l.amount)}</option>{/each}
-      </select>
-    </label>
-    <label>
-      {t.reduceMotionLabel}
-      <select
-        value={ui.settings.reduceMotion}
-        onchange={(e) => {
-          const next = REDUCE_MOTION_MODES[e.currentTarget.selectedIndex];
-          if (next) {
-            ui.settings.reduceMotion = next;
-            saveSettings();
-          }
-        }}
-      >
-        {#each REDUCE_MOTION_MODES as m}<option value={m}>{t.reduceMotionModes[m]}</option>{/each}
-      </select>
-    </label>
-    </div>
   {/if}
 {:catch}
   <main class="error">
@@ -474,15 +435,5 @@ let help: HTMLDialogElement | undefined = $state();
   dialog dd {
     margin: 0;
     color: var(--text-2);
-  }
-
-  .controls {
-    position: fixed;
-    top: var(--space-4);
-    right: var(--space-4);
-    display: flex;
-    gap: var(--space-4);
-    color: var(--text-2);
-    font-size: var(--text-size-sm);
   }
 </style>

@@ -1,14 +1,27 @@
 import type { Feedback } from "../../core/adaptive/feedback";
 import type { Layout } from "../../core/layouts/layout";
 import { type Lesson, lessonKeys, noNewKeys } from "../../core/lessons/lessons";
+import type { Language } from "../../core/settings/settings";
+import { ui } from "../state.svelte";
 import { cs } from "./cs";
 import { en, type Strings } from "./en";
 
-/** Czech for Czech browsers, English for everything else; there is no setting for it yet. */
+/** Czech for Czech browsers, English for everything else. */
 export const pickStrings = (language: string): Strings =>
   language.toLowerCase().startsWith("cs") ? cs : en;
 
-export const t: Strings = pickStrings(navigator.language);
+/** The setting decides; "system" follows the browser. */
+export const stringsFor = (setting: Language, browser: string): Strings =>
+  setting === "system" ? pickStrings(browser) : setting === "cs" ? cs : en;
+
+/**
+ * Reads through to the current language on every access, so a template that
+ * uses `t` re-renders when the setting changes. The target only supplies the type.
+ */
+export const t: Strings = new Proxy(en, {
+  get: (_, key) =>
+    Reflect.get(stringsFor(ui.settings.language, navigator.language), key),
+});
 
 /** "Lesson 5 · e i" for letters, "Numbers 2 · 6 7 8 9 0" for the other tracks. */
 export function lessonTitle(

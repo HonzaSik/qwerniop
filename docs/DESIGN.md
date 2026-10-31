@@ -68,7 +68,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - 4 px base unit; spacing tokens `--space-1` … `--space-8` = 4, 8, 12, 16, 24, 32, 48, 64 px.
 - Corner radius: 8 px for controls, 12 px for groups, 6 px for keys.
 - Practice view: text column centred, max width about 64 characters; keyboard below with generous space between.
-- Settings: grouped lists like system preferences, one setting per row, label left and control right.
+- Settings: grouped lists like system preferences, one setting per row, label left and control right. Groups in order: General (Language, Layout), Practice (Length), Accessibility (Reduce motion), Model server. The Keyboard mode select stays under the keyboard in Practice.
 - Responsive down to 360 px width; the keyboard scales by key unit, never scrolls horizontally.
 
 ## Practice view
@@ -88,8 +88,8 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - Caret is a 2 px bar that glides to the next character with a short transform transition. Its blink pauses while typing.
 - Three lines of text are visible at all times, including for shorter passages, at a line height of 1.6; the view scrolls by whole lines, without animation if reduce motion is on.
 - The caret stays on the middle row after the first line. Near the end the scroll stops so the last three lines stay filled, and the caret drops to the bottom row: `top = max(0, min(line - 1, lineCount - 3))`. Backspace uses the same rule. At the end of the text the caret sits after the last character, with no extra line.
-- Layout is a Settings field, saved when changed; until the Settings view exists it is chosen with a select beside Length at the top right of the Practice view. Switching keeps each layout's progress and starts at Lesson 1 with that layout's own saved progress; Lessons, Stats and the keyboard follow the layout in use.
-- Timed sessions show the seconds left in `text-2`, tabular numerals, centred above the text; it updates once a second and is outside the text view. The length is a Settings field, saved when changed; until the Settings view exists it is chosen with a select at the top right of the Practice view (`App.svelte`). Pausing (blur) stops the clock.
+- Layout is a Settings field, saved when changed, chosen in the Settings view (General). Switching keeps each layout's progress and starts at Lesson 1 with that layout's own saved progress; Lessons, Stats and the keyboard follow the layout in use.
+- Timed sessions show the seconds left in `text-2`, tabular numerals, centred above the text; it updates once a second and is outside the text view. The length is a Settings field, saved when changed, chosen in the Settings view (Practice). Pausing (blur) stops the clock.
 - End of session: text fades out and a summary appears in place: WPM, accuracy, time, weakest keys, a sentence of feedback, and "Continue" (Enter) / "Repeat" (R).
   - WPM is net WPM, as a whole number. Accuracy is a whole percent that shows 100 % only for a session with no errors. Time is `m:ss`.
   - Weakest keys: up to three physical keys (`weakestKeys`, `core/adaptive/feedback.ts`). Candidates are the characters attempted this session, ranked by the weakness the weighted sampling defines on the stats after this session is folded (the stats the unlock rule judges); characters with weakness 0 and Space are left out, and a character maps to its main key via `strokesFor`, so `a` and `A` are one key. Shown as key labels in a "Weakest keys" row; with none, the row is omitted. A single session's error count is not what "weakest" means here, and there is no comparison with past sessions and no finger names.
@@ -131,7 +131,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - Durations: 80 ms (key press), 120 ms (caret), 200 ms (view changes). Easing: `cubic-bezier(0.2, 0, 0, 1)`.
 - Caret blink: 1060 ms cycle, 530 ms on and 530 ms off (`--caret-blink`), resuming after one 530 ms solid phase once typing stops.
 - Only `transform` and `opacity` animate.
-- The Reduce motion setting is System (default, follows `prefers-reduced-motion`), On or Off; until the Settings view exists it is a select beside Length. One `data-reduce-motion` attribute on `<html>` carries the result and all motion CSS keys off it.
+- The Reduce motion setting is System (default, follows `prefers-reduced-motion`), On or Off, chosen in the Settings view (Accessibility). One `data-reduce-motion` attribute on `<html>` carries the result and all motion CSS keys off it.
 - With `prefers-reduced-motion` or the Reduce motion setting: no transitions except an instant caret move, and a solid caret.
 
 ## Interaction
@@ -145,7 +145,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - A percent sign follows its number after a non-breaking space ("97 %"), so it never wraps onto its own line.
 - Plain, short, sentence case: "Continue", "Repeat lesson", "Model server".
 - No exclamation marks, no motivational slogans.
-- The UI ships in English and Czech; strings live in one file per language (`src/ui/strings/en.ts`, `cs.ts`). The English file is the type, so a missing Czech string fails the type check. The language is Czech when `navigator.language` starts with `cs`, English otherwise; there is no setting until the Settings view exists. Core returns codes (feedback rule, export error, lesson note), never display text.
+- The UI ships in English and Czech; strings live in one file per language (`src/ui/strings/en.ts`, `cs.ts`). The English file is the type, so a missing Czech string fails the type check. The Language setting (System, English, Čeština; default System) chooses it: System is Czech when `navigator.language` starts with `cs`, English otherwise. Changing it switches every string at once and sets `<html lang>`; the language names are always shown in their own language. Core returns codes (feedback rule, export error, lesson note), never display text.
 
 ## Accessibility
 

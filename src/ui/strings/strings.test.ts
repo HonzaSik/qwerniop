@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { cs, plural } from "./cs";
 import { en } from "./en";
-import { feedbackText, lessonTitle, pickStrings } from "./index";
+import { feedbackText, lessonTitle, pickStrings, stringsFor } from "./index";
 
 describe("pickStrings", () => {
   test("Czech browsers get Czech, the rest English", () => {
@@ -9,6 +9,15 @@ describe("pickStrings", () => {
     expect(pickStrings("cs-CZ")).toBe(cs);
     expect(pickStrings("en-US")).toBe(en);
     expect(pickStrings("de")).toBe(en);
+  });
+});
+
+describe("stringsFor", () => {
+  test("an explicit language beats the browser, system follows it", () => {
+    expect(stringsFor("cs", "en-US")).toBe(cs);
+    expect(stringsFor("en", "cs-CZ")).toBe(en);
+    expect(stringsFor("system", "cs-CZ")).toBe(cs);
+    expect(stringsFor("system", "en-US")).toBe(en);
   });
 });
 

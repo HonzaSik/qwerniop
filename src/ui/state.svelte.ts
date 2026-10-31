@@ -9,15 +9,10 @@ import {
 import {
   defaultSettings,
   type KeyboardMode,
-  REDUCE_MOTION_VALUES,
-  type ReduceMotion,
   type Settings,
 } from "../core/settings/settings";
 import type { TopicHistory } from "../core/topics/history";
 import type { Store, Stored } from "../storage/store";
-
-export const REDUCE_MOTION_MODES: readonly ReduceMotion[] =
-  REDUCE_MOTION_VALUES;
 
 export const KEYBOARD_MODES: readonly KeyboardMode[] = [
   "fingers",
