@@ -295,7 +295,7 @@ Design rules are in [DESIGN.md](DESIGN.md).
 
 `public/sw.js` is a hand-written service worker: cache the app shell on install, serve cache-first, update in the background, and show "Update available" when a new version is waiting. Word lists and fonts are cached when first loaded. No plugin.
 
-`scripts/stamp-sw.mjs` runs after `vite build` and writes the shell file list and a content-hash version into `dist/sw.js`, so the file changes bytes on every new build and browsers see the update. Every same-origin GET is cache-first in the versioned cache; other requests (model server calls are POST or cross-origin) are never touched. A new worker waits; `src/ui/worker.svelte.ts` shows "Update available" and on click posts `skip-waiting`, then reloads when the new worker takes control. The worker is registered only in production builds, after `load`.
+`scripts/stamp-sw.mjs` runs after `vite build` and writes the shell file list and a content-hash version into `dist/sw.js`, so the file changes bytes on every new build and browsers see the update. Every same-origin GET is cache-first in the versioned cache; other requests (model server calls are POST or cross-origin) are never touched. A new worker waits; `src/ui/worker.svelte.ts` shows "Update available" and on click posts `skip-waiting`, then reloads when the new worker takes control. The worker is registered only in production builds, after `load`. The build uses `base: "./"` (relative URLs), so it works under a subpath such as `/tenfold/` on GitHub Pages; `.github/workflows/pages.yml` deploys `dist/` on every push to main.
 
 ## Browser support
 

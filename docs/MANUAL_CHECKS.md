@@ -152,3 +152,7 @@ done
 ```
 
 Open both PNGs: the page must be rendered (not blank) and the two must differ. Stop the preview server afterwards.
+
+## GitHub Pages
+
+After the first push to GitHub, open repository Settings, Pages, and set Source to "GitHub Actions"; then run the Pages workflow (or push again). Load `https://<user>.github.io/tenfold/` and check: the page renders with the monospace font, a lesson types, and both word lists load (switch layout to Czech). In DevTools, Application shows the worker active with scope `/tenfold/`. Go offline and reload: the app still loads. Install it from the browser menu and confirm it opens at `/tenfold/`.
