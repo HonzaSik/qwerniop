@@ -8,6 +8,7 @@ import {
 } from "../../core/engine/engine";
 import { layoutById } from "../../core/layouts/registry";
 import { attachInput } from "../../input/input";
+import { isPhysicalCode } from "../../input/physicalKey";
 import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
 import TextView from "../components/TextView.svelte";
@@ -44,6 +45,26 @@ let view: TextView | undefined;
 let board: Keyboard | undefined = $state();
 // Keydown precedes the input it produces, so this is the key behind a wrong character.
 let lastCode = "";
+
+let needsKeyboard = $state(
+  matchMedia("(pointer: coarse) and (hover: none)").matches,
+);
+
+// Listens only until the first physical key, so a keyboard-equipped device pays nothing afterwards.
+$effect(() => {
+  if (!needsKeyboard) return;
+  const controller = new AbortController();
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (!isPhysicalCode(e.code)) return;
+      needsKeyboard = false;
+      controller.abort();
+    },
+    { signal: controller.signal },
+  );
+  return () => controller.abort();
+});
 
 // Runs for a new session and when the board mounts (hidden mode off); keystrokes call next() directly.
 $effect(() => {
@@ -131,6 +152,9 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   <h1>{title}</h1>
   {#if timeLimit !== undefined}
     <p class="timer" role="timer" aria-label={t.practice.timeLeft}>{secondsLeft}</p>
+  {/if}
+  {#if needsKeyboard}
+    <p class="notice" role="status">{t.practice.connectKeyboard}</p>
   {/if}
   <div class="stage">
     <div class="layer text" class:done={finished} aria-hidden={finished}>
@@ -248,6 +272,13 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     border: 0;
     clip-path: inset(50%);
     resize: none;
+  }
+
+  .notice {
+    margin: 0 0 var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-size-md);
+    text-align: center;
   }
 
   .pause {

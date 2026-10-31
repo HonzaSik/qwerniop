@@ -84,3 +84,14 @@ Setup: `pnpm build && pnpm preview`. Orca: Firefox or Chromium, start with `orca
 9. Stats chart: the line chart is one image with a text summary; the heatmap keys are readable.
 
 Pass: every item announces what is listed and nothing else. Record any extra announcement and its trigger.
+
+## Touch-device message
+
+Setup: `pnpm build && pnpm preview`.
+
+1. Phone: open Practice. "Connect a keyboard to practice" shows above the passage. Tapping to raise the on-screen keyboard and typing does not hide it if the keyboard sends no key code.
+2. Tablet with a hardware keyboard: the message shows on load and disappears on the first hardware key press; typing works normally.
+3. Desktop with DevTools touch emulation (Chromium device mode, reload after enabling): the message shows; press any key and it disappears.
+4. Desktop with mouse and no emulation: the message never shows.
+
+Pass: the message appears only on touch-first devices and never returns after a physical key.

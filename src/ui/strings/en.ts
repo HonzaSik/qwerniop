@@ -71,6 +71,7 @@ export const en = {
     timeLeft: "Time left",
     typeText: "Type the text",
     paused: "Click or press any key to continue",
+    connectKeyboard: "Connect a keyboard to practice",
   },
   summary: {
     label: "Session results",

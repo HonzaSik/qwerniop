@@ -63,6 +63,7 @@ export const cs: Strings = {
     timeLeft: "Zbývající čas",
     typeText: "Pište text",
     paused: "Klikněte nebo stiskněte libovolnou klávesu a pokračujte",
+    connectKeyboard: "Pro cvičení připojte klávesnici",
   },
   summary: {
     label: "Výsledky cvičení",
