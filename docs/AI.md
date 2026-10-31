@@ -86,7 +86,7 @@ The learner types a topic (for example "how vaccines work" or "Rust ownership"),
 
 ### 4. Session feedback
 
-- Input: session statistics only: WPM, accuracy, weakest characters and fingers, trend over the last sessions.
+- Input: session statistics only: WPM, accuracy, weakest characters and fingers, trend (average of the previous 5 sessions).
 - Output: two or three plain sentences of advice.
 - Offline equivalent: a rule-based summary such as "Your weakest keys were ř and č, both on your left index finger. Slow down on the number row."
 

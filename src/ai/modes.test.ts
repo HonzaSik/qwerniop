@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import type { SessionRecord } from "../core/engine/record";
 import { enUs } from "../core/layouts/en-us";
 import {
   codeText,
@@ -8,7 +9,7 @@ import {
   topicText,
 } from "./modes";
 import { codeRequest } from "./prompts/code";
-import { feedbackRequest } from "./prompts/feedback";
+import { feedbackInput, feedbackRequest } from "./prompts/feedback";
 import { lessonRequest } from "./prompts/lesson";
 import { recapRequest, topicRequest } from "./prompts/topic";
 import { ProviderError, type TextProvider } from "./provider";
@@ -69,10 +70,47 @@ describe("prompts", () => {
       wpm: 33.6,
       accuracy: 0.934,
       weakest: ["r", "p"],
+      fingers: ["L2", "R5"],
+      trend: { sessions: 5, wpm: 30.2, accuracy: 0.9 },
     }).prompt;
     expect(p).toContain("34 wpm");
     expect(p).toContain("93 percent");
     expect(p).toContain("r, p");
+    expect(p).toContain("left index, right pinky");
+    expect(p).toContain("previous 5 sessions averaged 30 wpm and 90 percent");
+  });
+
+  test("feedback input derives fingers and averages the last sessions", () => {
+    const rec = (at: number, wpm: number, accuracy: number): SessionRecord => ({
+      at,
+      layout: "en-us",
+      mode: "stop",
+      lesson: { track: "letters", stage: 1 },
+      wpm,
+      accuracy,
+      durationMs: 1000,
+      errors: {},
+    });
+    const history = [1, 2, 3, 4, 5, 6, 7].map((i) => rec(i, i * 10, 0.9));
+    const input = feedbackInput(
+      enUs,
+      "en",
+      { wpm: 50, accuracy: 0.95 },
+      { codes: ["KeyF", "KeyJ", "KeyR"], labels: ["f", "j", "r"] },
+      history,
+    );
+    expect(input.fingers).toEqual(["L2", "R2"]);
+    expect(input.trend).toEqual({ sessions: 5, wpm: 50, accuracy: 0.9 });
+    expect(
+      feedbackInput(
+        enUs,
+        "en",
+        { wpm: 1, accuracy: 1 },
+        { codes: [], labels: [] },
+        [],
+      ).trend,
+    ).toBeUndefined();
+    expect(JSON.stringify(input)).not.toContain("expected");
   });
 });
 
@@ -125,7 +163,7 @@ describe("modes", () => {
       await feedbackSentence(
         fake(["Sure: ", "Slow down on r and p and keep your accuracy high."]),
         enUs,
-        { language: "en", wpm: 30, accuracy: 0.9, weakest: [] },
+        { language: "en", wpm: 30, accuracy: 0.9, weakest: [], fingers: [] },
       ),
     ).toBeDefined();
   });

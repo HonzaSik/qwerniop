@@ -196,13 +196,14 @@ function finish(session: Session): void {
     ui.settings.targets,
   );
   const after = ui.progress[track];
-  const labels = weakestKeys(
+  const codes = weakestKeys(
     layout,
     ui.progress.stats,
     session.log.map((s) => s.expected),
     ui.settings.targets,
     3,
-  ).map((code) => {
+  );
+  const labels = codes.map((code) => {
     const key = layout.keys.find((k) => k.code === code);
     return key ? keyLabel(key).main : code;
   });
@@ -222,16 +223,25 @@ function finish(session: Session): void {
     ),
   };
   const done = run;
-  generatedFeedback($state.snapshot(ui.settings.modelServer), {
-    layout: layout.id,
-    wpm: netWpm(session),
-    accuracy: accuracy(session),
-    weakest: labels,
-  }).then((sentence) => {
-    if (sentence !== undefined && run === done && done.feedback) {
-      done.feedback = { ...done.feedback, sentence };
-    }
-  });
+  const record = sessionRecord(session, layout.id, run.lesson, Date.now());
+  // Saved and read back, so the record itself is left out of its own trend.
+  saveSession(record);
+  readSessions()
+    .then((saved) =>
+      generatedFeedback($state.snapshot(ui.settings.modelServer), {
+        layout: layout.id,
+        wpm: record.wpm,
+        accuracy: record.accuracy,
+        weakest: labels,
+        weakestCodes: codes,
+        history: saved.filter((r) => r.at !== record.at),
+      }),
+    )
+    .then((sentence) => {
+      if (sentence !== undefined && run === done && done.feedback) {
+        done.feedback = { ...done.feedback, sentence };
+      }
+    });
   generatedRecap(
     $state.snapshot(ui.settings.modelServer),
     layout.id,
@@ -242,7 +252,6 @@ function finish(session: Session): void {
     }
   });
   saveProgress();
-  saveSession(sessionRecord(session, layout.id, run.lesson, Date.now()));
 }
 
 // The word list depends on the saved layout, so it loads once storage has answered.

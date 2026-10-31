@@ -1,5 +1,6 @@
 import type { Targets } from "../core/adaptive/weakness";
 import { weakness } from "../core/adaptive/weakness";
+import type { SessionRecord } from "../core/engine/record";
 import type { Layout } from "../core/layouts/layout";
 import { layoutById } from "../core/layouts/registry";
 import type { Lesson } from "../core/lessons/lessons";
@@ -197,6 +198,9 @@ export interface FeedbackRequest {
   wpm: number;
   accuracy: number;
   weakest: string[];
+  weakestCodes: string[];
+  /** Saved sessions other than the one just finished. */
+  history: readonly SessionRecord[];
 }
 
 /** A model-written sentence for the summary, or undefined to keep the offline one. */
@@ -209,12 +213,18 @@ export async function generatedFeedback(
   }
   try {
     const { provider, modes } = await load(server);
-    return await modes.feedbackSentence(provider, layoutById(r.layout), {
-      language: languageOf(r.layout),
-      wpm: r.wpm,
-      accuracy: r.accuracy,
-      weakest: r.weakest,
-    });
+    const layout = layoutById(r.layout);
+    return await modes.feedbackSentence(
+      provider,
+      layout,
+      modes.feedbackInput(
+        layout,
+        languageOf(r.layout),
+        { wpm: r.wpm, accuracy: r.accuracy },
+        { codes: r.weakestCodes, labels: r.weakest },
+        r.history,
+      ),
+    );
   } catch {
     return undefined;
   }

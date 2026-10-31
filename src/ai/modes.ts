@@ -1,5 +1,8 @@
 import type { Layout } from "../core/layouts/layout";
 import { type CodeInput, codeRequest } from "./prompts/code";
+
+export { feedbackInput } from "./prompts/feedback";
+
 import { type FeedbackInput, feedbackRequest } from "./prompts/feedback";
 import { type LessonInput, lessonRequest } from "./prompts/lesson";
 import {

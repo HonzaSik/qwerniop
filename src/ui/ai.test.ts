@@ -88,6 +88,8 @@ test("a disabled server never loads the ai chunk", async () => {
     wpm: 40,
     accuracy: 0.9,
     weakest: [],
+    weakestCodes: [],
+    history: [],
   });
   expect(loaded).not.toHaveBeenCalled();
 });
