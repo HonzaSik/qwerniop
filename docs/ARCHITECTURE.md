@@ -294,6 +294,8 @@ Design rules are in [DESIGN.md](DESIGN.md).
 
 `public/sw.js` is a hand-written service worker: cache the app shell on install, serve cache-first, update in the background, and show "Update available" when a new version is waiting. Word lists and fonts are cached when first loaded. No plugin.
 
+`scripts/stamp-sw.mjs` runs after `vite build` and writes the shell file list and a content-hash version into `dist/sw.js`, so the file changes bytes on every new build and browsers see the update. Every same-origin GET is cache-first in the versioned cache; other requests (model server calls are POST or cross-origin) are never touched. A new worker waits; `src/ui/worker.svelte.ts` shows "Update available" and on click posts `skip-waiting`, then reloads when the new worker takes control. The worker is registered only in production builds, after `load`.
+
 ## Browser support
 
 Current and previous major versions of Firefox, Chromium-based browsers, and Safari, plus Firefox ESR. Linux, Windows, macOS. Tablets with a hardware keyboard are supported. On touch-first devices (`(pointer: coarse) and (hover: none)`), the practice view shows a short "Connect a keyboard to practice" message. It disappears as soon as a `keydown` with a physical `event.code` arrives, so a tablet with a keyboard works normally. On-screen keyboards often send `keydown` with `code` empty or `"Unidentified"`; those don't count.

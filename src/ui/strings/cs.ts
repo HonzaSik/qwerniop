@@ -18,6 +18,8 @@ export const cs: Strings = {
     lessons: "Lekce",
     stats: "Statistiky",
   },
+  updateAvailable: "Je dostupná aktualizace",
+  updateReload: "Načíst znovu",
   layoutLabel: "Rozložení",
   layoutNames: { "en-us": "Angličtina (US)", "cs-qwertz": "Čeština (QWERTZ)" },
   lengthLabel: "Délka",

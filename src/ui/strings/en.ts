@@ -19,6 +19,8 @@ export const en = {
     lessons: "Lessons",
     stats: "Stats",
   },
+  updateAvailable: "Update available",
+  updateReload: "Reload",
   layoutLabel: "Layout",
   layoutNames: {
     "en-us": "English (US)",

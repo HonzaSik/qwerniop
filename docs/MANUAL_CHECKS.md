@@ -95,3 +95,16 @@ Setup: `pnpm build && pnpm preview`.
 4. Desktop with mouse and no emulation: the message never shows.
 
 Pass: the message appears only on touch-first devices and never returns after a physical key.
+
+## Offline and install
+
+Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile.
+
+1. Open the preview URL and let it load. DevTools, Application, Service Workers: `sw.js` is activated.
+2. Network panel: tick Offline and reload. The app loads and a session works.
+3. Back online, switch Layout to Czech (QWERTZ) once so its word list loads. Go offline, reload, switch between layouts. Both work.
+4. Update flow: change any source file, run `pnpm build` again (preview serves the new `dist`), reload the open tab. "Update available" shows. Click Reload: the page reloads and Application shows the new worker as activated.
+5. Application, Manifest: no errors, name "Tenfold", icon shown, installable (install icon in the address bar).
+6. With a model server configured, requests to it are not listed under Cache Storage.
+
+Pass: offline reload works for both layouts, the update message appears only after a rebuild, and the manifest has no warnings.

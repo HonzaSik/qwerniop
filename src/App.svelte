@@ -35,6 +35,7 @@ import { feedbackText, lessonTitle, t } from "./ui/strings";
 import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
 import Stats from "./ui/views/Stats.svelte";
+import { applyUpdate, worker } from "./ui/worker.svelte";
 
 // Reads the system preference live so changing it needs no reload.
 const systemReduce = matchMedia("(prefers-reduced-motion: reduce)");
@@ -214,6 +215,13 @@ let help: HTMLDialogElement | undefined = $state();
   <form method="dialog"><button type="submit">{t.help.close}</button></form>
 </dialog>
 
+{#if worker.waiting}
+  <p class="update" role="status">
+    {t.updateAvailable}
+    <button type="button" onclick={applyUpdate}>{t.updateReload}</button>
+  </p>
+{/if}
+
 {#await data then snippets}
   <nav aria-label={t.nav.label}>
     <a href="#practice" aria-current={view === "practice" ? "page" : undefined}>{t.nav.practice}</a>
@@ -298,6 +306,18 @@ let help: HTMLDialogElement | undefined = $state();
     gap: var(--space-4);
     color: var(--text-2);
     font-size: var(--text-size-md);
+  }
+
+  .update {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-2);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
   }
 
   .error p {
