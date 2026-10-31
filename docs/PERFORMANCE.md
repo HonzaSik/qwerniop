@@ -60,5 +60,5 @@ Per milestone that touches the UI:
 
 1. `pnpm build && pnpm preview`.
 2. Chrome DevTools → Performance → CPU 6× slowdown. Record 20 s of fast typing. No frame over 16 ms caused by our code; no layout shift.
-3. Repeat the typing test in Firefox.
+3. Repeat the typing test in Firefox (see `docs/MANUAL_CHECKS.md`; no DevTools CPU throttle there).
 4. `pnpm test:bench` shows no regression over 20 % against the last recorded numbers in `tests/bench/BASELINE.md`.
