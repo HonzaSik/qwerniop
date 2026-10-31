@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
@@ -11,11 +11,31 @@ const GROUPS = [
   ["Initial CSS", /<link[^>]*href="([^"]+\.css)"/g, 10 * KB],
 ];
 
+// vite.config names every chunk holding src/ai code `ai-*.js`; none may load with the page.
+// shortcut: static imports are found by regex on minified output, so a bundler change in its import syntax needs this updated.
+function initialAiChunks(dist, html) {
+  const seen = new Set();
+  const queue = [...html.matchAll(/(?:src|href)="\/?([^"]+\.js)"/g)].map(
+    (m) => m[1],
+  );
+  while (queue.length > 0) {
+    const file = queue.pop();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    const code = readFileSync(join(dist, file), "utf8");
+    for (const m of code.matchAll(/(?:from|import)\s*"\.\/([^"]+\.js)"/g)) {
+      queue.push(join(dirname(file), m[1]));
+    }
+  }
+  return [...seen].filter((f) => basename(f).startsWith("ai-"));
+}
+
 // Returns failure messages; empty means every budget holds.
-// shortcut: the `ai` chunk budget is not checked because PERFORMANCE.md names no file pattern for it; add once its chunk name exists.
 export function checkSizes(dist) {
   const html = readFileSync(join(dist, "index.html"), "utf8");
-  const failures = [];
+  const failures = initialAiChunks(dist, html).map(
+    (f) => `ai chunk ${f} loads with the page`,
+  );
   for (const [name, pattern, budget] of GROUPS) {
     let total = 0;
     for (const match of html.matchAll(pattern)) {

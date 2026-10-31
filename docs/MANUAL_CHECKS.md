@@ -126,3 +126,13 @@ Setup: as for Model modes, with a lesson that uses a model mode (for example les
 4. While a stream is running, type steadily: input stays smooth and the passage does not flicker or re-render.
 
 Pass: no session start ever waits for the model, stale requests are cancelled, and typing stays smooth.
+
+## Model chunk not loaded when disabled
+
+Setup: model server disabled in Settings (the default); DevTools Network open with "Disable cache" on, filter on `ai-`.
+
+1. Reload and finish a full session, then Next, then the summary. No `ai-*.js` request appears.
+2. Open Settings and leave again. Still no `ai-*` request.
+3. Enable the server, enter an address and press the connection test: `ai-openai-compatible-*.js` loads now.
+
+Pass: the `ai-*` chunks load only after the server is enabled and used.

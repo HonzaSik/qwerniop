@@ -213,7 +213,9 @@ export async function generatedRecap(
   layoutId: Layout["id"],
   due: Recap | undefined,
 ): Promise<string | undefined> {
-  if (due === undefined) return undefined;
+  if (due === undefined || !server.enabled || server.model === "") {
+    return undefined;
+  }
   try {
     const { provider, modes } = await load(server);
     return await modes.recapQuestion(provider, layoutById(layoutId), {

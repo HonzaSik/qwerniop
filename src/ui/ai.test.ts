@@ -1,6 +1,17 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defaultSettings } from "../core/settings/settings";
-import { planMode } from "./ai";
+import {
+  generatedFeedback,
+  generatedRecap,
+  generatedText,
+  planMode,
+} from "./ai";
+
+const loaded = vi.hoisted(() => vi.fn());
+vi.mock("../ai/openai-compatible", () => {
+  loaded();
+  return {};
+});
 
 const server = (over: Partial<ReturnType<typeof base>> = {}) => ({
   ...base(),
@@ -54,4 +65,28 @@ describe("planMode", () => {
       planMode(server(), "en-us", { track: "numbers", stage: 1 }, 99),
     ).toBe(undefined);
   });
+});
+
+test("a disabled server never loads the ai chunk", async () => {
+  const off = defaultSettings().modelServer;
+  const request = {
+    layout: "en-us",
+    lesson: letters,
+    letterStage: 99,
+    stats: {},
+    targets: { accuracy: 0.95, wpm: 40 },
+    words: 20,
+  } as const;
+  await generatedText(off, request, new AbortController().signal);
+  await generatedRecap({ ...off, model: "m" }, "en-us", {
+    topic: "t",
+    passages: ["p"],
+  });
+  await generatedFeedback(off, {
+    layout: "en-us",
+    wpm: 40,
+    accuracy: 0.9,
+    weakest: [],
+  });
+  expect(loaded).not.toHaveBeenCalled();
 });

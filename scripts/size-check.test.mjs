@@ -26,3 +26,21 @@ it("reports a word list over its gzip budget", () => {
   writeFileSync(join(dist, "assets", "en-x.txt"), randomBytes(61 * 1024));
   expect(checkSizes(dist)[0]).toMatch(/^Word list/);
 });
+
+it("fails when the ai chunk is preloaded or statically imported", () => {
+  const dist = fakeDist(1000);
+  writeFileSync(join(dist, "assets", "ai-modes-x.js"), "export{}");
+  expect(checkSizes(dist)).toEqual([]);
+  writeFileSync(
+    join(dist, "assets", "a.js"),
+    'import{a}from"./b.js";import("./ai-modes-x.js")',
+  );
+  writeFileSync(join(dist, "assets", "b.js"), 'import"./ai-modes-x.js"');
+  expect(checkSizes(dist)[0]).toMatch(/^ai chunk assets\/ai-modes-x\.js/);
+  writeFileSync(
+    join(dist, "index.html"),
+    '<script type="module" src="/assets/a.js"></script><link rel="modulepreload" href="/assets/ai-modes-x.js">',
+  );
+  writeFileSync(join(dist, "assets", "a.js"), "export{}");
+  expect(checkSizes(dist)[0]).toMatch(/^ai chunk/);
+});
