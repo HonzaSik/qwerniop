@@ -2,16 +2,21 @@ import type { SessionRecord } from "../core/engine/record";
 import type { Layout } from "../core/layouts/layout";
 import type { Progress } from "../core/lessons/lessons";
 import type { Settings } from "../core/settings/settings";
+import type { TopicHistory } from "../core/topics/history";
 import type { Store } from "./store";
 
 export interface Writer {
   putSettings(settings: Settings): Promise<unknown>;
   putProgress(layout: Layout["id"], progress: Progress): Promise<unknown>;
   addSession(record: SessionRecord): Promise<unknown>;
+  putTopic(topic: string, history: TopicHistory): Promise<unknown>;
 }
 
 export interface WriteQueue
-  extends Pick<Store, "saveSettings" | "saveProgress" | "addSession"> {
+  extends Pick<
+    Store,
+    "saveSettings" | "saveProgress" | "addSession" | "saveTopic"
+  > {
   flush(): Promise<void>;
   /** Drops queued writes; a write already in flight finishes first when `flush` is awaited. */
   discard(): void;
@@ -30,6 +35,7 @@ export function createWriteQueue(
   let settings: Settings | null = null;
   let progress = new Map<Layout["id"], Progress>();
   let sessions: SessionRecord[] = [];
+  let topics = new Map<string, TopicHistory>();
   let scheduled = false;
   let running: Promise<void> | null = null;
 
@@ -55,15 +61,23 @@ export function createWriteQueue(
     const s = settings;
     const p = progress;
     const batch = sessions;
+    const tp = topics;
     settings = null;
     progress = new Map();
     sessions = [];
-    const [sOk, pOk, ...sessionOk] = await Promise.all([
+    topics = new Map();
+    const [sOk, pOk, tOk, ...sessionOk] = await Promise.all([
       s ? attempt(writer.putSettings(s)) : true,
       Promise.all(
         [...p].map(
           async ([id, value]) =>
             [id, value, await attempt(writer.putProgress(id, value))] as const,
+        ),
+      ),
+      Promise.all(
+        [...tp].map(
+          async ([name, value]) =>
+            [name, value, await attempt(writer.putTopic(name, value))] as const,
         ),
       ),
       ...batch.map((r) => attempt(writer.addSession(r))),
@@ -72,6 +86,9 @@ export function createWriteQueue(
     if (!sOk && s && !settings) settings = s;
     for (const [id, value, ok] of pOk) {
       if (!ok && !progress.has(id)) progress.set(id, value);
+    }
+    for (const [name, value, ok] of tOk) {
+      if (!ok && !topics.has(name)) topics.set(name, value);
     }
     const failed = batch.filter((_, i) => !sessionOk[i]);
     sessions = [...failed, ...sessions];
@@ -96,11 +113,16 @@ export function createWriteQueue(
       sessions.push(record);
       request();
     },
+    saveTopic(topic, value) {
+      topics.set(topic, value);
+      request();
+    },
     flush,
     discard() {
       settings = null;
       progress = new Map();
       sessions = [];
+      topics = new Map();
     },
   };
 }

@@ -3,6 +3,7 @@ import type { AppData } from "../core/export/export";
 import type { Layout } from "../core/layouts/layout";
 import { type Progress, parseProgress } from "../core/lessons/lessons";
 import { migrateSettings, type Settings } from "../core/settings/settings";
+import { parseTopicHistory, type TopicHistory } from "../core/topics/history";
 import { type Database, openDatabase } from "./db";
 import { createWriteQueue } from "./queue";
 
@@ -20,6 +21,9 @@ export interface Store {
   /** Flushes queued writes first so progress just saved is read back. */
   readProgress(layout: Layout["id"]): Promise<Progress>;
   addSession(record: SessionRecord): void;
+  saveTopic(topic: string, history: TopicHistory): void;
+  /** Flushes queued writes first so a topic just saved is read back. */
+  readTopic(topic: string): Promise<TopicHistory>;
   /** Flushes queued writes first so a session just finished is included. Invalid records are dropped. */
   readSessions(): Promise<SessionRecord[]>;
   /** Replaces everything saved, in one transaction; rejects with nothing changed on failure. */
@@ -59,6 +63,7 @@ function writer(db: Database): Store {
       putSettings: (s) => db.put("settings", s, SETTINGS_KEY),
       putProgress: (layout, p) => db.put("progress", p, layout),
       addSession: (r) => db.add("sessions", r),
+      putTopic: (topic, h) => db.put("topics", h, topic),
     },
     // Off the keystroke path: idle time, but never later than 2s so a busy page still saves.
     (flush) =>
@@ -76,6 +81,11 @@ function writer(db: Database): Store {
     saveSettings: queue.saveSettings,
     saveProgress: queue.saveProgress,
     addSession: queue.addSession,
+    saveTopic: queue.saveTopic,
+    async readTopic(topic) {
+      await queue.flush();
+      return parseTopicHistory(await db.get<unknown>("topics", topic));
+    },
     async readProgress(layout) {
       await queue.flush();
       return parseProgress(layout, await db.get<unknown>("progress", layout));

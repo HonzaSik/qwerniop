@@ -75,7 +75,7 @@ The learner types a topic (for example "how vaccines work" or "Rust ownership"),
 
 - Available once all letters of the layout are unlocked, plus punctuation if the topic text needs it (otherwise punctuation is stripped).
 - Passages are 40–80 words. The next one is requested as soon as the current one is shown, with a short summary of previous passages for continuity.
-- After every few passages, an optional one-line recap question is shown (not typed) to help retention.
+- After every 3rd passage, an optional one-line recap question is shown (not typed) under the session feedback.
 - The topic history is kept locally so the learner can continue later.
 
 ### 3. Code snippets

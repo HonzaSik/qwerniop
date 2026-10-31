@@ -27,4 +27,10 @@ export const migrations: readonly Migration[] = [
       db.createObjectStore("sessions", { autoIncrement: true });
     },
   },
+  {
+    version: 2,
+    up(db) {
+      db.createObjectStore("topics");
+    },
+  },
 ];

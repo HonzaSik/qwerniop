@@ -118,6 +118,7 @@ export const cs: Strings = {
     weakest: "Nejslabší klávesy",
     next: "Pokračovat",
     repeat: "Opakovat",
+    recap: "Zamyslete se:",
   },
   feedback: {
     unlocked: (title) => `Odemčeno: ${title}.`,

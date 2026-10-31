@@ -11,7 +11,9 @@ import {
 interface Props {
   /** Finished, so its results no longer change. */
   session: Session;
-  feedback?: { weakest: string[]; sentence: string } | undefined;
+  feedback?:
+    | { weakest: string[]; sentence: string; recap?: string | undefined }
+    | undefined;
   onrestart: () => void;
   onnext: () => void;
 }
@@ -56,6 +58,7 @@ function focusOnShow(button: HTMLButtonElement): void {
     {/if}
   </dl>
   {#if feedback}<p>{feedback.sentence}</p>{/if}
+  {#if feedback?.recap}<p><strong>{t.summary.recap}</strong> {feedback.recap}</p>{/if}
   <div class="actions">
     <button class="primary" aria-keyshortcuts="Enter" onclick={onnext} use:focusOnShow>
       {t.summary.next}

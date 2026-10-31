@@ -26,3 +26,23 @@ export function topicRequest(input: TopicInput): GenerateRequest {
     temperature: 0.7,
   };
 }
+
+export interface RecapInput {
+  language: Language;
+  topic: string;
+  passages: readonly string[];
+}
+
+export function recapRequest(input: RecapInput): GenerateRequest {
+  const text = input.passages.join(" ");
+  const prompt =
+    input.language === "cs"
+      ? `Na základě těchto odstavců o tématu ${input.topic} napiš jednu krátkou otázku, která pomůže zapamatovat si hlavní myšlenku. Odpověz pouze otázkou. Odstavce: ${text}`
+      : `Based on these paragraphs about ${input.topic}, write one short question that helps the reader remember the main idea. Reply with the question only. Paragraphs: ${text}`;
+  return {
+    system: SYSTEM[input.language],
+    prompt,
+    maxTokens: 100,
+    temperature: 0.5,
+  };
+}

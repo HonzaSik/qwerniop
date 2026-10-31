@@ -13,6 +13,7 @@ import {
   type ReduceMotion,
   type Settings,
 } from "../core/settings/settings";
+import type { TopicHistory } from "../core/topics/history";
 import type { Store, Stored } from "../storage/store";
 
 export const REDUCE_MOTION_MODES: readonly ReduceMotion[] =
@@ -54,6 +55,12 @@ export const saveSettings = (): void =>
 export const saveProgress = (): void =>
   store?.saveProgress(ui.settings.layout, $state.snapshot(ui.progress));
 export const saveSession: Store["addSession"] = (r) => store?.addSession(r);
+/** Topic history lives only in storage: it is neither exported nor kept in memory-only mode. */
+export const topicStore = {
+  load: async (topic: string) => (await store?.readTopic(topic)) ?? undefined,
+  save: (topic: string, history: TopicHistory) =>
+    store?.saveTopic(topic, history),
+};
 
 // Progress of the layouts not in use, so memory-only mode keeps it across switches.
 let others: Partial<Record<Layout["id"], Progress>> = {};

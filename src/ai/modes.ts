@@ -2,7 +2,12 @@ import type { Layout } from "../core/layouts/layout";
 import { type CodeInput, codeRequest } from "./prompts/code";
 import { type FeedbackInput, feedbackRequest } from "./prompts/feedback";
 import { type LessonInput, lessonRequest } from "./prompts/lesson";
-import { type TopicInput, topicRequest } from "./prompts/topic";
+import {
+  type RecapInput,
+  recapRequest,
+  type TopicInput,
+  topicRequest,
+} from "./prompts/topic";
 import type { GenerateRequest, TextProvider } from "./provider";
 import { validate } from "./validate";
 
@@ -72,4 +77,16 @@ export async function feedbackSentence(
   return raw === undefined
     ? undefined
     : validate(raw, { kind: "feedback", layout, min: 20, max: 400 });
+}
+
+export async function recapQuestion(
+  provider: TextProvider,
+  layout: Layout,
+  input: RecapInput,
+  signal?: AbortSignal,
+): Promise<string | undefined> {
+  const raw = await collect(provider, recapRequest(input), signal);
+  return raw === undefined
+    ? undefined
+    : validate(raw, { kind: "topic", layout, min: 15, max: 250 });
 }

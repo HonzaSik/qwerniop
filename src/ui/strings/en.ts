@@ -127,6 +127,7 @@ export const en = {
     weakest: "Weakest keys",
     next: "Continue",
     repeat: "Repeat",
+    recap: "Think about it:",
   },
   feedback: {
     unlocked: (title: string): string => `${title} is unlocked.`,

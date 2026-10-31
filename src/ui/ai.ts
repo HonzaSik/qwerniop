@@ -7,6 +7,12 @@ import { stageCount, unlockedLetters } from "../core/lessons/letters";
 import { trackChars } from "../core/lessons/tracks";
 import type { ModelServer } from "../core/settings/settings";
 import type { CharStats } from "../core/stats/chars";
+import {
+  addPassage,
+  emptyTopic,
+  recapDue,
+  type TopicHistory,
+} from "../core/topics/history";
 
 // AI.md: lesson text only pays off once most letters are known; code uses whole snippets from stage 4.
 const LESSON_MIN_LETTERS = 12;
@@ -14,6 +20,8 @@ const CODE_SNIPPET_STAGE = 4;
 // On-demand generation has no prefetch yet, so this is a visible wait at most.
 const WAIT_MS = 8000;
 const PREVIOUS_CHARS = 200;
+// A recap covers the passages since the last one.
+const RECAP_PASSAGES = 3;
 
 export type Plan = "topic" | "lesson" | "code";
 
@@ -61,8 +69,15 @@ async function load(server: ModelServer) {
   return { provider, modes };
 }
 
-// The last passage of the current topic, so the next one can build on it.
-let last: { topic: string; text: string } | undefined;
+export interface TopicStore {
+  load(topic: string): Promise<TopicHistory | undefined>;
+  save(topic: string, history: TopicHistory): void;
+}
+
+// Read from storage once per topic; later passages extend this copy.
+const histories = new Map<string, TopicHistory>();
+// Set when the passage just generated completes a recap interval; the summary consumes it.
+let recap: { topic: string; passages: readonly string[] } | undefined;
 
 export interface TextRequest {
   layout: Layout["id"];
@@ -77,7 +92,9 @@ export interface TextRequest {
 export async function generatedText(
   server: ModelServer,
   r: TextRequest,
+  topics?: TopicStore,
 ): Promise<string | undefined> {
+  recap = undefined;
   const plan = planMode(server, r.layout, r.lesson, r.letterStage);
   if (plan === undefined) return undefined;
   try {
@@ -95,14 +112,26 @@ export async function generatedText(
     }
     if (plan === "topic") {
       const topic = server.topic.trim();
-      const previous = last?.topic === topic ? last.text : undefined;
+      let history = histories.get(topic);
+      if (history === undefined) {
+        history =
+          (await topics?.load(topic).catch(() => undefined)) ?? emptyTopic();
+        histories.set(topic, history);
+      }
+      const previous = history.passages.at(-1);
       const text = await modes.topicText(
         provider,
         layout,
         { language, topic, previous: previous?.slice(-PREVIOUS_CHARS) },
         signal,
       );
-      if (text !== undefined) last = { topic, text };
+      if (text !== undefined) {
+        history = addPassage(history, text);
+        histories.set(topic, history);
+        topics?.save(topic, history);
+        if (recapDue(history))
+          recap = { topic, passages: history.passages.slice(-RECAP_PASSAGES) };
+      }
       return text;
     }
     const letters = unlockedLetters(r.layout, r.letterStage) ?? "";
@@ -145,6 +174,27 @@ export async function generatedFeedback(
       accuracy: r.accuracy,
       weakest: r.weakest,
     });
+  } catch {
+    return undefined;
+  }
+}
+
+/** The recap question owed after the passage just typed, or undefined: not due, or any failure. */
+export async function generatedRecap(
+  server: ModelServer,
+  layoutId: Layout["id"],
+): Promise<string | undefined> {
+  const due = recap;
+  recap = undefined;
+  if (due === undefined) return undefined;
+  try {
+    const { provider, modes } = await load(server);
+    return await modes.recapQuestion(
+      provider,
+      layoutById(layoutId),
+      { language: languageOf(layoutId), ...due },
+      AbortSignal.timeout(WAIT_MS),
+    );
   } catch {
     return undefined;
   }

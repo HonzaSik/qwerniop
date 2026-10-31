@@ -1,10 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { enUs } from "../core/layouts/en-us";
-import { codeText, feedbackSentence, lessonText, topicText } from "./modes";
+import {
+  codeText,
+  feedbackSentence,
+  lessonText,
+  recapQuestion,
+  topicText,
+} from "./modes";
 import { codeRequest } from "./prompts/code";
 import { feedbackRequest } from "./prompts/feedback";
 import { lessonRequest } from "./prompts/lesson";
-import { topicRequest } from "./prompts/topic";
+import { recapRequest, topicRequest } from "./prompts/topic";
 import { ProviderError, type TextProvider } from "./provider";
 
 function fake(chunks: string[], failAfter?: Error): TextProvider {
@@ -138,5 +144,35 @@ describe("modes", () => {
         symbols: "=",
       }),
     ).toBeUndefined();
+  });
+});
+
+describe("recapQuestion", () => {
+  const input = {
+    language: "en",
+    topic: "vaccines",
+    passages: [passage],
+  } as const;
+
+  test("prompt carries the topic and the passages", () => {
+    const p = recapRequest(input).prompt;
+    expect(p).toContain("vaccines");
+    expect(p).toContain(passage);
+  });
+
+  test("returns a validated question", async () => {
+    const q = "What does a vaccine teach the immune system to recognise?";
+    expect(await recapQuestion(fake([q]), enUs, input)).toBe(q);
+  });
+
+  test("a failing or too short answer is silent", async () => {
+    expect(await recapQuestion(fake(["Why?"]), enUs, input)).toBe(undefined);
+    expect(
+      await recapQuestion(
+        fake([], new ProviderError("network", "x")),
+        enUs,
+        input,
+      ),
+    ).toBe(undefined);
   });
 });

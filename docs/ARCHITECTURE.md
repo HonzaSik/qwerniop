@@ -252,9 +252,10 @@ IndexedDB database `tenfold`, versioned with explicit upgrade steps.
 |---|---|---|
 | `settings` | `'current'` | `Settings` |
 | `progress` | layout id | unlocked characters per track, per-character stats |
+| `topics` | topic text | Learn a topic history: `{ count, passages }`, newest 6 passages |
 | `sessions` | auto | summary of each finished session: date, layout, mode, WPM, accuracy, duration, per-character error counts |
 
-Upgrades are an ordered list in `src/storage/migrations.ts` (versions 1, 2, 3, ... with no gaps); the database version is the list length and `onupgradeneeded` runs every step newer than `oldVersion`. Version 1 creates the three stores above, all with out-of-line keys (`sessions` uses an auto-increment key). A failed step aborts the upgrade transaction. Connections close on `versionchange` so another tab can upgrade.
+Upgrades are an ordered list in `src/storage/migrations.ts` (versions 1, 2, 3, ... with no gaps); the database version is the list length and `onupgradeneeded` runs every step newer than `oldVersion`. Version 1 creates `settings`, `progress` and `sessions`, all with out-of-line keys (`sessions` uses an auto-increment key); version 2 adds `topics`, which is not exported and not touched by import. A failed step aborts the upgrade transaction. Connections close on `versionchange` so another tab can upgrade.
 
 `openDatabase()` resolves `null` when IndexedDB is missing, errors (private mode) or is blocked by an older tab. Callers then run memory-only: the app works, nothing persists.
 
@@ -274,7 +275,7 @@ Export produces one JSON file:
 
 Import is a full replace, not a merge: settings, progress and every session are swapped for the file's. `parseExport(unknown)` (`core/export/export.ts`) returns `{ ok, value, droppedSessions }` or `{ ok: false, reason }`. It rejects a file that is not a Tenfold export, has no integer `schema` of at least 1, has a `schema` newer than the app, or has no `sessions` array. Settings and progress repair themselves field by field (`migrateSettings`, `parseProgress`; both layouts' progress is read, one record per layout id); per-character stats travel inside progress, and a file without them imports with empty stats, so adding them kept schema 1; invalid sessions are dropped and counted. There is no older schema than 1, so no migration step exists yet; it goes into `parseExport` with schema 2. Model server settings are excluded from export.
 
-The UI (`ui/components/DataTransfer.svelte`, at the bottom of the Stats view) reads the chosen file only if it is at most 5 MB, parses it and shows a modal `<dialog>` with the counts of what is replaced and what is skipped before anything is written. `Store.replaceAll` discards queued writes, then clears and fills all three stores in one readwrite transaction, so a failure changes nothing, and memory is updated only after it succeeds. With no database the import updates memory only and says so; sessions have no in-memory home, so they are not kept. Export downloads `tenfold-YYYY-MM-DD.json` through a Blob and object URL.
+The UI (`ui/components/DataTransfer.svelte`, at the bottom of the Stats view) reads the chosen file only if it is at most 5 MB, parses it and shows a modal `<dialog>` with the counts of what is replaced and what is skipped before anything is written. `Store.replaceAll` discards queued writes, then clears and fills the three exported stores in one readwrite transaction, so a failure changes nothing, and memory is updated only after it succeeds. With no database the import updates memory only and says so; sessions have no in-memory home, so they are not kept. Export downloads `tenfold-YYYY-MM-DD.json` through a Blob and object URL.
 
 ## Model integration (`src/ai/`)
 

@@ -162,8 +162,9 @@ Setup: Ollama with a model pulled (for example `qwen2.5-coder:14b`), `OLLAMA_ORI
 2. Learn a topic: enter a topic in Settings, reach the last letter lesson (or import progress), start a letters lesson: the text is a short teaching passage on the topic, typable on the layout. The next lesson continues the topic.
 3. Code snippets: start code lesson 4 (whole snippets): the text is a short JavaScript snippet with indentation; Enter types a newline.
 4. Session feedback: finish any session: the offline sentence appears at once and is replaced by two or three model sentences within seconds.
-5. Stop the server and repeat 1 to 4: no error is shown, each lesson starts with offline text after at most 8 s, and the summary keeps the offline sentence.
-6. With "Use the model server" off, reload with cache disabled and open Practice: no `ai` chunk (`modes`, `openai-compatible`) is requested.
+5. Learn a topic recap and history: finish three topic passages in a row. After the third, a line "Think about it:" with a question appears under the feedback sentence; it is not typed and does not appear after passages one and two. Reload the page and start another letters lesson: the passage continues the topic (DevTools, Application, IndexedDB `tenfold`, `topics` holds the topic with at most 6 passages).
+6. Stop the server and repeat 1 to 5: no error is shown, each lesson starts with offline text after at most 8 s, and the summary keeps the offline sentence.
+7. With "Use the model server" off, reload with cache disabled and open Practice: no `ai` chunk (`modes`, `openai-compatible`) is requested.
 
-Pass: every mode shows model text when the server runs, the offline text and sentence when it does not, and nothing blocks typing.
+Pass: every mode (and the recap) shows model text when the server runs, the offline text and sentence when it does not, and nothing blocks typing.
 

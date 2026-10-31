@@ -18,7 +18,7 @@ import { type CharStats, foldSession } from "./core/stats/chars";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
-import { generatedFeedback, generatedText } from "./ui/ai";
+import { generatedFeedback, generatedRecap, generatedText } from "./ui/ai";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
 import { isBackKey, isHelpKey, isSettingsKey } from "./ui/shortcuts";
@@ -30,6 +30,7 @@ import {
   saveSession,
   saveSettings,
   switchLayout,
+  topicStore,
   ui,
 } from "./ui/state.svelte";
 import { feedbackText, lessonTitle, t } from "./ui/strings";
@@ -81,7 +82,7 @@ interface Run {
   stats: CharStats;
   targets: Targets;
   /** Set when the session ends; not part of what the text depends on. */
-  feedback?: { weakest: string[]; sentence: string };
+  feedback?: { weakest: string[]; sentence: string; recap?: string };
   /** Text from the model server, when one was asked for and passed validation. */
   generated?: string | undefined;
 }
@@ -138,6 +139,7 @@ async function start(lesson: Lesson): Promise<void> {
       targets: next.targets,
       words: targetWords(),
     },
+    topicStore,
   );
   if (mine !== starting) return;
   run = next;
@@ -196,6 +198,13 @@ function finish(session: Session): void {
       done.feedback = { ...done.feedback, sentence };
     }
   });
+  generatedRecap($state.snapshot(ui.settings.modelServer), layout.id).then(
+    (recap) => {
+      if (recap !== undefined && run === done && done.feedback) {
+        done.feedback = { ...done.feedback, recap };
+      }
+    },
+  );
   saveProgress();
   saveSession(sessionRecord(session, layout.id, run.lesson, Date.now()));
 }

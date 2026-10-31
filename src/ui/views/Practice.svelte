@@ -25,7 +25,9 @@ interface Props {
   /** Runs once when a session ends, whether the text ran out or the clock did. */
   onfinish: (session: Session) => void;
   /** Weakest-key labels and a sentence, set by the parent once onfinish has run. */
-  feedback?: { weakest: string[]; sentence: string } | undefined;
+  feedback?:
+    | { weakest: string[]; sentence: string; recap?: string | undefined }
+    | undefined;
   onnext: () => void;
 }
 

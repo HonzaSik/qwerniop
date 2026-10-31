@@ -15,6 +15,7 @@ function setup(fail = false) {
     putSettings: (s) => gate(`settings:${JSON.stringify(s)}`),
     putProgress: (_, p) => gate(`progress:${JSON.stringify(p)}`),
     addSession: (r) => gate(`session:${r.at}`),
+    putTopic: (name, h) => gate(`topic:${name}:${h.count}`),
   };
   const tasks: Array<() => void> = [];
   const queue = createWriteQueue(writer, (f) => tasks.push(f));
@@ -51,6 +52,15 @@ describe("write queue", () => {
       "session:2",
       'settings:{"v":2}',
     ]);
+  });
+
+  it("keeps the latest history of each topic", async () => {
+    const { queue, log } = setup();
+    queue.saveTopic("a", { count: 1, passages: [] });
+    queue.saveTopic("a", { count: 2, passages: [] });
+    queue.saveTopic("b", { count: 5, passages: [] });
+    await queue.flush();
+    expect(log.sort()).toEqual(["topic:a:2", "topic:b:5"]);
   });
 
   it("keeps the latest progress of each layout", async () => {
