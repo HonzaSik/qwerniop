@@ -17,8 +17,6 @@ import {
 // AI.md: lesson text only pays off once most letters are known; code uses whole snippets from stage 4.
 const LESSON_MIN_LETTERS = 12;
 const CODE_SNIPPET_STAGE = 4;
-// On-demand generation has no prefetch yet, so this is a visible wait at most.
-const WAIT_MS = 8000;
 const PREVIOUS_CHARS = 200;
 // A recap covers the passages since the last one.
 const RECAP_PASSAGES = 3;
@@ -76,8 +74,16 @@ export interface TopicStore {
 
 // Read from storage once per topic; later passages extend this copy.
 const histories = new Map<string, TopicHistory>();
-// Set when the passage just generated completes a recap interval; the summary consumes it.
-let recap: { topic: string; passages: readonly string[] } | undefined;
+/** A recap owed after typing the passage it travels with, so a prefetched passage cannot trigger it early. */
+export interface Recap {
+  topic: string;
+  passages: readonly string[];
+}
+
+export interface Generated {
+  text: string;
+  recap?: Recap;
+}
 
 export interface TextRequest {
   layout: Layout["id"];
@@ -88,27 +94,46 @@ export interface TextRequest {
   words: number;
 }
 
+/** Identifies what a generated text is for; a result is only used under the key it was requested with. */
+export function textKey(
+  server: ModelServer,
+  r: TextRequest,
+): string | undefined {
+  const plan = planMode(server, r.layout, r.lesson, r.letterStage);
+  if (plan === undefined) return undefined;
+  return JSON.stringify([
+    plan,
+    server.baseUrl,
+    server.model,
+    r.layout,
+    r.lesson,
+    r.letterStage,
+    plan === "topic" ? server.topic.trim() : "",
+    plan === "lesson" ? r.words : 0,
+  ]);
+}
+
 /** Model text for the lesson, or undefined for any reason at all: the caller then uses offline text. */
 export async function generatedText(
   server: ModelServer,
   r: TextRequest,
+  signal: AbortSignal,
   topics?: TopicStore,
-): Promise<string | undefined> {
-  recap = undefined;
+): Promise<Generated | undefined> {
   const plan = planMode(server, r.layout, r.lesson, r.letterStage);
   if (plan === undefined) return undefined;
   try {
     const { provider, modes } = await load(server);
     const layout = layoutById(r.layout);
     const language = languageOf(r.layout);
-    const signal = AbortSignal.timeout(WAIT_MS);
     if (plan === "code") {
-      return await modes.codeText(
+      const text = await modes.codeText(
         provider,
         layout,
         { language: "JavaScript", symbols: trackChars("code", r.lesson.stage) },
         signal,
       );
+      return text === undefined ? undefined : { text };
     }
     if (plan === "topic") {
       const topic = server.topic.trim();
@@ -125,14 +150,16 @@ export async function generatedText(
         { language, topic, previous: previous?.slice(-PREVIOUS_CHARS) },
         signal,
       );
-      if (text !== undefined) {
-        history = addPassage(history, text);
-        histories.set(topic, history);
-        topics?.save(topic, history);
-        if (recapDue(history))
-          recap = { topic, passages: history.passages.slice(-RECAP_PASSAGES) };
-      }
-      return text;
+      if (text === undefined) return undefined;
+      history = addPassage(history, text);
+      histories.set(topic, history);
+      topics?.save(topic, history);
+      return recapDue(history)
+        ? {
+            text,
+            recap: { topic, passages: history.passages.slice(-RECAP_PASSAGES) },
+          }
+        : { text };
     }
     const letters = unlockedLetters(r.layout, r.letterStage) ?? "";
     const weak = [...letters]
@@ -141,11 +168,12 @@ export async function generatedText(
       .sort((a, b) => b.w - a.w)
       .slice(0, 5)
       .map((x) => x.c);
-    return await modes.lessonText(
+    const text = await modes.lessonText(
       provider,
       { language, letters, weak, words: Math.min(r.words, 40) },
       signal,
     );
+    return text === undefined ? undefined : { text };
   } catch {
     return undefined;
   }
@@ -183,18 +211,15 @@ export async function generatedFeedback(
 export async function generatedRecap(
   server: ModelServer,
   layoutId: Layout["id"],
+  due: Recap | undefined,
 ): Promise<string | undefined> {
-  const due = recap;
-  recap = undefined;
   if (due === undefined) return undefined;
   try {
     const { provider, modes } = await load(server);
-    return await modes.recapQuestion(
-      provider,
-      layoutById(layoutId),
-      { language: languageOf(layoutId), ...due },
-      AbortSignal.timeout(WAIT_MS),
-    );
+    return await modes.recapQuestion(provider, layoutById(layoutId), {
+      language: languageOf(layoutId),
+      ...due,
+    });
   } catch {
     return undefined;
   }

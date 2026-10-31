@@ -5,7 +5,7 @@ Tenfold can use a language model running on your own machine to generate practic
 ## Rules
 
 1. **Optional.** Nothing in `src/ai/` loads unless a model server is configured. The `ai` chunk is imported dynamically.
-2. **Never blocks typing.** Generation runs ahead of the learner. If text isn't ready in time, the offline generator fills in without a visible wait.
+2. **Never blocks typing.** Generation runs ahead of the learner: the next passage for the current mode and lesson is requested in the background (`src/ui/prefetch.ts` holds at most one result per key and aborts a request whose key changed). A session uses it only if it is already ready; otherwise the offline generator fills in with no wait.
 3. **Fails quietly.** Network errors, timeouts, bad output or a stopped server fall back to offline content. A small status dot in Settings shows the connection state; no modal errors.
 4. **Local by default.** The default address is `http://localhost:11434/v1`. No data is sent anywhere else unless the user enters another address. Only prompts and session statistics are sent, never typed text.
 5. **Validated.** Generated text is checked before it is shown (see Validation).

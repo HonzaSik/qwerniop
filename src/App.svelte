@@ -18,9 +18,16 @@ import { type CharStats, foldSession } from "./core/stats/chars";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
-import { generatedFeedback, generatedRecap, generatedText } from "./ui/ai";
+import {
+  type Generated,
+  generatedFeedback,
+  generatedRecap,
+  generatedText,
+  textKey,
+} from "./ui/ai";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
+import { createPrefetch } from "./ui/prefetch";
 import { isBackKey, isHelpKey, isSettingsKey } from "./ui/shortcuts";
 import {
   hydrate,
@@ -84,7 +91,7 @@ interface Run {
   /** Set when the session ends; not part of what the text depends on. */
   feedback?: { weakest: string[]; sentence: string; recap?: string };
   /** Text from the model server, when one was asked for and passed validation. */
-  generated?: string | undefined;
+  generated?: Generated | undefined;
 }
 
 // One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
@@ -124,24 +131,49 @@ async function chooseLayout(id: Layout["id"]): Promise<void> {
 
 let starting = 0;
 
-// The model gets one bounded chance before the session shows; any failure leaves the offline text.
-async function start(lesson: Lesson): Promise<void> {
-  const mine = ++starting;
-  ui.lesson = lesson;
-  const next = begin(lesson);
-  next.generated = await generatedText(
-    $state.snapshot(ui.settings.modelServer),
-    {
+const prefetch = createPrefetch<Generated>();
+
+// What the next session will ask for: the lesson after the current one, under the progress known now.
+function nextRequest() {
+  const lesson = nextLesson(layout.id, run.lesson);
+  return {
+    server: $state.snapshot(ui.settings.modelServer),
+    request: {
       layout: layout.id,
       lesson,
-      letterStage: next.letterStage,
-      stats: next.stats,
-      targets: next.targets,
+      letterStage: ui.progress.letters,
+      stats: $state.snapshot(ui.progress.stats),
+      targets: $state.snapshot(ui.settings.targets),
       words: targetWords(),
     },
-    topicStore,
-  );
-  if (mine !== starting) return;
+  };
+}
+
+// Keeps the next passage generating in the background; a changed key (lesson, layout, unlock, settings) aborts the stale one.
+$effect(() => {
+  const { server, request } = nextRequest();
+  const key = textKey(server, request);
+  if (key === undefined) prefetch.cancel();
+  else
+    prefetch.request(key, (signal) =>
+      generatedText(server, request, signal, topicStore),
+    );
+});
+
+// Zero wait: the model text is used only if it is already there.
+function start(lesson: Lesson): void {
+  ui.lesson = lesson;
+  const next = begin(lesson);
+  const server = $state.snapshot(ui.settings.modelServer);
+  const key = textKey(server, {
+    layout: layout.id,
+    lesson,
+    letterStage: next.letterStage,
+    stats: next.stats,
+    targets: next.targets,
+    words: targetWords(),
+  });
+  next.generated = key === undefined ? undefined : prefetch.take(key);
   run = next;
   location.hash = "#practice";
 }
@@ -198,13 +230,15 @@ function finish(session: Session): void {
       done.feedback = { ...done.feedback, sentence };
     }
   });
-  generatedRecap($state.snapshot(ui.settings.modelServer), layout.id).then(
-    (recap) => {
-      if (recap !== undefined && run === done && done.feedback) {
-        done.feedback = { ...done.feedback, recap };
-      }
-    },
-  );
+  generatedRecap(
+    $state.snapshot(ui.settings.modelServer),
+    layout.id,
+    done.generated?.recap,
+  ).then((recap) => {
+    if (recap !== undefined && run === done && done.feedback) {
+      done.feedback = { ...done.feedback, recap };
+    }
+  });
   saveProgress();
   saveSession(sessionRecord(session, layout.id, run.lesson, Date.now()));
 }
@@ -289,7 +323,7 @@ let help: HTMLDialogElement | undefined = $state();
   {:else}
     {#key `${run.seed}${layout.id}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
       <Practice
-        text={run.generated ?? text(snippets)}
+        text={run.generated?.text ?? text(snippets)}
         title={lessonTitle(layout.id, run.lesson)}
         errorMode={ui.settings.errorMode}
         timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}

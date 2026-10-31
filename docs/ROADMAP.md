@@ -92,7 +92,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Settings section with connection test and CORS help
 - [x] Validation with fixtures from real model output
 - [x] Modes: lesson text, learn a topic, code snippets, session feedback
-- [ ] Prefetching so the learner never waits; silent fallback
+- [x] Prefetching so the learner never waits; silent fallback
 - [ ] Confirm the `ai` chunk is not loaded when disabled
 
 ## 11. Open-source release
