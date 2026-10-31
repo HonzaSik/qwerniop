@@ -1,3 +1,4 @@
+import type { AiMode } from "../../core/settings/settings";
 import type { Strings } from "./en";
 
 /** Czech forms for 1, 2 to 4, and 5 or more. */
@@ -53,6 +54,17 @@ export const cs: Strings = {
     intro:
       "Volitelné. Model běžící na vašem počítači může psát cvičné texty. Tenfold funguje stejně i bez něj. Odesílají se jen zadání a statistiky cvičení, nikdy to, co píšete.",
     baseUrl: "Adresa",
+    enabled: "Používat model server",
+    modes: "Cvičný materiál",
+    modeNames: {
+      lesson: "Text lekce",
+      topic: "Učení tématu",
+      code: "Úryvky kódu",
+      feedback: "Zpětná vazba ke cvičení",
+    } as Record<AiMode, string>,
+    topic: "Téma",
+    topicNote:
+      "Pro učení tématu, jakmile jsou odemčena všechna písmena. Například: jak fungují vakcíny.",
     model: "Model",
     noModel: "Spusťte test a vyberte model",
     apiKey: "Klíč API (volitelný)",

@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { ProviderErrorKind } from "../../ai/provider";
+import { AI_MODES } from "../../core/settings/settings";
 import { saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
 
@@ -53,6 +54,26 @@ async function test(): Promise<void> {
   <section aria-labelledby="model-server">
     <h3 id="model-server">{t.settings.modelServer}</h3>
     <p class="note">{t.settings.intro}</p>
+    <label class="check">
+      <input type="checkbox" role="switch" bind:checked={server.enabled} onchange={saveSettings} />
+      {t.settings.enabled}
+    </label>
+    {#if server.enabled}
+      <fieldset>
+        <legend>{t.settings.modes}</legend>
+        {#each AI_MODES as m}
+          <label class="check">
+            <input type="checkbox" bind:checked={server.modes[m]} onchange={saveSettings} />
+            {t.settings.modeNames[m]}
+          </label>
+        {/each}
+      </fieldset>
+      <label>
+        {t.settings.topic}
+        <input type="text" spellcheck="false" autocomplete="off" maxlength="80" bind:value={server.topic} onchange={saveSettings} />
+      </label>
+      <p class="note">{t.settings.topicNote}</p>
+    {/if}
     <label>
       {t.settings.baseUrl}
       <input type="url" spellcheck="false" autocomplete="off" bind:value={server.baseUrl} onchange={saveSettings} />
@@ -150,6 +171,28 @@ async function test(): Promise<void> {
     background: var(--bg);
     color: var(--text);
     font: inherit;
+  }
+
+  .check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text);
+  }
+
+  fieldset {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    padding: 0;
+    margin-bottom: var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
   }
 
   .row {

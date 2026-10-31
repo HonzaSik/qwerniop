@@ -76,12 +76,35 @@ describe("migrateSettings", () => {
       migrateSettings({
         modelServer: { baseUrl: "http://x/v1", model: 3, apiKey: "k" },
       }).modelServer,
-    ).toEqual({ baseUrl: "http://x/v1", model: "", apiKey: "k" });
+    ).toEqual({
+      ...defaultSettings().modelServer,
+      baseUrl: "http://x/v1",
+      apiKey: "k",
+    });
     expect(migrateSettings({ modelServer: 7 }).modelServer).toEqual(
       defaultSettings().modelServer,
     );
     expect(defaultSettings().modelServer.baseUrl).toBe(
       "http://localhost:11434/v1",
     );
+  });
+
+  test("keeps model switches and the topic, repairing bad ones alone", () => {
+    const server = migrateSettings({
+      modelServer: {
+        enabled: true,
+        modes: { lesson: false, code: "no" },
+        topic: "rust",
+      },
+    }).modelServer;
+    expect(server.enabled).toBe(true);
+    expect(server.modes).toEqual({
+      lesson: false,
+      topic: true,
+      code: true,
+      feedback: true,
+    });
+    expect(server.topic).toBe("rust");
+    expect(defaultSettings().modelServer.enabled).toBe(false);
   });
 });

@@ -18,6 +18,7 @@ import { type CharStats, foldSession } from "./core/stats/chars";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
+import { generatedFeedback, generatedText } from "./ui/ai";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
 import { isBackKey, isHelpKey, isSettingsKey } from "./ui/shortcuts";
@@ -81,6 +82,8 @@ interface Run {
   targets: Targets;
   /** Set when the session ends; not part of what the text depends on. */
   feedback?: { weakest: string[]; sentence: string };
+  /** Text from the model server, when one was asked for and passed validation. */
+  generated?: string | undefined;
 }
 
 // One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
@@ -118,9 +121,26 @@ async function chooseLayout(id: Layout["id"]): Promise<void> {
   }
 }
 
-function start(lesson: Lesson): void {
+let starting = 0;
+
+// The model gets one bounded chance before the session shows; any failure leaves the offline text.
+async function start(lesson: Lesson): Promise<void> {
+  const mine = ++starting;
   ui.lesson = lesson;
-  run = begin(lesson);
+  const next = begin(lesson);
+  next.generated = await generatedText(
+    $state.snapshot(ui.settings.modelServer),
+    {
+      layout: layout.id,
+      lesson,
+      letterStage: next.letterStage,
+      stats: next.stats,
+      targets: next.targets,
+      words: targetWords(),
+    },
+  );
+  if (mine !== starting) return;
+  run = next;
   location.hash = "#practice";
 }
 
@@ -165,6 +185,17 @@ function finish(session: Session): void {
       }),
     ),
   };
+  const done = run;
+  generatedFeedback($state.snapshot(ui.settings.modelServer), {
+    layout: layout.id,
+    wpm: netWpm(session),
+    accuracy: accuracy(session),
+    weakest: labels,
+  }).then((sentence) => {
+    if (sentence !== undefined && run === done && done.feedback) {
+      done.feedback = { ...done.feedback, sentence };
+    }
+  });
   saveProgress();
   saveSession(sessionRecord(session, layout.id, run.lesson, Date.now()));
 }
@@ -180,6 +211,10 @@ const data = Promise.all([
   run = begin(ui.lesson);
   return snippets;
 });
+const targetWords = (): number =>
+  ui.settings.length.kind === "words"
+    ? ui.settings.length.amount
+    : ui.settings.length.amount * WORDS_PER_SECOND;
 const text = (snippets: string) =>
   generateContent({
     type: run.lesson.track === "letters" ? "words" : run.lesson.track,
@@ -189,10 +224,7 @@ const text = (snippets: string) =>
     stats: run.stats,
     targets: run.targets,
     stage: run.lesson.track === "letters" ? 0 : run.lesson.stage,
-    length:
-      ui.settings.length.kind === "words"
-        ? ui.settings.length.amount
-        : ui.settings.length.amount * WORDS_PER_SECOND,
+    length: targetWords(),
     rng: seededRng(run.seed),
   });
 
@@ -248,7 +280,7 @@ let help: HTMLDialogElement | undefined = $state();
   {:else}
     {#key `${run.seed}${layout.id}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
       <Practice
-        text={text(snippets)}
+        text={run.generated ?? text(snippets)}
         title={lessonTitle(layout.id, run.lesson)}
         errorMode={ui.settings.errorMode}
         timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}

@@ -26,7 +26,12 @@ describe("buildExport", () => {
   it("leaves the model server out", () => {
     const settings = {
       ...defaultSettings(),
-      modelServer: { baseUrl: "http://h/v1", model: "m", apiKey: "secret" },
+      modelServer: {
+        ...defaultSettings().modelServer,
+        baseUrl: "http://h/v1",
+        model: "m",
+        apiKey: "secret",
+      },
     };
     const text = buildExport(
       {

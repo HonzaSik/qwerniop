@@ -153,3 +153,17 @@ Setup: a local OpenAI-compatible server (for example Ollama), and `pnpm dev` or 
 5. Every field is reachable and operable by keyboard.
 
 Pass: the chunk loads only on the first test, and failures show plain words.
+
+## Model modes
+
+Setup: Ollama with a model pulled (for example `qwen2.5-coder:14b`), `OLLAMA_ORIGINS` including the page origin, `pnpm dev`. In Settings run "Test connection" and pick the model, then switch on "Use the model server".
+
+1. Lesson text: progress to at least 12 letters (lesson 7 on English), start a letters lesson. After a short wait the text is sentences using only the unlocked letters. With "Lesson text" off, it is the offline word text.
+2. Learn a topic: enter a topic in Settings, reach the last letter lesson (or import progress), start a letters lesson: the text is a short teaching passage on the topic, typable on the layout. The next lesson continues the topic.
+3. Code snippets: start code lesson 4 (whole snippets): the text is a short JavaScript snippet with indentation; Enter types a newline.
+4. Session feedback: finish any session: the offline sentence appears at once and is replaced by two or three model sentences within seconds.
+5. Stop the server and repeat 1 to 4: no error is shown, each lesson starts with offline text after at most 8 s, and the summary keeps the offline sentence.
+6. With "Use the model server" off, reload with cache disabled and open Practice: no `ai` chunk (`modes`, `openai-compatible`) is requested.
+
+Pass: every mode shows model text when the server runs, the offline text and sentence when it does not, and nothing blocks typing.
+

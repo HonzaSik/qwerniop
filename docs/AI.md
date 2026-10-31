@@ -40,6 +40,7 @@ Timeouts: 5 s to first token, 30 s total; both abort through `AbortController`. 
 | Setting | Default |
 |---|---|
 | Enabled | off |
+| Topic | empty (the subject for Learn a topic) |
 | Base URL | `http://localhost:11434/v1` |
 | Model | none (chosen from the list returned by the server) |
 | API key | empty, stored locally, excluded from export |

@@ -27,8 +27,15 @@ export const TARGET_WPMS = [20, 25, 30, 35, 40, 50, 60] as const;
 
 export const SETTINGS_VERSION = 1;
 
+export const AI_MODES = ["lesson", "topic", "code", "feedback"] as const;
+export type AiMode = (typeof AI_MODES)[number];
+
 /** Where the optional model server lives; excluded from export. */
 export interface ModelServer {
+  enabled: boolean;
+  modes: Record<AiMode, boolean>;
+  /** The subject of the learn-a-topic mode; empty means that mode is idle. */
+  topic: string;
   baseUrl: string;
   /** Empty until chosen from the server's list. */
   model: string;
@@ -57,7 +64,14 @@ export const defaultSettings = (): Settings => ({
   keyboardMode: "fingers",
   targets: { accuracy: 0.95, wpm: 35 },
   reduceMotion: "system",
-  modelServer: { baseUrl: DEFAULT_BASE_URL, model: "", apiKey: "" },
+  modelServer: {
+    enabled: false,
+    modes: { lesson: true, topic: true, code: true, feedback: true },
+    topic: "",
+    baseUrl: DEFAULT_BASE_URL,
+    model: "",
+    apiKey: "",
+  },
 });
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -81,6 +95,9 @@ export function migrateSettings(old: unknown): Settings {
   const server = isRecord(old.modelServer) ? old.modelServer : undefined;
   const text = (v: unknown, fallback: string): string =>
     typeof v === "string" ? v : fallback;
+  const flag = (v: unknown, fallback: boolean): boolean =>
+    typeof v === "boolean" ? v : fallback;
+  const modes = isRecord(server?.modes) ? server.modes : undefined;
   return {
     version: SETTINGS_VERSION,
     layout: LAYOUTS.find((l) => l.id === old.layout)?.id ?? defaults.layout,
@@ -96,6 +113,14 @@ export function migrateSettings(old: unknown): Settings {
       REDUCE_MOTION_VALUES.find((m) => m === old.reduceMotion) ??
       defaults.reduceMotion,
     modelServer: {
+      enabled: flag(server?.enabled, defaults.modelServer.enabled),
+      modes: {
+        lesson: flag(modes?.lesson, defaults.modelServer.modes.lesson),
+        topic: flag(modes?.topic, defaults.modelServer.modes.topic),
+        code: flag(modes?.code, defaults.modelServer.modes.code),
+        feedback: flag(modes?.feedback, defaults.modelServer.modes.feedback),
+      },
+      topic: text(server?.topic, defaults.modelServer.topic),
       baseUrl: text(server?.baseUrl, defaults.modelServer.baseUrl),
       model: text(server?.model, defaults.modelServer.model),
       apiKey: text(server?.apiKey, defaults.modelServer.apiKey),

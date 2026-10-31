@@ -2,7 +2,7 @@ import type { ProviderErrorKind } from "../../ai/provider";
 import type { ExportError } from "../../core/export/export";
 import type { Layout } from "../../core/layouts/layout";
 import type { LessonTrack, NoNewKeys } from "../../core/lessons/lessons";
-import type { KeyboardMode } from "../../core/settings/settings";
+import type { AiMode, KeyboardMode } from "../../core/settings/settings";
 
 /** "a, b and c". */
 const list = (keys: readonly string[]): string =>
@@ -58,6 +58,17 @@ export const en = {
     intro:
       "Optional. A model on your own machine can write practice text. Tenfold works the same without one. Only prompts and session statistics are sent, never what you type.",
     baseUrl: "Address",
+    enabled: "Use the model server",
+    modes: "Practice material",
+    modeNames: {
+      lesson: "Lesson text",
+      topic: "Learn a topic",
+      code: "Code snippets",
+      feedback: "Session feedback",
+    } as Record<AiMode, string>,
+    topic: "Topic",
+    topicNote:
+      "For Learn a topic, once every letter is unlocked. For example: how vaccines work.",
     model: "Model",
     noModel: "Run the test to choose a model",
     apiKey: "API key (optional)",
