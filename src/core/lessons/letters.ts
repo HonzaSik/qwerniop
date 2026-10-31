@@ -18,6 +18,25 @@ const ORDER: Partial<Record<Layout["id"], readonly string[]>> = {
     "xq",
     "z",
   ],
+  "cs-qwertz": [
+    "fj",
+    "dk",
+    "sl",
+    "a",
+    "ei",
+    "on",
+    "tr",
+    "vu",
+    "pm",
+    "hc",
+    "zy",
+    "bg",
+    "xwq",
+    "áíé",
+    "ěšč",
+    "řžý",
+    "úů",
+  ],
 };
 
 // Stage 1 is the first pair; a stage past the end unlocks everything.

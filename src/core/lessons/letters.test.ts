@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { csQwertz } from "../layouts/cs-qwertz";
 import { enUs } from "../layouts/en-us";
 import { strokesFor } from "../layouts/strokes";
 import { stageCount, unlockedLetters } from "./letters";
@@ -18,6 +19,20 @@ describe("en-us letter order", () => {
   test("clamps stages and reports layouts without an order", () => {
     expect(unlockedLetters("en-us", 0)).toBe("");
     expect(unlockedLetters("en-us", 99)).toHaveLength(26);
-    expect(unlockedLetters("cs-qwertz", 1)).toBeUndefined();
+  });
+});
+
+describe("cs-qwertz letter order", () => {
+  test("covers a to z and the number-row letters once, each typable", () => {
+    const all = unlockedLetters("cs-qwertz", stageCount("cs-qwertz")) ?? "";
+    expect(new Set(all).size).toBe(37);
+    for (const c of "abcdefghijklmnopqrstuvwxyzáíéěščřžýúů") {
+      expect(all).toContain(c);
+    }
+    for (const c of all) expect(strokesFor(csQwertz, c)).toHaveLength(1);
+  });
+
+  test("teaches number-row letters after the base letters", () => {
+    expect(unlockedLetters("cs-qwertz", 13)).toBe("fjdkslaeiontrvupmhczybgxwq");
   });
 });

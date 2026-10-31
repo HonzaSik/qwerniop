@@ -3,7 +3,10 @@ import type { Layout } from "../layouts/layout";
 export type Track = "punctuation" | "numbers" | "code";
 
 // LAYOUTS.md, "Other tracks": they open once the letter track reaches this step.
-const START_STEP: Partial<Record<Layout["id"], number>> = { "en-us": 8 };
+const START_STEP: Partial<Record<Layout["id"], number>> = {
+  "en-us": 8,
+  "cs-qwertz": 10,
+};
 
 // Characters each stage adds. Punctuation stage 1 adds only capitals, which need no new symbol.
 const ADDS: Record<Track, readonly string[]> = {

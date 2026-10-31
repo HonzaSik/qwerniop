@@ -100,10 +100,6 @@ describe("lessons", () => {
     expect(isUnlocked("en-us", p, { ...numbers, stage: 3 })).toBe(false);
   });
 
-  test("layouts without an order have no lessons", () => {
-    expect(isUnlocked("cs-qwertz", initialProgress(), letter(1))).toBe(false);
-  });
-
   test("next lesson advances within the track and holds at the last stage", () => {
     expect(nextLesson("en-us", letter(3))).toEqual(letter(4));
     expect(nextLesson("en-us", letter(14))).toEqual(letter(14));

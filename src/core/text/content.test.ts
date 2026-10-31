@@ -35,10 +35,11 @@ const only = (text: string, allowed: string) =>
   [...text].every((c) => allowed.includes(c));
 
 describe("tracks", () => {
-  test("open at letter step 8 for en-us only", () => {
+  test("open at letter step 8 for en-us, 10 for cs-qwertz", () => {
     expect(tracksOpen("en-us", 7)).toBe(false);
     expect(tracksOpen("en-us", 8)).toBe(true);
-    expect(tracksOpen("cs-qwertz", 14)).toBe(false);
+    expect(tracksOpen("cs-qwertz", 9)).toBe(false);
+    expect(tracksOpen("cs-qwertz", 10)).toBe(true);
   });
 
   test("stages only add characters, all typable", () => {
