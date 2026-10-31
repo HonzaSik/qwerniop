@@ -76,38 +76,22 @@ export function nextLesson(id: Layout["id"], lesson: Lesson): Lesson {
   };
 }
 
-// Stages that add no typable symbol: capitals need Shift only, code stage 4 adds Enter.
-const NO_NEW_KEYS: Record<string, string> = {
-  "punctuation 1": "capitals",
-  "code 4": "whole snippets",
-};
+export type NoNewKeys = "capitals" | "snippets";
 
-/** What this lesson adds over the one before it, for display: spaced characters, or a note. */
+// Stages that add no typable symbol: capitals need Shift only, code stage 4 adds Enter.
+export function noNewKeys(lesson: Lesson): NoNewKeys | undefined {
+  if (lesson.track === "punctuation" && lesson.stage === 1) return "capitals";
+  if (lesson.track === "code" && lesson.stage === 4) return "snippets";
+  return undefined;
+}
+
+/** The characters this stage adds over the one before it, spaced. */
 export function lessonKeys(id: Layout["id"], lesson: Lesson): string {
   const upTo = (stage: number) =>
     lesson.track === "letters"
       ? (unlockedLetters(id, stage) ?? "")
       : trackChars(lesson.track, stage);
-  const added = upTo(lesson.stage).slice(upTo(lesson.stage - 1).length);
-  return (
-    [...added].join(" ") ||
-    (NO_NEW_KEYS[`${lesson.track} ${lesson.stage}`] ?? "")
-  );
-}
-
-export const TRACK_NAMES: Record<LessonTrack, string> = {
-  letters: "Letters",
-  punctuation: "Punctuation",
-  numbers: "Numbers",
-  code: "Code",
-};
-
-/** "Lesson 5 · e i" for letters, "Numbers 2 · 6 7 8 9 0" for the other tracks. */
-export function lessonTitle(id: Layout["id"], lesson: Lesson): string {
-  const keys = lessonKeys(id, lesson);
-  const noun =
-    lesson.track === "letters" ? "Lesson" : TRACK_NAMES[lesson.track];
-  return `${noun} ${lesson.stage}${keys ? ` · ${keys}` : ""}`;
+  return [...upTo(lesson.stage).slice(upTo(lesson.stage - 1).length)].join(" ");
 }
 
 /** Valid Progress from anything read from storage; each track falls back to 1 alone and is clamped to its stage count. */

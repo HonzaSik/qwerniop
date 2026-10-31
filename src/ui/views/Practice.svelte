@@ -12,6 +12,7 @@ import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
 import TextView from "../components/TextView.svelte";
 import { KEYBOARD_MODES, saveSettings, ui } from "../state.svelte";
+import { t } from "../strings";
 
 interface Props {
   text: string;
@@ -118,19 +119,19 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
 }
 </script>
 
-<main aria-label="Practice">
+<main aria-label={t.nav.practice}>
   <h1>{title}</h1>
   {#if timeLimit !== undefined}
-    <p class="timer" aria-label="Time left">{secondsLeft}</p>
+    <p class="timer" aria-label={t.practice.timeLeft}>{secondsLeft}</p>
   {/if}
   <div class="stage">
     <div class="layer text" class:done={finished} aria-hidden={finished}>
       <TextView bind:this={view} {session} />
       {#if !finished}
-        <textarea aria-label="Type the text" use:capture></textarea>
+        <textarea aria-label={t.practice.typeText} use:capture></textarea>
       {/if}
       <p class="pause" role="status">
-        {#if paused}Click or press any key to continue{/if}
+        {#if paused}{t.practice.paused}{/if}
       </p>
     </div>
     <!-- Stays mounted: a live region must exist before its content arrives. -->
@@ -144,18 +145,18 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     <div class="board"><Keyboard bind:this={board} layout={layoutById(ui.settings.layout)} mode={ui.settings.keyboardMode} /></div>
   {/if}
   <label class="mode">
-    Keyboard
+    {t.keyboardLabel}
     <select
       value={ui.settings.keyboardMode}
       onchange={(e) => {
         const mode = KEYBOARD_MODES[e.currentTarget.selectedIndex];
         if (mode) {
-          ui.settings.keyboardMode = mode.value;
+          ui.settings.keyboardMode = mode;
           saveSettings();
         }
       }}
     >
-      {#each KEYBOARD_MODES as m}<option value={m.value}>{m.label}</option>{/each}
+      {#each KEYBOARD_MODES as m}<option value={m}>{t.keyboardModes[m]}</option>{/each}
     </select>
   </label>
 </main>

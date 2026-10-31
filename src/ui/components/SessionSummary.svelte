@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Session } from "../../core/engine/engine";
 import { accuracy, duration, netWpm } from "../../core/engine/results";
+import { t } from "../strings";
 import {
   formatAccuracy,
   formatDuration,
@@ -33,23 +34,23 @@ function focusOnShow(button: HTMLButtonElement): void {
 
 <svelte:window {onkeydown} />
 
-<section aria-label="Session results">
+<section aria-label={t.summary.label}>
   <dl>
     <div>
-      <dt>WPM</dt>
+      <dt>{t.summary.wpm}</dt>
       <dd>{Math.round(netWpm(session))}</dd>
     </div>
     <div>
-      <dt>Accuracy</dt>
+      <dt>{t.summary.accuracy}</dt>
       <dd>{formatAccuracy(accuracy(session))}</dd>
     </div>
     <div>
-      <dt>Time</dt>
+      <dt>{t.summary.time}</dt>
       <dd>{formatDuration(duration(session))}</dd>
     </div>
     {#if feedback && feedback.weakest.length > 0}
       <div>
-        <dt>Weakest keys</dt>
+        <dt>{t.summary.weakest}</dt>
         <dd>{feedback.weakest.join(" ")}</dd>
       </div>
     {/if}
@@ -57,9 +58,9 @@ function focusOnShow(button: HTMLButtonElement): void {
   {#if feedback}<p>{feedback.sentence}</p>{/if}
   <div class="actions">
     <button class="primary" aria-keyshortcuts="Enter" onclick={onnext} use:focusOnShow>
-      Continue
+      {t.summary.next}
     </button>
-    <button aria-keyshortcuts="R" onclick={onrestart}>Repeat</button>
+    <button aria-keyshortcuts="R" onclick={onrestart}>{t.summary.repeat}</button>
   </div>
 </section>
 

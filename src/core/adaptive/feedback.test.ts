@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { enUs } from "../layouts/en-us";
 import type { CharStat } from "../stats/chars";
-import { feedbackSentence, weakestKeys } from "./feedback";
+import { feedbackRule, weakestKeys } from "./feedback";
 import type { Targets } from "./weakness";
 
 const T: Targets = { accuracy: 0.95, wpm: 35 };
@@ -88,55 +88,36 @@ describe("weakestKeys", () => {
   });
 });
 
-describe("feedbackSentence", () => {
+describe("feedbackRule", () => {
   const base = { wpm: 50, accuracy: 1, targets: T, weakest: [] as string[] };
   test.each([
     [
       "unlocked beats low accuracy",
-      { ...base, accuracy: 0.5, unlocked: "Lesson 6 · r u" },
-      "Lesson 6 · r u is unlocked.",
+      { ...base, accuracy: 0.5, unlocked: "Lesson 6" },
+      { rule: "unlocked", title: "Lesson 6" },
     ],
     [
-      "low accuracy with keys",
+      "low accuracy",
       { ...base, accuracy: 0.9, weakest: ["F", "J"] },
-      "Slow down and aim for accuracy, especially on F and J.",
-    ],
-    [
-      "low accuracy without keys",
-      { ...base, accuracy: 0.9 },
-      "Slow down and aim for accuracy.",
+      { rule: "accuracy", keys: ["F", "J"] },
     ],
     [
       "accuracy exactly at target",
       { ...base, accuracy: 0.95, wpm: 10 },
-      "Accuracy is on target. Keep a steady rhythm to build speed.",
+      { rule: "speed", keys: [] },
     ],
     [
       "slow with keys",
       { ...base, wpm: 20, weakest: ["F"] },
-      "Accuracy is on target. Keep a steady rhythm to build speed on F.",
+      { rule: "speed", keys: ["F"] },
     ],
-    ["speed exactly at target", base, "Both targets met."],
+    ["speed exactly at target", base, { rule: "met", keys: [] }],
     [
-      "met, one key",
-      { ...base, weakest: ["F"] },
-      "Both targets met. F still needs practice.",
-    ],
-    [
-      "met, two keys",
+      "met with keys",
       { ...base, weakest: ["F", "J"] },
-      "Both targets met. F and J still need practice.",
-    ],
-    [
-      "met, three keys",
-      { ...base, weakest: ["F", "J", "K"] },
-      "Both targets met. F, J and K still need practice.",
+      { rule: "met", keys: ["F", "J"] },
     ],
   ])("%s", (_, input, expected) => {
-    expect(feedbackSentence(input)).toBe(expected);
-  });
-
-  test("wpm exactly at target counts as met", () => {
-    expect(feedbackSentence({ ...base, wpm: 35 })).toBe("Both targets met.");
+    expect(feedbackRule(input)).toEqual(expected);
   });
 });

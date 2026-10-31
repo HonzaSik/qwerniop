@@ -65,13 +65,13 @@ describe("parseExport", () => {
   it("rejects a missing or bad version", () => {
     for (const schema of [undefined, "1", 0, 1.5]) {
       const r = parseExport(file({ schema }));
-      expect(r.ok === false && r.reason).toMatch(/version/);
+      expect(r.ok === false && r.reason).toBe("noFormat");
     }
   });
 
   it("rejects a newer version", () => {
     const r = parseExport(file({ schema: 2 }));
-    expect(r.ok === false && r.reason).toMatch(/newer/);
+    expect(r.ok === false && r.reason).toBe("newer");
   });
 
   it("rejects a missing session list", () => {

@@ -1,6 +1,6 @@
 <script lang="ts">
 import "./ui/styles/tokens.css";
-import { feedbackSentence, weakestKeys } from "./core/adaptive/feedback";
+import { feedbackRule, weakestKeys } from "./core/adaptive/feedback";
 import type { Targets } from "./core/adaptive/weakness";
 import type { Session } from "./core/engine/engine";
 import { sessionRecord } from "./core/engine/record";
@@ -10,7 +10,6 @@ import { LAYOUTS, layoutById } from "./core/layouts/registry";
 import {
   completeLesson,
   type Lesson,
-  lessonTitle,
   nextLesson,
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
@@ -23,7 +22,6 @@ import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
 import {
   hydrate,
-  lengthLabel,
   readSessions,
   saveProgress,
   saveSession,
@@ -31,6 +29,7 @@ import {
   switchLayout,
   ui,
 } from "./ui/state.svelte";
+import { feedbackText, lessonTitle, t } from "./ui/strings";
 import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
 import Stats from "./ui/views/Stats.svelte";
@@ -126,16 +125,18 @@ function finish(session: Session): void {
   });
   run.feedback = {
     weakest: labels,
-    sentence: feedbackSentence({
-      wpm: netWpm(session),
-      accuracy: accuracy(session),
-      targets: ui.settings.targets,
-      weakest: labels,
-      unlocked:
-        after > before
-          ? lessonTitle(layout.id, { track, stage: after })
-          : undefined,
-    }),
+    sentence: feedbackText(
+      feedbackRule({
+        wpm: netWpm(session),
+        accuracy: accuracy(session),
+        targets: ui.settings.targets,
+        weakest: labels,
+        unlocked:
+          after > before
+            ? lessonTitle(layout.id, { track, stage: after })
+            : undefined,
+      }),
+    ),
   };
   saveProgress();
   saveSession(sessionRecord(session, layout.id, run.lesson, Date.now()));
@@ -172,10 +173,10 @@ const text = (snippets: string) =>
 <svelte:window onhashchange={() => (hash = location.hash)} />
 
 {#await data then snippets}
-  <nav aria-label="Views">
-    <a href="#practice" aria-current={view === "practice" ? "page" : undefined}>Practice</a>
-    <a href="#lessons" aria-current={view === "lessons" ? "page" : undefined}>Lessons</a>
-    <a href="#stats" aria-current={view === "stats" ? "page" : undefined}>Stats</a>
+  <nav aria-label={t.nav.label}>
+    <a href="#practice" aria-current={view === "practice" ? "page" : undefined}>{t.nav.practice}</a>
+    <a href="#lessons" aria-current={view === "lessons" ? "page" : undefined}>{t.nav.lessons}</a>
+    <a href="#stats" aria-current={view === "stats" ? "page" : undefined}>{t.nav.stats}</a>
   </nav>
   {#if view === "lessons"}
     <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} />
@@ -195,13 +196,13 @@ const text = (snippets: string) =>
     {/key}
     <div class="controls">
     <label>
-      Layout
+      {t.layoutLabel}
       <select value={layout.id} onchange={(e) => chooseLayout(LAYOUTS[e.currentTarget.selectedIndex]?.id ?? layout.id)}>
-        {#each LAYOUTS as l}<option value={l.id}>{l.name}</option>{/each}
+        {#each LAYOUTS as l}<option value={l.id}>{t.layoutNames[l.id]}</option>{/each}
       </select>
     </label>
     <label>
-      Length
+      {t.lengthLabel}
       <select
         value={SESSION_LENGTHS.findIndex((l) => l.kind === ui.settings.length.kind && l.amount === ui.settings.length.amount)}
         onchange={(e) => {
@@ -212,15 +213,15 @@ const text = (snippets: string) =>
           }
         }}
       >
-        {#each SESSION_LENGTHS as l, i}<option value={i}>{lengthLabel(l)}</option>{/each}
+        {#each SESSION_LENGTHS as l, i}<option value={i}>{l.kind === "words" ? t.words(l.amount) : t.seconds(l.amount)}</option>{/each}
       </select>
     </label>
     </div>
   {/if}
 {:catch}
   <main class="error">
-    <p>The word list could not be loaded.</p>
-    <button type="button" onclick={() => location.reload()}>Try again</button>
+    <p>{t.wordListError}</p>
+    <button type="button" onclick={() => location.reload()}>{t.tryAgain}</button>
   </main>
 {/await}
 

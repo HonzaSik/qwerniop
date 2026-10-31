@@ -35,28 +35,16 @@ export interface FeedbackInput {
   unlocked?: string | undefined;
 }
 
-function list(keys: readonly string[]): string {
-  const last = keys.at(-1) ?? "";
-  return keys.length < 2 ? last : `${keys.slice(0, -1).join(", ")} and ${last}`;
-}
+/** What to tell the learner; the UI words it per language. */
+export type Feedback =
+  | { rule: "unlocked"; title: string }
+  | { rule: "accuracy" | "speed" | "met"; keys: readonly string[] };
 
-/** One plain sentence about the session; the first rule that applies wins. */
-export function feedbackSentence(input: FeedbackInput): string {
+/** One message about the session; the first rule that applies wins. */
+export function feedbackRule(input: FeedbackInput): Feedback {
   const { wpm, accuracy, targets, weakest, unlocked } = input;
-  const keys = weakest.length > 0;
-  if (unlocked) return `${unlocked} is unlocked.`;
-  if (accuracy < targets.accuracy) {
-    return keys
-      ? `Slow down and aim for accuracy, especially on ${list(weakest)}.`
-      : "Slow down and aim for accuracy.";
-  }
-  if (wpm < targets.wpm) {
-    return keys
-      ? `Accuracy is on target. Keep a steady rhythm to build speed on ${list(weakest)}.`
-      : "Accuracy is on target. Keep a steady rhythm to build speed.";
-  }
-  if (keys) {
-    return `Both targets met. ${list(weakest)} still ${weakest.length === 1 ? "needs" : "need"} practice.`;
-  }
-  return "Both targets met.";
+  if (unlocked) return { rule: "unlocked", title: unlocked };
+  if (accuracy < targets.accuracy) return { rule: "accuracy", keys: weakest };
+  if (wpm < targets.wpm) return { rule: "speed", keys: weakest };
+  return { rule: "met", keys: weakest };
 }

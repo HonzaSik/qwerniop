@@ -14,9 +14,11 @@ export interface AppData {
   sessions: SessionRecord[];
 }
 
+export type ExportError = "notExport" | "noFormat" | "newer" | "noSessions";
+
 export type ParsedExport =
   | { ok: true; value: AppData; droppedSessions: number }
-  | { ok: false; reason: string };
+  | { ok: false; reason: ExportError };
 
 export function buildExport(data: AppData, now: Date): string {
   return JSON.stringify({
@@ -30,7 +32,7 @@ export function buildExport(data: AppData, now: Date): string {
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
-const fail = (reason: string): ParsedExport => ({ ok: false, reason });
+const fail = (reason: ExportError): ParsedExport => ({ ok: false, reason });
 
 /**
  * Validates an untrusted, already-parsed export file. Settings and progress
@@ -40,19 +42,16 @@ const fail = (reason: string): ParsedExport => ({ ok: false, reason });
  */
 export function parseExport(raw: unknown): ParsedExport {
   if (!isRecord(raw) || raw.app !== "tenfold") {
-    return fail("This is not a Tenfold export file.");
+    return fail("notExport");
   }
   const { schema } = raw;
   if (typeof schema !== "number" || !Number.isInteger(schema) || schema < 1) {
-    return fail("The file has no valid format version.");
+    return fail("noFormat");
   }
   if (schema > EXPORT_SCHEMA) {
-    return fail(
-      "The file was made by a newer version of Tenfold. Update the app and try again.",
-    );
+    return fail("newer");
   }
-  if (!Array.isArray(raw.sessions))
-    return fail("The file has no session list.");
+  if (!Array.isArray(raw.sessions)) return fail("noSessions");
   const progress = isRecord(raw.progress) ? raw.progress : {};
   const sessions = raw.sessions.flatMap((s) => parseSessionRecord(s) ?? []);
   return {

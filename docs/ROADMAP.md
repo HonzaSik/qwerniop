@@ -73,7 +73,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Czech word list with license recorded
 - [x] Czech lesson order including number-row letters
 - [x] Layout switcher; progress kept per layout
-- [ ] Czech UI strings
+- [x] Czech UI strings
 
 ## 9. Polish
 

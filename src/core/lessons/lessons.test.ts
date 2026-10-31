@@ -8,8 +8,8 @@ import {
   type Lesson,
   lessonCount,
   lessonKeys,
-  lessonTitle,
   nextLesson,
+  noNewKeys,
   type Progress,
   parseProgress,
 } from "./lessons";
@@ -109,19 +109,13 @@ describe("lessons", () => {
   test("keys are what the stage adds", () => {
     expect(lessonKeys("en-us", letter(5))).toBe("e i");
     expect(lessonKeys("en-us", { track: "punctuation", stage: 2 })).toBe(". ,");
-    expect(lessonKeys("en-us", { track: "punctuation", stage: 1 })).toBe(
-      "capitals",
-    );
+    expect(lessonKeys("en-us", { track: "punctuation", stage: 1 })).toBe("");
   });
 
-  test("titles use the display names", () => {
-    expect(lessonTitle("en-us", letter(5))).toBe("Lesson 5 · e i");
-    expect(lessonTitle("en-us", { track: "numbers", stage: 2 })).toBe(
-      "Numbers 2 · 6 7 8 9 0",
-    );
-    expect(lessonTitle("en-us", { track: "punctuation", stage: 1 })).toBe(
-      "Punctuation 1 · capitals",
-    );
+  test("stages without new keys are named", () => {
+    expect(noNewKeys({ track: "punctuation", stage: 1 })).toBe("capitals");
+    expect(noNewKeys({ track: "code", stage: 4 })).toBe("snippets");
+    expect(noNewKeys(letter(5))).toBeUndefined();
   });
 });
 

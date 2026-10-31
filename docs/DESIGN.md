@@ -143,7 +143,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 
 - Plain, short, sentence case: "Continue", "Repeat lesson", "Model server".
 - No exclamation marks, no motivational slogans.
-- The UI ships in English and Czech; strings live in one file per language.
+- The UI ships in English and Czech; strings live in one file per language (`src/ui/strings/en.ts`, `cs.ts`). The English file is the type, so a missing Czech string fails the type check. The language is Czech when `navigator.language` starts with `cs`, English otherwise; there is no setting until the Settings view exists. Core returns codes (feedback rule, export error, lesson note), never display text.
 
 ## Accessibility
 

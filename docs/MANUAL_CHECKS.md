@@ -33,3 +33,12 @@ On failure, fix the cause on the keystroke path and repeat the check.
 3. Reload the page. Czech is still selected.
 4. Switch back to the English layout. Its earlier unlock count is unchanged.
 5. In Stats, history and heatmap show only the layout in use. Export, import the file and check both layouts keep their progress.
+
+## Czech UI
+
+1. In Chrome set the browser language to Czech (Settings, Languages) and reload `pnpm dev`; or run `navigator.language` in the console to confirm it starts with `cs`. The page language (`<html lang>`) is `cs`.
+2. Walk Practice, Lessons and Stats. Every label, button, select option, status message and the session summary is Czech with correct diacritics, and no English is left (the layout select reads "Čeština (QWERTZ)").
+3. Finish a session. The feedback sentence reads naturally, including with one, two and three weak keys.
+4. In Stats, export, then import a file: the replace dialog and its counts read correctly; import a non-export JSON and check the error is Czech.
+5. Check that text fits: nav, the two selects at the top right, Lessons buttons and the summary do not wrap badly or overflow at 1280 px and at 360 px.
+6. Switch the browser back to English and reload: the whole UI is English again.

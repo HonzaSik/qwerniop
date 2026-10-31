@@ -7,6 +7,7 @@ import Keyboard from "../components/Keyboard.svelte";
 import { keyLabel } from "../components/keyboard-labels";
 import LineChart from "../components/LineChart.svelte";
 import { readSessions, ui } from "../state.svelte";
+import { t } from "../strings";
 
 interface Props {
   /** Resolves when storage has been read; opening the view starts the read. */
@@ -36,34 +37,34 @@ function summarise(records: SessionRecord[]) {
 }
 </script>
 
-<main aria-label="Stats">
+<main aria-label={t.nav.stats}>
   {#await sessions}
-    <p class="note">Loading</p>
+    <p class="note">{t.stats.loading}</p>
   {:then records}
     {@const s = summarise(records)}
     {#if s.recent.length === 0}
-      <p class="note">No sessions yet. Finish a practice session and it will show up here.</p>
+      <p class="note">{t.stats.empty}</p>
     {:else}
       <section aria-labelledby="history">
-        <h2 id="history">History</h2>
-        <LineChart title="Speed" unit="wpm" values={s.recent.map((r) => Math.round(r.wpm))} />
-        <LineChart title="Accuracy" unit="%" max={100} values={s.recent.map((r) => Math.round(r.accuracy * 100))} />
+        <h2 id="history">{t.stats.history}</h2>
+        <LineChart title={t.stats.speed} unit={t.stats.wpmUnit} values={s.recent.map((r) => Math.round(r.wpm))} />
+        <LineChart title={t.stats.accuracy} unit="%" max={100} values={s.recent.map((r) => Math.round(r.accuracy * 100))} />
       </section>
       <section aria-labelledby="keys">
-        <h2 id="keys">Errors by key</h2>
+        <h2 id="keys">{t.stats.errorsByKey}</h2>
         {#if s.worst.length === 0}
-          <p class="note">No errors recorded.</p>
+          <p class="note">{t.stats.noErrors}</p>
         {:else}
           <div class="board"><Keyboard layout={layoutById(ui.settings.layout)} mode="heat" heat={s.heat} /></div>
           <p class="note">
-            Most missed:
+            {t.stats.mostMissed}
             {#each s.worst as w, i}{i > 0 ? ", " : ""}{w.name} ({w.n}){/each}
           </p>
         {/if}
       </section>
     {/if}
   {:catch}
-    <p class="note">Stats could not be loaded.</p>
+    <p class="note">{t.stats.loadFailed}</p>
   {/await}
   <DataTransfer onimported={() => { reread = readSessions(); onimported(); }} />
 </main>

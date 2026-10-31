@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { AppData } from "../../core/export/export";
 import { exportText, readSessions, replaceAll } from "../state.svelte";
+import { t } from "../strings";
 
 interface Props {
   onimported: () => void;
@@ -33,10 +34,10 @@ async function download(): Promise<void> {
     a.download = `tenfold-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    say("Exported.");
+    say(t.data.exported);
   } catch (error) {
     console.error("Export failed", error);
-    say("The export failed.", true);
+    say(t.data.exportFailed, true);
   }
 }
 
@@ -47,17 +48,16 @@ async function pick(
   const file = input.files?.[0];
   input.value = "";
   if (!file) return;
-  if (file.size > MAX_BYTES)
-    return say("That file is too large to be a Tenfold export.", true);
+  if (file.size > MAX_BYTES) return say(t.data.tooLarge, true);
   let raw: unknown;
   try {
     raw = JSON.parse(await file.text());
   } catch {
-    return say("The file is not valid JSON.", true);
+    return say(t.data.notJson, true);
   }
   const { parseExport } = await import("../../core/export/export");
   const parsed = parseExport(raw);
-  if (!parsed.ok) return say(parsed.reason, true);
+  if (!parsed.ok) return say(t.data.errors[parsed.reason], true);
   pending = {
     data: parsed.value,
     dropped: parsed.droppedSessions,
@@ -75,26 +75,20 @@ async function confirm(): Promise<void> {
   try {
     const saved = await replaceAll(next.data);
     onimported();
-    say(
-      saved
-        ? "Imported."
-        : "Imported for this visit only. Saving is unavailable, so it will be gone when you close the page, and sessions are not kept.",
-    );
+    say(saved ? t.data.imported : t.data.importedMemory);
   } catch (error) {
     console.error("Import failed", error);
-    say("The import failed. Nothing was changed.", true);
+    say(t.data.importFailed, true);
   }
 }
-
-const sessions = (n: number): string => `${n} session${n === 1 ? "" : "s"}`;
 </script>
 
 <section aria-labelledby="data">
-  <h2 id="data">Your data</h2>
+  <h2 id="data">{t.data.title}</h2>
   <div class="row">
-    <button type="button" onclick={download}>Export</button>
+    <button type="button" onclick={download}>{t.data.export}</button>
     <label class="file">
-      Import
+      {t.data.import}
       <input type="file" accept="application/json,.json" onchange={pick} />
     </label>
   </div>
@@ -103,17 +97,14 @@ const sessions = (n: number): string => `${n} session${n === 1 ? "" : "s"}`;
 
 <dialog bind:this={dialog} aria-labelledby="replace-title" onclose={() => (pending = null)}>
   {#if pending}
-    <h2 id="replace-title">Replace your data?</h2>
-    <p>
-      Your settings, progress and {sessions(pending.current)} will be replaced by the file's settings,
-      progress and {sessions(pending.data.sessions.length)}. This cannot be undone.
-    </p>
+    <h2 id="replace-title">{t.data.replaceTitle}</h2>
+    <p>{t.data.replaceBody(pending.current, pending.data.sessions.length)}</p>
     {#if pending.dropped > 0}
-      <p>{pending.dropped} invalid {pending.dropped === 1 ? "session" : "sessions"} in the file will be skipped.</p>
+      <p>{t.data.skipped(pending.dropped)}</p>
     {/if}
     <div class="row">
-      <button type="button" onclick={() => dialog?.close()}>Cancel</button>
-      <button type="button" class="primary" onclick={confirm}>Replace</button>
+      <button type="button" onclick={() => dialog?.close()}>{t.data.cancel}</button>
+      <button type="button" class="primary" onclick={confirm}>{t.data.replace}</button>
     </div>
   {/if}
 </dialog>

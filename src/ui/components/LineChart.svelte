@@ -1,5 +1,6 @@
 <script lang="ts">
 import { niceMax } from "../../core/stats/history";
+import { t } from "../strings";
 
 interface Props {
   title: string;
@@ -25,7 +26,14 @@ const y = (v: number) =>
 const points = $derived(values.map((v, i) => `${x(i)},${y(v)}`).join(" "));
 const last = $derived(values.at(-1) ?? 0);
 const summary = $derived(
-  `${title} over the last ${values.length} sessions: latest ${last} ${unit}, lowest ${Math.min(...values)}, highest ${Math.max(...values)}.`,
+  t.stats.chart(
+    title,
+    values.length,
+    last,
+    unit,
+    Math.min(...values),
+    Math.max(...values),
+  ),
 );
 </script>
 

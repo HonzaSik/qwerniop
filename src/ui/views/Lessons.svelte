@@ -5,14 +5,13 @@ import {
   type Lesson,
   type LessonTrack,
   lessonCount,
-  lessonTitle,
   type Progress,
-  TRACK_NAMES,
   TRACKS,
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
 import { TARGET_ACCURACIES, TARGET_WPMS } from "../../core/settings/settings";
 import { saveSettings, ui } from "../state.svelte";
+import { lessonTitle, t } from "../strings";
 
 interface Props {
   layout: Layout["id"];
@@ -30,11 +29,11 @@ const isOpen = (track: LessonTrack) =>
   track === "letters" || tracksOpen(layout, progress.letters);
 </script>
 
-<main aria-label="Lessons">
+<main aria-label={t.nav.lessons}>
   <!-- Temporary until the Settings view exists. -->
   <div class="targets">
     <label>
-      Accuracy
+      {t.lessons.accuracy}
       <select
         value={TARGET_ACCURACIES.findIndex((a) => a === ui.settings.targets.accuracy)}
         onchange={(e) => {
@@ -49,7 +48,7 @@ const isOpen = (track: LessonTrack) =>
       </select>
     </label>
     <label>
-      Speed
+      {t.lessons.speed}
       <select
         value={TARGET_WPMS.findIndex((w) => w === ui.settings.targets.wpm)}
         onchange={(e) => {
@@ -60,15 +59,15 @@ const isOpen = (track: LessonTrack) =>
           }
         }}
       >
-        {#each TARGET_WPMS as w, i}<option value={i}>{w} wpm</option>{/each}
+        {#each TARGET_WPMS as w, i}<option value={i}>{t.lessons.wpm(w)}</option>{/each}
       </select>
     </label>
   </div>
   {#each TRACKS as track}
     <section aria-labelledby="track-{track}">
-      <h2 id="track-{track}">{TRACK_NAMES[track]}</h2>
+      <h2 id="track-{track}">{t.trackNames[track]}</h2>
       {#if isOpen(track)}
-        <p class="note">Unlocked {progress[track]} of {lessonCount(layout, track)}</p>
+        <p class="note">{t.lessons.unlocked(progress[track], lessonCount(layout, track))}</p>
         <ul>
           {#each stages(track) as stage}
             {@const lesson = { track, stage }}
@@ -81,13 +80,13 @@ const isOpen = (track: LessonTrack) =>
                 onclick={() => onstart(lesson)}
               >
                 {lessonTitle(layout, lesson)}
-                {#if open && stage < progress[track]}<span class="state">Done</span>{/if}
+                {#if open && stage < progress[track]}<span class="state">{t.lessons.done}</span>{/if}
               </button>
             </li>
           {/each}
         </ul>
       {:else}
-        <p class="note">Opens at letter lesson {tracksStart(layout)}</p>
+        <p class="note">{t.lessons.opensAt(tracksStart(layout) ?? 1)}</p>
       {/if}
     </section>
   {/each}

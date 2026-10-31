@@ -6,7 +6,6 @@ import { enUs } from "../layouts/en-us";
 import {
   completeLesson,
   initialProgress,
-  lessonTitle,
   type Progress,
 } from "../lessons/lessons";
 import { unlockedLetters } from "../lessons/letters";
@@ -14,7 +13,7 @@ import { defaultSettings } from "../settings/settings";
 import { foldSession } from "../stats/chars";
 import { generate } from "../text/generate";
 import { type Rng, seededRng } from "../text/rng";
-import { feedbackSentence, weakestKeys } from "./feedback";
+import { type Feedback, feedbackRule, weakestKeys } from "./feedback";
 
 const targets = defaultSettings().targets;
 const words = raw.split("\n").filter(Boolean);
@@ -47,7 +46,7 @@ function typeText(text: string, hand: HandFor, rng: Rng): Session {
 interface Round {
   stage: number;
   progress: Progress;
-  sentence: string;
+  feedback: Feedback;
   weakest: string[];
   unlocked: boolean;
 }
@@ -86,16 +85,14 @@ function simulate(
       3,
     ).map((code) => code.replace("Key", ""));
     const unlocked = p.letters > stage;
-    const sentence = feedbackSentence({
+    const feedback = feedbackRule({
       wpm: netWpm(s),
       accuracy: accuracy(s),
       targets,
       weakest,
-      unlocked: unlocked
-        ? lessonTitle("en-us", { track: "letters", stage: p.letters })
-        : undefined,
+      unlocked: unlocked ? `Lesson ${p.letters}` : undefined,
     });
-    rounds.push({ stage, progress: p, sentence, weakest, unlocked });
+    rounds.push({ stage, progress: p, feedback, weakest, unlocked });
   }
   return rounds;
 }
@@ -111,7 +108,6 @@ function expectSteady(rounds: Round[]): void {
   }
 }
 
-const UNLOCK = /^(Both targets met|Lesson \d+ · .+ is unlocked\.)/;
 const count = (text: string, c: string) => text.split(c).length - 1;
 
 describe("simulated learners", () => {
@@ -124,10 +120,9 @@ describe("simulated learners", () => {
     expect(stagesOf(strongRun)[11]).toBeGreaterThanOrEqual(8);
     expect(strongRun.at(-1)?.progress.letters).toBeGreaterThanOrEqual(10);
     for (const r of strongRun) {
-      expect(r.sentence).toMatch(UNLOCK);
-      // The unlock sentence wins over every other rule.
-      if (r.unlocked)
-        expect(r.sentence).toMatch(/^Lesson \d+ · .+ is unlocked\.$/);
+      expect(["met", "unlocked"]).toContain(r.feedback.rule);
+      // The unlock message wins over every other rule.
+      if (r.unlocked) expect(r.feedback.rule).toBe("unlocked");
     }
     const { f } = strongRun.at(-1)?.progress.stats ?? {};
     expect(f?.accuracy).toBe(1);
@@ -156,11 +151,9 @@ describe("simulated learners", () => {
     const after = weakRun.slice(1);
     for (const r of after) {
       expect(r.weakest[0]).toBe("K");
-      expect(r.sentence).toMatch(/\bK\b/);
+      expect(r.feedback).toMatchObject({ keys: ["K"] });
     }
-    expect(weakRun.at(-1)?.sentence).toBe(
-      "Slow down and aim for accuracy, especially on K.",
-    );
+    expect(weakRun.at(-1)?.feedback).toEqual({ rule: "accuracy", keys: ["K"] });
   });
 
   test("weak stats make k more frequent than strong stats do", () => {

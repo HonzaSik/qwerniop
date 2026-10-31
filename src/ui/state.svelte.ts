@@ -9,20 +9,15 @@ import {
 import {
   defaultSettings,
   type KeyboardMode,
-  type SessionLength,
   type Settings,
 } from "../core/settings/settings";
 import type { Store, Stored } from "../storage/store";
 
-export const KEYBOARD_MODES: readonly { value: KeyboardMode; label: string }[] =
-  [
-    { value: "fingers", label: "Finger colours" },
-    { value: "next", label: "Next key only" },
-    { value: "hidden", label: "Hidden" },
-  ];
-
-export const lengthLabel = (l: SessionLength): string =>
-  `${l.amount} ${l.kind === "words" ? "words" : "s"}`;
+export const KEYBOARD_MODES: readonly KeyboardMode[] = [
+  "fingers",
+  "next",
+  "hidden",
+];
 
 export const ui: {
   settings: Settings;
