@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { csQwertz } from "./cs-qwertz";
 import { DIGIT6_FINGER } from "./layout";
+import { strokesFor } from "./strokes";
 
 const key = (code: string) => csQwertz.keys.find((k) => k.code === code);
 
@@ -74,5 +75,35 @@ describe("cs-qwertz", () => {
       shift: "'",
     });
     expect(key("Backquote")).toMatchObject({ base: ";", deadShift: "˚" });
+  });
+});
+
+describe("cs-qwertz composition", () => {
+  test("compose entries", () => {
+    expect(csQwertz.compose["´"]?.o).toBe("ó");
+    expect(csQwertz.compose.ˇ?.D).toBe("Ď");
+    expect(csQwertz.compose["¨"]?.u).toBe("ü");
+    expect(csQwertz.compose.ˇ?.[" "]).toBe("ˇ");
+  });
+
+  test("dedicated key beats dead key", () => {
+    for (const c of ["č", "ě", "š", "ř", "ž", "ý", "á", "í", "é", "ú"]) {
+      expect(strokesFor(csQwertz, c)).toHaveLength(1);
+    }
+  });
+
+  test("dead-key-only characters take two strokes", () => {
+    expect(strokesFor(csQwertz, "ó")).toEqual([
+      { code: "Equal", shift: null },
+      { code: "KeyO", shift: null },
+    ]);
+    expect(strokesFor(csQwertz, "Ť")).toEqual([
+      { code: "Equal", shift: "ShiftLeft" },
+      { code: "KeyT", shift: "ShiftRight" },
+    ]);
+    expect(strokesFor(csQwertz, "ˇ")).toEqual([
+      { code: "Equal", shift: "ShiftLeft" },
+      { code: "Space", shift: null },
+    ]);
   });
 });

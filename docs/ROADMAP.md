@@ -69,7 +69,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 8. Czech
 
 - [x] `cs-qwertz` layout data, ISO geometry, verified against XKB `cz`
-- [ ] Dead-key composition and stroke mapping, preferring dedicated keys
+- [x] Dead-key composition and stroke mapping, preferring dedicated keys
 - [ ] Czech word list with license recorded
 - [ ] Czech lesson order including number-row letters
 - [ ] Layout switcher; progress kept per layout

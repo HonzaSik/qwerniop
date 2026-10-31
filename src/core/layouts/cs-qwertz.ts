@@ -9,6 +9,17 @@ import { DIGIT6_FINGER, type Layout } from "./layout";
 // browsers report Backquote and IntlBackslash swapped. The AltGr layer is
 // omitted because the trainer does not teach it.
 // Dead keys use the spacing forms of their accents, not combining marks.
+// Uppercase entries are derived so the table cannot drift from lowercase.
+function pairs(bases: string, results: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  [...bases].forEach((b, i) => {
+    const r = [...results][i] ?? "";
+    out[b] = r;
+    out[b.toUpperCase()] = r.toUpperCase();
+  });
+  return out;
+}
+
 export const csQwertz: Layout = {
   id: "cs-qwertz",
   name: "Czech (QWERTZ)",
@@ -84,5 +95,9 @@ export const csQwertz: Layout = {
     { code: "ShiftRight", row: 3, finger: "R5", width: 2.75, base: "" },
     { code: "Space", row: 4, finger: "T", width: 6.25, base: " " },
   ],
-  compose: {},
+  compose: {
+    "´": { ...pairs("aeiouy", "áéíóúý"), " ": "´" },
+    ˇ: { ...pairs("cdenrstz", "čďěňřšťž"), " ": "ˇ" },
+    "¨": { ...pairs("aeou", "äëöü"), " ": "¨" },
+  },
 };
