@@ -26,6 +26,8 @@ Pass:
 
 On failure, fix the cause on the keystroke path and repeat the check.
 
+Checked 2026-10-31 headless Chromium 156.0.8078.47 (CDP, 6× CPU throttle, 200 keys with 5 deliberate errors): pass. rAF frame time p50 16.7 ms, p95 16.7 ms, max 16.8 ms, 0 frames over 25 ms, 0 long tasks, longest keystroke handler 3.1 ms. Event Timing durations (up to 24 ms) include the 60 Hz vsync wait. Firefox and a manual DevTools recording remain open.
+
 ## Layout switcher and per-layout progress
 
 1. `pnpm dev`, open the app, finish a letter lesson with `en-us` and note the Lessons view unlock count.
@@ -34,6 +36,8 @@ On failure, fix the cause on the keystroke path and repeat the check.
 3. Reload the page. Czech is still selected and its last lesson is current.
 4. Switch back to the English layout. Its earlier unlock count is unchanged.
 5. In Stats, history and heatmap show only the layout in use. Export, import the file and check both layouts keep their progress.
+
+Checked 2026-10-31 headless Chromium 156.0.8078.47: pass for step 2 and 3 only (lesson 2 on en-us, switch to cs-qwertz shows lesson 1, back shows lesson 2, reload keeps lesson 2). Steps 1, 4 and 5 not automated.
 
 ## Czech UI
 
@@ -44,6 +48,8 @@ On failure, fix the cause on the keystroke path and repeat the check.
 5. Check that text fits: nav, the Settings rows, Lessons buttons and the summary do not wrap badly or overflow at 1280 px and at 360 px.
 6. Switch the browser back to English and reload: the whole UI is English again.
 7. In Settings choose Language "Čeština" with the browser in English: every string switches at once with no reload and `<html lang>` is `cs`. Choose "English": back to English, `lang` is `en`. Choose "System": it follows the browser. Reload: the choice is kept. Export, import: the choice comes back.
+
+Checked 2026-10-31 headless Chromium 156.0.8078.47: pass for step 7 only (Settings Language Čeština gives `<html lang="cs">` and nav Procvičování, Lekce, Statistiky, Nastavení with no reload, the choice survives reload, English restores `lang="en"`). Other steps remain manual.
 
 ## Design pass
 
@@ -61,6 +67,8 @@ Check each screen in light and dark (system setting, then `data-theme` set to `l
 1. With the setting on System and the OS "reduce motion" preference off: the caret glides and blinks, the text scrolls smoothly, keys fade, the summary fades in.
 2. Turn the OS preference on (no reload): the caret is solid and jumps instantly, the text scrolls by whole lines with no animation, key highlights and the summary switch instantly.
 3. In Settings, Accessibility, set the select to Off with the OS preference on: motion returns. Set it to On with the OS preference off: motion stops. Reload: the choice is kept.
+
+Checked 2026-10-31 headless Chromium 156.0.8078.47: pass for the OS-preference part of step 2 (emulated `prefers-reduced-motion: reduce` sets `data-reduce-motion` on `<html>`, caret transition 0s and animation none; removing it restores 0.12s and the blink animation, no reload). Step 3 not automated.
 
 ## Keyboard navigation and help sheet
 
@@ -98,6 +106,8 @@ Setup: `pnpm build && pnpm preview`.
 
 Pass: the message appears only on touch-first devices and never returns after a physical key.
 
+Checked 2026-10-31 headless Chromium 156.0.8078.47: pass for step 3 and 4 (touch emulation with a mobile viewport: `(pointer: coarse) and (hover: none)` matches, message shown, a `KeyF` keydown removes it; a plain desktop context never shows it). Real phone and tablet remain manual.
+
 ## Offline and install
 
 Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile.
@@ -110,6 +120,8 @@ Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile.
 6. With a model server configured, requests to it are not listed under Cache Storage.
 
 Pass: offline reload works for both layouts, the update message appears only after a rebuild, and the manifest has no warnings.
+
+Checked 2026-10-31 headless Chromium 156.0.8078.47, served under `/tenfold/`: pass for steps 1 to 3 and 5. `sw.js` activated with scope `/tenfold/`; offline reload renders and 20 characters type; with cs-qwertz selected online, offline reload keeps cs-qwertz, both `en-*.txt` and `cs-*.txt` fetch 200 from the worker, and switching back to English works. Manifest: `start_url`, `scope` and `icon.svg` all resolve 200 under `/tenfold/` and start_url is in scope (installability prompt and the update flow in step 4 not checked).
 
 ## Practice font
 
@@ -156,6 +168,8 @@ Setup: a local OpenAI-compatible server (for example Ollama), and `pnpm dev` or 
 
 Pass: the chunk loads only on the first test, and failures show plain words.
 
+Checked 2026-10-31 headless Chromium 156.0.8078.47: pass for steps 1 and 2 (no `ai` chunk before the test; after it, status "Connected. 3 models found." and 3 entries in the Model select). Steps 3 to 5 not automated.
+
 ## Model modes
 
 Setup: Ollama with a model pulled (for example `qwen2.5-coder:14b`), `OLLAMA_ORIGINS` including the page origin, `pnpm dev`. In Settings run "Test connection" and pick the model, then switch on "Use the model server".
@@ -191,6 +205,8 @@ Setup: model server disabled in Settings (the default); DevTools Network open wi
 3. Enable the server, enter an address and press the connection test: `ai-openai-compatible-*.js` loads now.
 
 Pass: the `ai-*` chunks load only after the server is enabled and used.
+
+Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue and `#settings` visit, and enabling the switch: 0 `ai-*` requests. After Test connection to `http://localhost:11434/v1`: `ai-openai-compatible-*.js` and `ai-provider-*.js` load.
 
 ## README screenshots
 
