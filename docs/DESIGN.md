@@ -20,7 +20,7 @@ The goal is a quiet, precise tool in the spirit of Apple's Human Interface Guide
 ## Typography
 
 - **Interface:** `system-ui, -apple-system, "Segoe UI", Cantarell, "Noto Sans", sans-serif`. On Linux this resolves to the desktop font (Cantarell, Inter, Noto). Apple's SF fonts can't be redistributed, so they are never bundled.
-- **Practice text:** JetBrains Mono (OFL), bundled as a subset `woff2` covering Latin, Latin Extended-A (Czech) and code symbols. Monospace keeps the caret motion even and the line length predictable.
+- **Practice text:** JetBrains Mono (OFL), bundled as a subset `woff2` covering Latin, Latin Extended-A (Czech) and code symbols, regular weight (400) only because practice text is never bold. Monospace keeps the caret motion even and the line length predictable.
 - **Scale (rem):** 0.8125, 0.9375, 1.0625, 1.375, 2. Practice text uses 1.375–1.75 depending on viewport.
 - **Weights:** 400 and 600 only (`--weight-regular`, `--weight-semibold`).
 - Tabular numerals (`font-variant-numeric: tabular-nums`) for all stats.

@@ -108,3 +108,14 @@ Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile.
 6. With a model server configured, requests to it are not listed under Cache Storage.
 
 Pass: offline reload works for both layouts, the update message appears only after a rebuild, and the manifest has no warnings.
+
+## Practice font
+
+Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile, DevTools open.
+
+1. Network panel, reload with cache disabled: `JetBrainsMono-Regular-subset.woff2` loads, is under 60 KB, and its Initiator is "Other" (the preload link in `index.html`), with no second request for it.
+2. Practice with layout Czech (QWERTZ): a passage with `ě š č ř ž ý á í é ú ů ď ť ň` renders in JetBrains Mono. DevTools, Elements, Computed, Rendered Fonts on `#passage` lists only "JetBrains Mono" and no fallback.
+3. Switch to English: punctuation (`{ } [ ] < > | ~ ^ \ @ # $ %`) renders from the same font.
+4. Network panel, throttle to Slow 3G, reload: text is readable straight away in the monospace fallback and swaps once the font arrives.
+
+Pass: one font request, no fallback glyphs, and the text stays monospace before and after the swap.

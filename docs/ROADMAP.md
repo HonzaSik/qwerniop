@@ -83,7 +83,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Screen reader checks (Orca on Linux, VoiceOver on macOS if available)
 - [x] Touch-device message
 - [x] Service worker, manifest, offline test
-- [ ] Font subset and preload
+- [x] Font subset and preload
 - [ ] Performance pass: all budgets met, throttled tests in both browsers
 
 ## 10. Model integration

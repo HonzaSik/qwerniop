@@ -25,3 +25,13 @@
 - **Profanity:** `scripts/profanity-cs.txt` is a hand-written exact-match blocklist (public domain, no third-party source), broad on purpose (also mild words, sex terms and slurs), with common inflections. It does not catch every inflected form.
 - **Result:** 10 000 lines, about 38 KB gzip. SHA-256 of `cs.txt`: `8fb6714bf8575961e10ca07d0a6529c0b448b7b21e29f8ed3cfeb2dca888023c`.
 - **Known limits:** news vocabulary; Czech inflection means many forms of one word. The list is not loaded by the app yet (layout switching is a later item), so `size-check` does not see it; its gzip size is under the 60 KB word-list budget.
+
+## `public/fonts/JetBrainsMono-Regular-subset.woff2`
+
+- **Source:** JetBrains Mono v2.304, `fonts/webfonts/JetBrainsMono-Regular.woff2` from the official release archive.
+- **URL:** https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip (downloaded 2026-10-31).
+- **License:** SIL Open Font License 1.1, copyright 2020 The JetBrains Mono Project Authors. The text is in `public/fonts/OFL.txt`, copied from the archive's `OFL.txt`.
+- **Processing:** fonttools 4.68.0 with brotli 1.2.1 (installed in a throwaway venv, not a project dependency):
+  `pyftsubset JetBrainsMono-Regular.woff2 --unicodes="U+0020-007E,U+00A0-00FF,U+0100-017F,U+01CE,U+02C7,U+02DA,U+2013,U+2014,U+2018-201D,U+2026,U+2192" --flavor=woff2 --layout-features='kern' --no-hinting --output-file=JetBrainsMono-Regular-subset.woff2`
+  Covers ASCII, Latin-1 Supplement, Latin Extended-A (Czech), the layout characters outside those (`ˇ ˚ ǎ ´ ¨ § °`, dashes, arrows) and common typographic punctuation. Ligatures are dropped because practice text disables them. Weight 600 is not included.
+- **Result:** 9 300 bytes, 329 glyphs.
