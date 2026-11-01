@@ -75,9 +75,11 @@ describe("calendarDays", () => {
   });
 
   test("today at local midnight still ends on today", () => {
-    expect(calendarDays(at(2026, 11, 4, 0, 0), 1, 1).at(-1)?.at(-1)).toBe(
-      "2026-11-04",
-    );
+    expect(
+      calendarDays(at(2026, 11, 4, 0, 0), 1, 1)
+        .at(-1)
+        ?.at(-1),
+    ).toBe("2026-11-04");
   });
 
   test("weeks starting Sunday put Sunday first", () => {
