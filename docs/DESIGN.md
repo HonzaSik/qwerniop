@@ -21,13 +21,13 @@ The goal is a quiet, precise tool in the spirit of Apple's Human Interface Guide
 
 - **Interface:** `system-ui, -apple-system, "Segoe UI", Cantarell, "Noto Sans", sans-serif`. On Linux this resolves to the desktop font (Cantarell, Inter, Noto). Apple's SF fonts can't be redistributed, so they are never bundled.
 - **Practice text:** JetBrains Mono (OFL), bundled as a subset `woff2` covering Latin, Latin Extended-A (Czech) and code symbols, regular weight (400) only because practice text is never bold. Monospace keeps the caret motion even and the line length predictable.
-- **Scale (rem):** 0.8125, 0.9375, 1.0625, 1.375, 2. Practice text uses 1.375–1.75 depending on viewport.
+- **Scale (rem):** 0.8125, 0.9375, 1.0625, 1.375, 2. Practice text uses 1.375–1.75 depending on viewport; the Text size setting (Appearance) picks Small 1.125–1.375, Medium (default) or Large 1.625–2.125 through `data-text-size` on `<html>`.
 - **Weights:** 400 and 600 only (`--weight-regular`, `--weight-semibold`).
 - Tabular numerals (`font-variant-numeric: tabular-nums`) for all stats.
 
 ## Colour
 
-Defined in `src/ui/styles/tokens.css` as custom properties, with a light set and a dark set. Appearance follows `prefers-color-scheme` unless the user overrides it in Settings (`data-theme` on `<html>`).
+Defined in `src/ui/styles/tokens.css` as custom properties, with a light set and a dark set. Appearance follows `prefers-color-scheme` unless the Theme setting (Appearance: System, Light, Dark, Black (OLED); default System) overrides it through `data-theme` on `<html>`. Black (OLED) is the dark set with `--bg` `#000000`, `--surface` `#161618` and `--separator` / `--finger-t` `#2c2c2e`; on it `--text` is 18.8:1, `--text-2` 9.5:1, `--text-3` 7.5:1 (6.5:1 on `--surface`) and `--error` 8.3:1.
 
 | Token | Role |
 |---|---|
@@ -57,7 +57,7 @@ Values (contrast ratios measured against `--bg`; `--text-3` is at least 4.97:1 o
 | `--error` | `#c4271d` (5.8) | `#ff7b72` (6.8) |
 | `--error-bg` | `#fde8e6` | `#4a2220` |
 
-Typed-correct text is shown as normal primary text and untyped text as `--text-3`; the contrast between the two is the progress indicator. Green is not used for "correct", only red for "wrong". One accent hue (a calm blue) across the app.
+Typed-correct text is shown as normal primary text and untyped text as `--text-3`; the contrast between the two is the progress indicator. Green is not used for "correct", only red for "wrong". One accent hue across the app, chosen from presets by the Accent colour setting (Appearance; default Blue) through `data-accent` on `<html>`. Each preset defines `--accent-light` and `--accent-dark`; the appearance blocks pick one. Contrast against `--bg` (light / dark / OLED): Blue `#0a64c8` 5.7 / `#4d9bff` 6.0 / 7.5, Green `#1a7f37` 5.1 / `#3fb950` 6.7 / 8.3, Purple `#7c3fc4` 6.2 / `#b48cff` 6.6 / 8.1, Orange `#b25000` 5.2 / `#f0883e` 6.7 / 8.3. The primary button draws `--bg` on the accent, so the same ratios apply.
 
 Finger colours for the keyboard are eight muted hues with matching lightness, defined separately in light and dark. They are only shown on the keyboard, never in the text.
 
@@ -71,7 +71,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 - Nav: a centred bar across the top on `--bg`, so scrolled content passes under it. The current view is `--text` with a 2 px accent underline (`--nav-underline`); the others are `--text-2` and turn `--text` on hover.
 - Lessons, Stats and Settings open with the view name as a title at `--text-size-xl`, semibold.
 - Practice view: text column centred, max width about 64 characters; keyboard below with generous space between.
-- Settings: grouped lists like system preferences, one setting per row, label left and control right, hairlines between rows; below 480 px the label stacks above its control. Groups in order: General (Language, Layout), Practice (Length, Accuracy, Speed), Accessibility (Reduce motion), Model server. The Keyboard mode select stays under the keyboard in Practice.
+- Settings: grouped lists like system preferences, one setting per row, label left and control right, hairlines between rows; below 480 px the label stacks above its control. Groups in order: General (Language, Layout), Appearance (Theme, Accent colour, Text size, Caret), Practice (Length, Accuracy, Speed, On a wrong key, Show speed and accuracy while typing), Accessibility (Reduce motion), Model server. Lengths: 10, 15, 30, 60, 100, 200 words; 15 s, 30 s, 1, 2, 5, 10 min. The Keyboard mode select stays under the keyboard in Practice.
 - Responsive down to 360 px width; the keyboard scales by key unit, never scrolls horizontally.
 
 ## Practice view
@@ -88,7 +88,9 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
                       42 wpm · 97 %                             (only if live stats on)
 ```
 
-- Caret is a 2 px bar that glides to the next character with a short transform transition. Its blink pauses while typing.
+- Caret is a 2 px bar that glides to the next character with a short transform transition. Its blink pauses while typing. The Caret setting (Appearance) can make it a Block (one character wide, accent at `--caret-block-mix`) or an Underline (one character wide, `--caret-width` high), through `data-caret` on `<html>`.
+- "On a wrong key" (Practice) is the engine's error mode: Stop until corrected (default) or Keep going.
+- With "Show speed and accuracy while typing" on, a line under the keyboard shows net wpm and accuracy ("42 wpm · 97 %") in `text-2`, tabular numerals. It updates every 500 ms from a timer, never per keystroke, stays empty until the first key, and holds its line so it shifts nothing.
 - Three lines of text are visible at all times, including for shorter passages, at a line height of 1.6; the view scrolls by whole lines, without animation if reduce motion is on.
 - The caret stays on the middle row after the first line. Near the end the scroll stops so the last three lines stay filled, and the caret drops to the bottom row: `top = max(0, min(line - 1, lineCount - 3))`. Backspace uses the same rule. At the end of the text the caret sits after the last character, with no extra line.
 - Layout is a Settings field, saved when changed, chosen in the Settings view (General). Switching keeps each layout's progress and current lesson, and restores that layout's last lesson (Lesson 1 if it has none); Lessons, Stats and the keyboard follow the layout in use.

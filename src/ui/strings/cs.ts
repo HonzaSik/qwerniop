@@ -28,7 +28,7 @@ export const cs: Strings = {
   reduceMotionLabel: "Omezit pohyb",
   reduceMotionModes: { system: "Podle systému", on: "Zapnuto", off: "Vypnuto" },
   words: (n) => `${n} ${plural(n, "slovo", "slova", "slov")}`,
-  seconds: (n) => `${n} s`,
+  seconds: (n) => (n < 60 ? `${n} s` : `${n / 60} min`),
   keyboardLabel: "Klávesnice",
   keyboardModes: {
     fingers: "Barvy prstů",
@@ -53,6 +53,39 @@ export const cs: Strings = {
     general: "Obecné",
     practice: "Cvičení",
     accessibility: "Přístupnost",
+    appearance: "Vzhled",
+    themeLabel: "Motiv",
+    themeNames: {
+      system: "Podle systému",
+      light: "Světlý",
+      dark: "Tmavý",
+      oled: "Černý (OLED)",
+    },
+    accentLabel: "Barva zvýraznění",
+    accentNames: {
+      blue: "Modrá",
+      green: "Zelená",
+      purple: "Fialová",
+      orange: "Oranžová",
+    },
+    textSizeLabel: "Velikost textu",
+    textSizeNames: {
+      small: "Malá",
+      medium: "Střední",
+      large: "Velká",
+    },
+    caretLabel: "Kurzor",
+    caretNames: {
+      bar: "Svislá čára",
+      block: "Blok",
+      underline: "Podtržení",
+    },
+    errorModeLabel: "Při chybné klávese",
+    errorModeNames: {
+      stop: "Zastavit do opravy",
+      continue: "Pokračovat dál",
+    },
+    liveStats: "Zobrazovat rychlost a přesnost při psaní",
     languageLabel: "Jazyk",
     languageNames: {
       system: "Podle systému",

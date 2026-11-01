@@ -3,15 +3,21 @@ import type { ProviderErrorKind } from "../../ai/provider";
 import type { Layout } from "../../core/layouts/layout";
 import { LAYOUTS } from "../../core/layouts/registry";
 import {
+  ACCENT_VALUES,
   AI_MODES,
+  CARET_VALUES,
   LANGUAGE_VALUES,
   REDUCE_MOTION_VALUES,
   SESSION_LENGTHS,
   TARGET_ACCURACIES,
   TARGET_WPMS,
+  TEXT_SIZE_VALUES,
+  THEME_VALUES,
 } from "../../core/settings/settings";
 import { saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
+
+const ERROR_MODES = ["stop", "continue"] as const;
 
 // Switching layout loads its word list and progress, which App owns.
 const { onlayout }: { onlayout: (id: Layout["id"]) => void } = $props();
@@ -87,6 +93,69 @@ async function test(): Promise<void> {
       </select>
     </label>
   </section>
+  <section aria-labelledby="appearance">
+    <h2 id="appearance">{t.settings.appearance}</h2>
+    <label>
+      {t.settings.themeLabel}
+      <select
+        value={ui.settings.theme}
+        onchange={(e) => {
+          const next = THEME_VALUES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.theme = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each THEME_VALUES as v}<option value={v}>{t.settings.themeNames[v]}</option>{/each}
+      </select>
+    </label>
+    <label>
+      {t.settings.accentLabel}
+      <select
+        value={ui.settings.accent}
+        onchange={(e) => {
+          const next = ACCENT_VALUES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.accent = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each ACCENT_VALUES as v}<option value={v}>{t.settings.accentNames[v]}</option>{/each}
+      </select>
+    </label>
+    <label>
+      {t.settings.textSizeLabel}
+      <select
+        value={ui.settings.textSize}
+        onchange={(e) => {
+          const next = TEXT_SIZE_VALUES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.textSize = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each TEXT_SIZE_VALUES as v}<option value={v}>{t.settings.textSizeNames[v]}</option>{/each}
+      </select>
+    </label>
+    <label>
+      {t.settings.caretLabel}
+      <select
+        value={ui.settings.caret}
+        onchange={(e) => {
+          const next = CARET_VALUES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.caret = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each CARET_VALUES as v}<option value={v}>{t.settings.caretNames[v]}</option>{/each}
+      </select>
+    </label>
+  </section>
   <section aria-labelledby="practice">
     <h2 id="practice">{t.settings.practice}</h2>
     <label>
@@ -133,6 +202,25 @@ async function test(): Promise<void> {
       >
         {#each TARGET_WPMS as w, i}<option value={i}>{t.lessons.wpm(w)}</option>{/each}
       </select>
+    </label>
+    <label>
+      {t.settings.errorModeLabel}
+      <select
+        value={ui.settings.errorMode}
+        onchange={(e) => {
+          const next = ERROR_MODES[e.currentTarget.selectedIndex];
+          if (next) {
+            ui.settings.errorMode = next;
+            saveSettings();
+          }
+        }}
+      >
+        {#each ERROR_MODES as m}<option value={m}>{t.settings.errorModeNames[m]}</option>{/each}
+      </select>
+    </label>
+    <label class="check">
+      <input type="checkbox" role="switch" bind:checked={ui.settings.liveStats} onchange={saveSettings} />
+      {t.settings.liveStats}
     </label>
   </section>
   <section aria-labelledby="accessibility">

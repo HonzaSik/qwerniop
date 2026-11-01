@@ -113,10 +113,10 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 13. Appearance and session options
 
-- [ ] Theme: System, Light, Dark, OLED black
-- [ ] Practice text size, caret style and accent presets
-- [ ] Error mode and live stats in Settings
-- [ ] Longer list of session lengths
+- [x] Theme: System, Light, Dark, OLED black
+- [x] Practice text size, caret style and accent presets
+- [x] Error mode and live stats in Settings
+- [x] Longer list of session lengths
 
 ## 14. Developer mode
 

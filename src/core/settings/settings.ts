@@ -12,17 +12,35 @@ export type ReduceMotion = (typeof REDUCE_MOTION_VALUES)[number];
 export const LANGUAGE_VALUES = ["system", "en", "cs"] as const;
 export type Language = (typeof LANGUAGE_VALUES)[number];
 
+export const THEME_VALUES = ["system", "light", "dark", "oled"] as const;
+export type Theme = (typeof THEME_VALUES)[number];
+
+export const ACCENT_VALUES = ["blue", "green", "purple", "orange"] as const;
+export type Accent = (typeof ACCENT_VALUES)[number];
+
+export const TEXT_SIZE_VALUES = ["small", "medium", "large"] as const;
+export type TextSize = (typeof TEXT_SIZE_VALUES)[number];
+
+export const CARET_VALUES = ["bar", "block", "underline"] as const;
+export type CaretStyle = (typeof CARET_VALUES)[number];
+
 export type SessionLength =
   | { kind: "words"; amount: number }
   | { kind: "seconds"; amount: number };
 
 export const SESSION_LENGTHS: readonly SessionLength[] = [
+  { kind: "words", amount: 10 },
   { kind: "words", amount: 15 },
   { kind: "words", amount: 30 },
   { kind: "words", amount: 60 },
+  { kind: "words", amount: 100 },
+  { kind: "words", amount: 200 },
+  { kind: "seconds", amount: 15 },
   { kind: "seconds", amount: 30 },
   { kind: "seconds", amount: 60 },
   { kind: "seconds", amount: 120 },
+  { kind: "seconds", amount: 300 },
+  { kind: "seconds", amount: 600 },
 ];
 
 export const TARGET_ACCURACIES = [0.9, 0.95, 0.98] as const;
@@ -57,6 +75,11 @@ export interface Settings {
   targets: Targets;
   reduceMotion: ReduceMotion;
   language: Language;
+  theme: Theme;
+  accent: Accent;
+  textSize: TextSize;
+  caret: CaretStyle;
+  liveStats: boolean;
   modelServer: ModelServer;
 }
 
@@ -69,6 +92,11 @@ export const defaultSettings = (): Settings => ({
   targets: { accuracy: 0.95, wpm: 35 },
   reduceMotion: "system",
   language: "system",
+  theme: "system",
+  accent: "blue",
+  textSize: "medium",
+  caret: "bar",
+  liveStats: false,
   modelServer: {
     enabled: false,
     modes: { lesson: true, topic: true, code: true, feedback: true },
@@ -119,6 +147,12 @@ export function migrateSettings(old: unknown): Settings {
       defaults.reduceMotion,
     language:
       LANGUAGE_VALUES.find((l) => l === old.language) ?? defaults.language,
+    theme: THEME_VALUES.find((v) => v === old.theme) ?? defaults.theme,
+    accent: ACCENT_VALUES.find((v) => v === old.accent) ?? defaults.accent,
+    textSize:
+      TEXT_SIZE_VALUES.find((v) => v === old.textSize) ?? defaults.textSize,
+    caret: CARET_VALUES.find((v) => v === old.caret) ?? defaults.caret,
+    liveStats: flag(old.liveStats, defaults.liveStats),
     modelServer: {
       enabled: flag(server?.enabled, defaults.modelServer.enabled),
       modes: {

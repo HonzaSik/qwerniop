@@ -114,4 +114,43 @@ describe("migrateSettings", () => {
     expect(server.topic).toBe("rust");
     expect(defaultSettings().modelServer.enabled).toBe(false);
   });
+
+  test("appearance fields are kept when known and fall back otherwise", () => {
+    const got = migrateSettings({
+      theme: "oled",
+      accent: "green",
+      textSize: "large",
+      caret: "block",
+      liveStats: true,
+    });
+    expect(got.theme).toBe("oled");
+    expect(got.accent).toBe("green");
+    expect(got.textSize).toBe("large");
+    expect(got.caret).toBe("block");
+    expect(got.liveStats).toBe(true);
+    const bad = migrateSettings({
+      theme: "sepia",
+      accent: "#ff0000",
+      textSize: 3,
+      caret: "beam",
+      liveStats: "yes",
+    });
+    expect(bad.theme).toBe("system");
+    expect(bad.accent).toBe("blue");
+    expect(bad.textSize).toBe("medium");
+    expect(bad.caret).toBe("bar");
+    expect(bad.liveStats).toBe(false);
+  });
+
+  test("the longer length list keeps old values and accepts new ones", () => {
+    expect(
+      migrateSettings({ length: { kind: "seconds", amount: 600 } }).length,
+    ).toEqual({ kind: "seconds", amount: 600 });
+    expect(
+      migrateSettings({ length: { kind: "words", amount: 200 } }).length,
+    ).toEqual({ kind: "words", amount: 200 });
+    expect(
+      migrateSettings({ length: { kind: "words", amount: 15 } }).length,
+    ).toEqual({ kind: "words", amount: 15 });
+  });
 });

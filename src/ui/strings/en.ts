@@ -3,9 +3,13 @@ import type { ExportError } from "../../core/export/export";
 import type { Layout } from "../../core/layouts/layout";
 import type { LessonTrack, NoNewKeys } from "../../core/lessons/lessons";
 import type {
+  Accent,
   AiMode,
+  CaretStyle,
   KeyboardMode,
   Language,
+  TextSize,
+  Theme,
 } from "../../core/settings/settings";
 
 /** "a, b and c". */
@@ -36,7 +40,7 @@ export const en = {
   reduceMotionLabel: "Reduce motion",
   reduceMotionModes: { system: "System", on: "On", off: "Off" },
   words: (n: number): string => `${n} words`,
-  seconds: (n: number): string => `${n} s`,
+  seconds: (n: number): string => (n < 60 ? `${n} s` : `${n / 60} min`),
   keyboardLabel: "Keyboard",
   keyboardModes: {
     fingers: "Finger colours",
@@ -61,6 +65,39 @@ export const en = {
     general: "General",
     practice: "Practice",
     accessibility: "Accessibility",
+    appearance: "Appearance",
+    themeLabel: "Theme",
+    themeNames: {
+      system: "System",
+      light: "Light",
+      dark: "Dark",
+      oled: "Black (OLED)",
+    } as Record<Theme, string>,
+    accentLabel: "Accent colour",
+    accentNames: {
+      blue: "Blue",
+      green: "Green",
+      purple: "Purple",
+      orange: "Orange",
+    } as Record<Accent, string>,
+    textSizeLabel: "Text size",
+    textSizeNames: {
+      small: "Small",
+      medium: "Medium",
+      large: "Large",
+    } as Record<TextSize, string>,
+    caretLabel: "Caret",
+    caretNames: {
+      bar: "Bar",
+      block: "Block",
+      underline: "Underline",
+    } as Record<CaretStyle, string>,
+    errorModeLabel: "On a wrong key",
+    errorModeNames: {
+      stop: "Stop until corrected",
+      continue: "Keep going",
+    },
+    liveStats: "Show speed and accuracy while typing",
     languageLabel: "Language",
     languageNames: { system: "System", en: "English", cs: "Čeština" } as Record<
       Language,

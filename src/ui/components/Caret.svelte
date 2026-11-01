@@ -24,6 +24,20 @@ let { session, connect }: Props = $props();
     will-change: transform;
   }
 
+  /* Block and underline span the character, so they start at its left edge instead of straddling it. */
+  :global(:root[data-caret="block"]) .caret {
+    left: 0;
+    width: 1ch;
+    background: color-mix(in srgb, var(--accent) var(--caret-block-mix), transparent);
+  }
+
+  :global(:root[data-caret="underline"]) .caret {
+    top: calc((1lh + var(--caret-height)) / 2 - var(--caret-width));
+    left: 0;
+    width: 1ch;
+    height: var(--caret-width);
+  }
+
   /* The root attribute is set by App from the setting and the system preference. */
   :global(:root:not([data-reduce-motion])) .caret {
     transition: transform var(--duration-caret) var(--ease);

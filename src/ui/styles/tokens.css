@@ -14,7 +14,10 @@
   --text-2: #545458;
   --text-3: #68686d;
   --separator: #d1d1d6;
-  --accent: #0a64c8;
+  /* Each preset has a light and a dark value; the appearance blocks pick one. */
+  --accent-light: #0a64c8;
+  --accent-dark: #4d9bff;
+  --accent: var(--accent-light);
   --correct: #1c1c1e;
   --error: #c4271d;
   --error-bg: #fde8e6;
@@ -71,6 +74,8 @@
 
   --caret-width: 2px;
   --caret-height: 1.3em;
+  /* Enough tint to find the caret, little enough to read the character under it. */
+  --caret-block-mix: 35%;
   --caret-blink: 1060ms;
   --duration-press: 80ms;
   --duration-caret: 120ms;
@@ -87,7 +92,7 @@
     --text-2: #aeaeb2;
     --text-3: #9a9aa0;
     --separator: #3a3a3c;
-    --accent: #4d9bff;
+    --accent: var(--accent-dark);
     --correct: #f2f2f7;
     --error: #ff7b72;
     --error-bg: #4a2220;
@@ -107,7 +112,7 @@
   color-scheme: light;
 }
 
-:root[data-theme="dark"] {
+:root:is([data-theme="dark"], [data-theme="oled"]) {
   color-scheme: dark;
   --bg: #1c1c1e;
   --surface: #2c2c2e;
@@ -115,7 +120,7 @@
   --text-2: #aeaeb2;
   --text-3: #9a9aa0;
   --separator: #3a3a3c;
-  --accent: #4d9bff;
+  --accent: var(--accent-dark);
   --correct: #f2f2f7;
   --error: #ff7b72;
   --error-bg: #4a2220;
@@ -128,4 +133,35 @@
   --finger-r4: #443f66;
   --finger-r5: #583d62;
   --finger-t: #3a3a3c;
+}
+
+/* Dark text on true black: pixels off on OLED screens. Text tokens come from the dark set. */
+:root[data-theme="oled"] {
+  --bg: #000000;
+  --surface: #161618;
+  --separator: #2c2c2e;
+  --finger-t: #2c2c2e;
+}
+
+:root[data-accent="green"] {
+  --accent-light: #1a7f37;
+  --accent-dark: #3fb950;
+}
+
+:root[data-accent="purple"] {
+  --accent-light: #7c3fc4;
+  --accent-dark: #b48cff;
+}
+
+:root[data-accent="orange"] {
+  --accent-light: #b25000;
+  --accent-dark: #f0883e;
+}
+
+:root[data-text-size="small"] {
+  --text-size-practice: clamp(1.125rem, 2.1vw, 1.375rem);
+}
+
+:root[data-text-size="large"] {
+  --text-size-practice: clamp(1.625rem, 3.1vw, 2.125rem);
 }

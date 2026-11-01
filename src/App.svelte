@@ -64,6 +64,20 @@ $effect(() => {
   );
 });
 
+// Defaults leave the attribute off, so tokens.css keeps its base values and the system appearance.
+$effect(() => {
+  const root = document.documentElement;
+  const { theme, accent, textSize, caret } = ui.settings;
+  const set = (name: string, value: string | undefined) =>
+    value === undefined
+      ? root.removeAttribute(name)
+      : root.setAttribute(name, value);
+  set("data-theme", theme === "system" ? undefined : theme);
+  set("data-accent", accent === "blue" ? undefined : accent);
+  set("data-text-size", textSize === "medium" ? undefined : textSize);
+  set("data-caret", caret === "bar" ? undefined : caret);
+});
+
 // Words a timed session generates per second: 4 is 240 wpm, so nobody outruns the text.
 const WORDS_PER_SECOND = 4;
 

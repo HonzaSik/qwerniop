@@ -6,11 +6,13 @@ import {
   expire,
   type Session,
 } from "../../core/engine/engine";
+import { accuracy, netWpm } from "../../core/engine/results";
 import { layoutById } from "../../core/layouts/registry";
 import { attachInput } from "../../input/input";
 import { isPhysicalCode } from "../../input/physicalKey";
 import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
+import { formatAccuracy } from "../components/session-summary";
 import TextView from "../components/TextView.svelte";
 import { KEYBOARD_MODES, saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
@@ -94,6 +96,7 @@ function restart(): void {
   finished = false;
   secondsLeft = fullSeconds();
   pausedTotal = 0;
+  live = "";
 }
 
 function end(): void {
@@ -114,6 +117,17 @@ $effect(() => {
       secondsLeft = Math.ceil((timeLimit - (at - session.startedAt)) / 1000);
     }
   }, 250);
+  return () => clearInterval(id);
+});
+
+// A slow readout off the keystroke path; empty until the first key so it never shows 0 wpm.
+let live = $state("");
+$effect(() => {
+  if (!ui.settings.liveStats || finished) return;
+  const id = setInterval(() => {
+    if (session.startedAt === undefined) return;
+    live = `${t.lessons.wpm(Math.round(netWpm(session)))} · ${formatAccuracy(accuracy(session))}`;
+  }, 500);
   return () => clearInterval(id);
 });
 
@@ -188,6 +202,9 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   </div>
   {#if ui.settings.keyboardMode !== "hidden"}
     <div class="board"><Keyboard bind:this={board} layout={layoutById(ui.settings.layout)} mode={ui.settings.keyboardMode} /></div>
+  {/if}
+  {#if ui.settings.liveStats && !finished}
+    <p class="live">{live}</p>
   {/if}
   <label class="mode">
     {t.keyboardLabel}
@@ -288,6 +305,16 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     border: 0;
     clip-path: inset(50%);
     resize: none;
+  }
+
+  /* Holds its line before the first key, so the readout appearing shifts nothing. */
+  .live {
+    min-height: 1lh;
+    margin: var(--space-4) 0 0;
+    color: var(--text-2);
+    font-size: var(--text-size-md);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
   }
 
   .notice {
