@@ -1,5 +1,6 @@
 <script lang="ts">
 import "./ui/styles/tokens.css";
+import "./ui/styles/base.css";
 import { feedbackRule, weakestKeys } from "./core/adaptive/feedback";
 import type { Targets } from "./core/adaptive/weakness";
 import type { Session } from "./core/engine/engine";
@@ -352,13 +353,6 @@ let help: HTMLDialogElement | undefined = $state();
 {/await}
 
 <style>
-  :global(body) {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-ui);
-  }
-
   .error {
     display: grid;
     min-height: 100vh;
@@ -385,36 +379,43 @@ let help: HTMLDialogElement | undefined = $state();
     margin: 0;
   }
 
-  button {
-    padding: var(--space-1) var(--space-4);
-    border: 1px solid var(--separator);
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    color: var(--text);
-    font: inherit;
-  }
-
+  /* Fixed with a fill, so scrolled content passes under it instead of through it. */
   nav {
     position: fixed;
-    top: var(--space-4);
-    left: var(--space-4);
+    z-index: 1;
+    top: 0;
+    right: 0;
+    left: 0;
     display: flex;
-    gap: var(--space-4);
+    justify-content: center;
+    gap: var(--space-5);
+    padding: var(--space-4);
+    background: var(--bg);
     font-size: var(--text-size-sm);
   }
 
   nav a {
+    padding-bottom: var(--space-1);
+    border-bottom: var(--nav-underline) solid transparent;
     color: var(--text-2);
     text-decoration: none;
   }
 
-  nav a[aria-current="page"] {
+  nav a:hover {
     color: var(--text);
   }
 
-  :global(:focus-visible) {
-    outline: var(--focus-ring-width) solid var(--accent);
-    outline-offset: var(--focus-ring-width);
+  nav a[aria-current="page"] {
+    border-bottom-color: var(--accent);
+    color: var(--text);
+  }
+
+  :global(:root[data-typing]) nav {
+    opacity: var(--chrome-typing-opacity);
+  }
+
+  :global(:root:not([data-reduce-motion])) nav {
+    transition: opacity var(--duration-view) var(--ease);
   }
 
   dialog {

@@ -113,19 +113,10 @@ function focusOnShow(button: HTMLButtonElement): void {
     gap: var(--space-3);
   }
 
+  /* The one action of the screen, so a size up from other buttons. */
   button {
-    padding: var(--space-2) var(--space-4);
-    border: 0;
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    color: var(--text);
-    font: inherit;
+    min-height: calc(var(--control-height) + var(--space-2));
+    padding: 0 var(--space-5);
     font-size: var(--text-size-md);
-  }
-
-  button.primary {
-    background: var(--accent);
-    /* Meets AA on the accent in both appearances: the ratios DESIGN.md gives against --bg. */
-    color: var(--bg);
   }
 </style>

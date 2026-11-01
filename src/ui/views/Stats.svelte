@@ -38,6 +38,7 @@ function summarise(records: SessionRecord[]) {
 </script>
 
 <main aria-label={t.nav.stats}>
+  <h1>{t.nav.stats}</h1>
   {#await sessions}
     <p class="note">{t.stats.loading}</p>
   {:then records}
@@ -75,7 +76,13 @@ function summarise(records: SessionRecord[]) {
     width: min(100%, var(--practice-column));
     min-height: 100vh;
     margin: 0 auto;
-    padding: calc(var(--space-6) + var(--space-4)) var(--space-4) var(--space-6);
+    padding: calc(var(--space-8) + var(--space-4)) var(--space-4) var(--space-6);
+  }
+
+  h1 {
+    margin: 0 0 var(--space-6);
+    font-size: var(--text-size-xl);
+    font-weight: var(--weight-semibold);
   }
 
   section {

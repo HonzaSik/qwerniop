@@ -7,6 +7,8 @@ import {
   LANGUAGE_VALUES,
   REDUCE_MOTION_VALUES,
   SESSION_LENGTHS,
+  TARGET_ACCURACIES,
+  TARGET_WPMS,
 } from "../../core/settings/settings";
 import { saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
@@ -60,9 +62,9 @@ async function test(): Promise<void> {
 </script>
 
 <main aria-label={t.nav.settings}>
-  <h2>{t.settings.title}</h2>
+  <h1>{t.settings.title}</h1>
   <section aria-labelledby="general">
-    <h3 id="general">{t.settings.general}</h3>
+    <h2 id="general">{t.settings.general}</h2>
     <label>
       {t.settings.languageLabel}
       <select
@@ -86,7 +88,7 @@ async function test(): Promise<void> {
     </label>
   </section>
   <section aria-labelledby="practice">
-    <h3 id="practice">{t.settings.practice}</h3>
+    <h2 id="practice">{t.settings.practice}</h2>
     <label>
       {t.lengthLabel}
       <select
@@ -102,9 +104,39 @@ async function test(): Promise<void> {
         {#each SESSION_LENGTHS as l, i}<option value={i}>{l.kind === "words" ? t.words(l.amount) : t.seconds(l.amount)}</option>{/each}
       </select>
     </label>
+    <label>
+      {t.lessons.accuracy}
+      <select
+        value={TARGET_ACCURACIES.findIndex((a) => a === ui.settings.targets.accuracy)}
+        onchange={(e) => {
+          const accuracy = TARGET_ACCURACIES[e.currentTarget.selectedIndex];
+          if (accuracy !== undefined) {
+            ui.settings.targets = { ...ui.settings.targets, accuracy };
+            saveSettings();
+          }
+        }}
+      >
+        {#each TARGET_ACCURACIES as a, i}<option value={i}>{Math.round(a * 100)} %</option>{/each}
+      </select>
+    </label>
+    <label>
+      {t.lessons.speed}
+      <select
+        value={TARGET_WPMS.findIndex((w) => w === ui.settings.targets.wpm)}
+        onchange={(e) => {
+          const wpm = TARGET_WPMS[e.currentTarget.selectedIndex];
+          if (wpm !== undefined) {
+            ui.settings.targets = { ...ui.settings.targets, wpm };
+            saveSettings();
+          }
+        }}
+      >
+        {#each TARGET_WPMS as w, i}<option value={i}>{t.lessons.wpm(w)}</option>{/each}
+      </select>
+    </label>
   </section>
   <section aria-labelledby="accessibility">
-    <h3 id="accessibility">{t.settings.accessibility}</h3>
+    <h2 id="accessibility">{t.settings.accessibility}</h2>
     <label>
       {t.reduceMotionLabel}
       <select
@@ -122,7 +154,7 @@ async function test(): Promise<void> {
     </label>
   </section>
   <section aria-labelledby="model-server">
-    <h3 id="model-server">{t.settings.modelServer}</h3>
+    <h2 id="model-server">{t.settings.modelServer}</h2>
     <p class="note">{t.settings.intro}</p>
     <label class="check">
       <input type="checkbox" role="switch" bind:checked={server.enabled} onchange={saveSettings} />
@@ -174,7 +206,7 @@ async function test(): Promise<void> {
     </div>
     {#if result.state === "failed" && result.kind === "network"}
       <div class="cors">
-        <h4>{t.settings.corsTitle}</h4>
+        <h3>{t.settings.corsTitle}</h3>
         <p>{t.settings.corsIntro}</p>
         <ul>
           <li>{t.settings.corsOllama(location.origin)}</li>
@@ -190,29 +222,33 @@ async function test(): Promise<void> {
   main {
     max-width: 36rem;
     margin: 0 auto;
-    padding: var(--space-8) var(--space-4) var(--space-6);
+    padding: calc(var(--space-8) + var(--space-4)) var(--space-4) var(--space-6);
   }
 
-  h2 {
+  h1 {
     margin: 0 0 var(--space-5);
-    font-size: var(--text-size-md);
+    font-size: var(--text-size-xl);
     font-weight: var(--weight-semibold);
   }
 
   section {
     display: grid;
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-5);
     gap: var(--space-3);
     padding: var(--space-4);
     border-radius: var(--radius-group);
     background: var(--surface);
   }
 
-  h3,
-  h4 {
+  h2,
+  h3 {
     margin: 0;
     font-size: var(--text-size-sm);
     font-weight: var(--weight-semibold);
+  }
+
+  h2 {
+    color: var(--text-2);
   }
 
   p,
@@ -226,29 +262,39 @@ async function test(): Promise<void> {
     font-size: var(--text-size-sm);
   }
 
+  /* Label left, control right, as in system preferences. */
   label {
     display: grid;
-    gap: var(--space-1);
-    color: var(--text-2);
+    grid-template-columns: 1fr minmax(0, 16rem);
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--text);
     font-size: var(--text-size-sm);
   }
 
+  label:not(.check) + label:not(.check) {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--separator);
+  }
+
+  @media (width < 480px) {
+    label {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
+  }
+
+  /* On a surface group the controls sit on the window colour, so they still read as raised. */
   input,
   select,
   button {
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--separator);
-    border-radius: var(--radius-control);
     background: var(--bg);
-    color: var(--text);
-    font: inherit;
   }
 
   .check {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--text);
   }
 
   fieldset {

@@ -102,3 +102,26 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] GitHub Pages deployment workflow
 - [x] Release notes for 1.0
 - [x] Final license and data-source review
+
+## 12. Polish
+
+- [x] Shared control styles in `src/ui/styles/base.css`
+- [x] Settings rows with label left, control right; accuracy and speed targets move from Lessons to Settings
+- [x] Centred nav with an accent underline for the current view
+- [x] Chrome fades while typing (`data-typing`)
+- [x] View titles, locked-lesson styling and a fade-in on view change
+
+## 13. Appearance and session options
+
+- [ ] Theme: System, Light, Dark, OLED black
+- [ ] Practice text size, caret style and accent presets
+- [ ] Error mode and live stats in Settings
+- [ ] Longer list of session lengths
+
+## 14. Developer mode
+
+- [ ] Setting that makes every lesson startable, without unlocking anything
+
+## 15. Custom text
+
+- [ ] Practise pasted text; counts toward stats and history, never unlocks

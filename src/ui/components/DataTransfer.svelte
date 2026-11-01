@@ -87,7 +87,7 @@ async function confirm(): Promise<void> {
   <h2 id="data">{t.data.title}</h2>
   <div class="row">
     <button type="button" onclick={download}>{t.data.export}</button>
-    <label class="file">
+    <label class="file button">
       {t.data.import}
       <input type="file" accept="application/json,.json" onchange={pick} />
     </label>
@@ -123,22 +123,6 @@ async function confirm(): Promise<void> {
   .row {
     display: flex;
     gap: var(--space-3);
-  }
-
-  button,
-  .file {
-    padding: var(--space-1) var(--space-4);
-    border: 1px solid var(--separator);
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    color: var(--text);
-    font: inherit;
-    font-size: var(--text-size-sm);
-    cursor: pointer;
-  }
-
-  .primary {
-    border-color: var(--accent);
   }
 
   /* The input stays focusable inside its label; the label draws the button. */

@@ -9,8 +9,6 @@ import {
   TRACKS,
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
-import { TARGET_ACCURACIES, TARGET_WPMS } from "../../core/settings/settings";
-import { saveSettings, ui } from "../state.svelte";
 import { lessonTitle, t } from "../strings";
 
 interface Props {
@@ -30,39 +28,7 @@ const isOpen = (track: LessonTrack) =>
 </script>
 
 <main aria-label={t.nav.lessons}>
-  <!-- Temporary until the Settings view exists. -->
-  <div class="targets">
-    <label>
-      {t.lessons.accuracy}
-      <select
-        value={TARGET_ACCURACIES.findIndex((a) => a === ui.settings.targets.accuracy)}
-        onchange={(e) => {
-          const accuracy = TARGET_ACCURACIES[e.currentTarget.selectedIndex];
-          if (accuracy !== undefined) {
-            ui.settings.targets = { ...ui.settings.targets, accuracy };
-            saveSettings();
-          }
-        }}
-      >
-        {#each TARGET_ACCURACIES as a, i}<option value={i}>{Math.round(a * 100)} %</option>{/each}
-      </select>
-    </label>
-    <label>
-      {t.lessons.speed}
-      <select
-        value={TARGET_WPMS.findIndex((w) => w === ui.settings.targets.wpm)}
-        onchange={(e) => {
-          const wpm = TARGET_WPMS[e.currentTarget.selectedIndex];
-          if (wpm !== undefined) {
-            ui.settings.targets = { ...ui.settings.targets, wpm };
-            saveSettings();
-          }
-        }}
-      >
-        {#each TARGET_WPMS as w, i}<option value={i}>{t.lessons.wpm(w)}</option>{/each}
-      </select>
-    </label>
-  </div>
+  <h1>{t.nav.lessons}</h1>
   {#each TRACKS as track}
     <section aria-labelledby="track-{track}">
       <h2 id="track-{track}">{t.trackNames[track]}</h2>
@@ -98,15 +64,13 @@ const isOpen = (track: LessonTrack) =>
     width: min(100%, var(--practice-column));
     min-height: 100vh;
     margin: 0 auto;
-    padding: var(--space-6) var(--space-4);
+    padding: calc(var(--space-8) + var(--space-4)) var(--space-4) var(--space-6);
   }
 
-  .targets {
-    display: flex;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-    color: var(--text-2);
-    font-size: var(--text-size-sm);
+  h1 {
+    margin: 0 0 var(--space-6);
+    font-size: var(--text-size-xl);
+    font-weight: var(--weight-semibold);
   }
 
   section {
@@ -137,23 +101,20 @@ const isOpen = (track: LessonTrack) =>
   button {
     display: flex;
     width: 100%;
-    box-sizing: border-box;
+    min-height: calc(var(--control-height) + var(--space-3));
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid transparent;
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    color: var(--text);
-    font: inherit;
-    font-size: var(--text-size-sm);
+    border-color: transparent;
     text-align: left;
   }
 
+  /* Locked reads as an outline only, so open lessons stand out by their fill. */
   button:disabled {
-    background: none;
     border-color: var(--separator);
-    color: var(--text-2);
+    border-style: dashed;
+    background: none;
+    color: var(--text-3);
   }
 
   button[aria-current="true"] {

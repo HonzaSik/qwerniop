@@ -5,7 +5,7 @@ The goal is a quiet, precise tool in the spirit of Apple's Human Interface Guide
 ## Principles
 
 1. **Clarity.** One primary action per screen. Labels are short and literal.
-2. **Deference.** Chrome recedes while typing. During a session, everything except the text, caret and (optionally) the keyboard fades to low contrast.
+2. **Deference.** Chrome recedes while typing. During a session, everything except the text, caret, timer and (optionally) the keyboard fades to low contrast (`--chrome-typing-opacity`). Practice sets `data-typing` on `<html>` when typing starts and clears it on pause, finish or leaving the view; it is written only when that state changes, never per keystroke.
 3. **Depth through restraint.** Hierarchy comes from size, weight and spacing, not from boxes, borders and shadows.
 4. **Consistency.** Every value comes from tokens. No one-off colours, sizes or durations in components.
 
@@ -67,8 +67,11 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 
 - 4 px base unit; spacing tokens `--space-1` … `--space-8` = 4, 8, 12, 16, 24, 32, 48, 64 px.
 - Corner radius: 8 px for controls, 12 px for groups, 6 px for keys.
+- Controls (buttons, selects, text fields) share one look from `src/ui/styles/base.css`: `--control-height`, `--surface` fill, hairline border that darkens to `--text-3` on hover, and a filled `--accent` primary button. Views only add layout.
+- Nav: a centred bar across the top on `--bg`, so scrolled content passes under it. The current view is `--text` with a 2 px accent underline (`--nav-underline`); the others are `--text-2` and turn `--text` on hover.
+- Lessons, Stats and Settings open with the view name as a title at `--text-size-xl`, semibold.
 - Practice view: text column centred, max width about 64 characters; keyboard below with generous space between.
-- Settings: grouped lists like system preferences, one setting per row, label left and control right. Groups in order: General (Language, Layout), Practice (Length), Accessibility (Reduce motion), Model server. The Keyboard mode select stays under the keyboard in Practice.
+- Settings: grouped lists like system preferences, one setting per row, label left and control right, hairlines between rows; below 480 px the label stacks above its control. Groups in order: General (Language, Layout), Practice (Length, Accuracy, Speed), Accessibility (Reduce motion), Model server. The Keyboard mode select stays under the keyboard in Practice.
 - Responsive down to 360 px width; the keyboard scales by key unit, never scrolls horizontally.
 
 ## Practice view
@@ -100,9 +103,9 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 ## Lessons view
 
 - Reached from the nav links (Practice, Lessons, Stats) at the top left; the view is the location hash (`#practice`, `#lessons`), so Back works. Practice is the default and shows the current lesson, titled "Lesson 5 · e i" above the text (other tracks: "Numbers 2 · 6 7 8 9 0").
-- One section per track: Letters, Punctuation, Numbers, Code. Each lists its lessons as buttons in a grid, with "Unlocked n of m" under the heading. A lesson is a stage of its track and shows the keys it adds; capitals and whole code snippets, which add no key, are named instead. Done lessons say "Done", the current lesson has an accent outline, locked ones are disabled. A button starts its lesson (Enter or click).
+- One section per track: Letters, Punctuation, Numbers, Code. Each lists its lessons as buttons in a grid, with "Unlocked n of m" under the heading. A lesson is a stage of its track and shows the keys it adds; capitals and whole code snippets, which add no key, are named instead. Done lessons say "Done", the current lesson has an accent outline, locked ones are disabled and drawn as a dashed outline with `--text-3` labels, so open lessons stand out by their fill. A button starts its lesson (Enter or click).
 - The three non-letter tracks show "Opens at letter lesson 8" until the letter track reaches that step.
-- A lesson's track unlocks its next stage when a session of it finishes and every character unlocked in that track meets the accuracy and speed targets over at least 30 attempts (see ARCHITECTURE.md, `core/adaptive`). Capitals are not counted, so finishing a capitals lesson unlocks the next. Progress is the unlocked stage count per track, saved as the `progress` record (the current lesson is not saved). The last lesson of a track shows no "Done", since an unlocked count cannot tell it from the current one. The targets are Settings fields, saved when changed: accuracy 90, 95 or 98 %, speed 20, 25, 30, 35, 40, 50 or 60 wpm; until the Settings view exists they are chosen with two selects at the top of the Lessons view. The text of a run uses the targets from when it began, so changing one does not alter the text on screen.
+- A lesson's track unlocks its next stage when a session of it finishes and every character unlocked in that track meets the accuracy and speed targets over at least 30 attempts (see ARCHITECTURE.md, `core/adaptive`). Capitals are not counted, so finishing a capitals lesson unlocks the next. Progress is the unlocked stage count per track, saved as the `progress` record (the current lesson is not saved). The last lesson of a track shows no "Done", since an unlocked count cannot tell it from the current one. The targets are Settings fields, saved when changed: accuracy 90, 95 or 98 %, speed 20, 25, 30, 35, 40, 50 or 60 wpm; they are chosen in the Settings view (Practice). The text of a run uses the targets from when it began, so changing one does not alter the text on screen.
 - Track lessons use the letters unlocked when the lesson started.
 
 ## Stats view
@@ -128,7 +131,7 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
 
 ## Motion
 
-- Durations: 80 ms (key press), 120 ms (caret), 200 ms (view changes). Easing: `cubic-bezier(0.2, 0, 0, 1)`.
+- Durations: 80 ms (key press), 120 ms (caret), 200 ms (view changes: each view fades in when it opens). Easing: `cubic-bezier(0.2, 0, 0, 1)`.
 - Caret blink: 1060 ms cycle, 530 ms on and 530 ms off (`--caret-blink`), resuming after one 530 ms solid phase once typing stops.
 - Only `transform` and `opacity` animate.
 - The Reduce motion setting is System (default, follows `prefers-reduced-motion`), On or Off, chosen in the Settings view (Accessibility). One `data-reduce-motion` attribute on `<html>` carries the result and all motion CSS keys off it.

@@ -47,6 +47,14 @@ let view: TextView | undefined;
 let board: Keyboard | undefined = $state();
 // Keydown precedes the input it produces, so this is the key behind a wrong character.
 let lastCode = "";
+// Mirrors data-typing so a keystroke only reads a boolean; the DOM is written when typing starts or stops.
+let typing = false;
+
+function setTyping(value: boolean): void {
+  if (typing === value) return;
+  typing = value;
+  document.documentElement.toggleAttribute("data-typing", value);
+}
 
 let needsKeyboard = $state(
   matchMedia("(pointer: coarse) and (hover: none)").matches,
@@ -113,6 +121,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   const destroy = attachInput(textarea, {
     enterTypesNewline: text.includes("\n"),
     emit(event) {
+      setTyping(true);
       const logged = session.log.length;
       view?.update(apply(session, event));
       if (
@@ -132,6 +141,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     },
     onComposingChange() {},
     onPausedChange(value) {
+      if (value) setTyping(false);
       if (value) pausedSince = performance.now();
       else pausedTotal += performance.now() - pausedSince;
       paused = value;
@@ -143,6 +153,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   };
   textarea.addEventListener("keydown", onEscape);
   stop = () => {
+    setTyping(false);
     textarea.removeEventListener("keydown", onEscape);
     destroy();
   };
@@ -219,12 +230,15 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
 
   select {
     margin-left: var(--space-2);
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--separator);
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    color: var(--text);
-    font: inherit;
+  }
+
+  /* The timer stays readable: in a timed session it is part of the task, not chrome. */
+  :global(:root[data-typing]) :is(h1, .mode) {
+    opacity: var(--chrome-typing-opacity);
+  }
+
+  :global(:root:not([data-reduce-motion])) :is(h1, .mode) {
+    transition: opacity var(--duration-view) var(--ease);
   }
 
   h1 {

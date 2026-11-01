@@ -1,0 +1,73 @@
+/* One look for every control, so views only add layout. Component styles still win: Svelte scopes them with a class. */
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+
+button,
+select,
+input:where([type="text"], [type="url"], [type="password"]),
+.button {
+  box-sizing: border-box;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-size-sm);
+}
+
+button,
+select,
+.button {
+  cursor: pointer;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+}
+
+:is(button, select, .button):not(:disabled):hover {
+  border-color: var(--text-3);
+}
+
+button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  /* Meets AA on the accent in both appearances: the ratios DESIGN.md gives against --bg. */
+  color: var(--bg);
+}
+
+button.primary:not(:disabled):hover {
+  border-color: var(--text);
+}
+
+:is(button, select, input):disabled {
+  cursor: not-allowed;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--accent);
+  outline-offset: var(--focus-ring-width);
+}
+
+/* Each view mounts on a hash change, so this plays once per view. */
+:root:not([data-reduce-motion]) main {
+  animation: view-in var(--duration-view) var(--ease);
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+  }
+}

@@ -44,6 +44,10 @@
   --radius-group: 12px;
   --radius-key: 6px;
   --focus-ring-width: 2px;
+  --control-height: 2rem;
+  --nav-underline: 2px;
+  /* Chrome around the text while typing: still findable, no longer competing. */
+  --chrome-typing-opacity: 0.2;
 
   --keyboard-max-width: 44rem;
   --keyboard-gap: 2px;
