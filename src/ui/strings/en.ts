@@ -1,6 +1,6 @@
 import type { ProviderErrorKind } from "../../ai/provider";
 import type { ExportError } from "../../core/export/export";
-import type { Layout } from "../../core/layouts/layout";
+import type { Finger, Layout } from "../../core/layouts/layout";
 import type { LessonTrack, NoNewKeys } from "../../core/lessons/lessons";
 import type {
   Accent,
@@ -167,6 +167,47 @@ export const en = {
     typeText: "Type the text",
     paused: "Click or press any key to continue",
     connectKeyboard: "Connect a keyboard to practice",
+  },
+  intro: {
+    title: (keys: string): string => `New keys: ${keys}`,
+    note: "Rest your fingers on the home row. Feel for the bumps on F and J.",
+    fingers: {
+      L5: "Left little finger",
+      L4: "Left ring finger",
+      L3: "Left middle finger",
+      L2: "Left index finger",
+      R2: "Right index finger",
+      R3: "Right middle finger",
+      R4: "Right ring finger",
+      R5: "Right little finger",
+      T: "Thumb",
+    } as Record<Finger, string>,
+    home: "A home row key: the finger rests here.",
+    thumb: "Press with either thumb.",
+    reach: (
+      from: string,
+      rows: number,
+      side: "straight" | "left" | "right",
+    ): string => {
+      const parts = [
+        ...(rows === -2
+          ? ["two rows up"]
+          : rows === -1
+            ? ["up"]
+            : rows === 1
+              ? ["down"]
+              : []),
+        ...(side === "straight" ? [] : [side]),
+      ];
+      return `From ${from}, reach ${parts.join(" and ")}.`;
+    },
+    shift: (left: boolean): string =>
+      `Hold ${left ? "left" : "right"} Shift with the other hand.`,
+    dead: (mark: string, shift: "left" | "right" | undefined): string =>
+      `Press ${mark}${shift ? ` (with ${shift} Shift)` : ""} first, then this key.`,
+    start: "Start drill",
+    skip: "Skip",
+    drillTitle: (keys: string): string => `Drill · ${keys}`,
   },
   summary: {
     label: "Session results",

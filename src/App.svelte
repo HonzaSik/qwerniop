@@ -8,9 +8,11 @@ import { sessionRecord } from "./core/engine/record";
 import { accuracy, netWpm } from "./core/engine/results";
 import type { Layout } from "./core/layouts/layout";
 import { layoutById } from "./core/layouts/registry";
+import { keyDrill, markIntroduced, needsIntro } from "./core/lessons/intro";
 import {
   completeLesson,
   type Lesson,
+  lessonKeys,
   nextLesson,
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
@@ -25,6 +27,7 @@ import {
   generatedText,
   textKey,
 } from "./ui/ai";
+import KeyIntro from "./ui/components/KeyIntro.svelte";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
 import { createPrefetch } from "./ui/prefetch";
@@ -98,6 +101,8 @@ const view = $derived(
 
 interface Run {
   lesson: Lesson;
+  /** A lesson with keys never introduced opens with them, then a drill of only those keys. */
+  phase: "intro" | "drill" | "lesson";
   seed: number;
   letterStage: number;
   stats: CharStats;
@@ -109,10 +114,16 @@ interface Run {
 }
 
 // One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
-function begin(lesson: Lesson): Run {
+function begin(
+  lesson: Lesson,
+  phase: Run["phase"] = needsIntro(layout.id, ui.progress, lesson)
+    ? "intro"
+    : "lesson",
+): Run {
   // Stats are copied: finish() replaces them, and the text under the summary must not change for Repeat.
   return {
     lesson,
+    phase,
     seed: Date.now(),
     letterStage: ui.progress.letters,
     stats: $state.snapshot(ui.progress.stats),
@@ -194,6 +205,21 @@ function start(lesson: Lesson): void {
   run = next;
   location.hash = "#practice";
 }
+
+// Starting or skipping the drill both count as introduced, so the intro never returns for this stage.
+function leaveIntro(drill: boolean): void {
+  ui.progress = markIntroduced(ui.progress, run.lesson);
+  saveProgress();
+  run = carry(drill ? "drill" : "lesson");
+}
+
+// Model text prefetched for the lesson waits through the intro and drill instead of being dropped.
+function carry(phase: Run["phase"]): Run {
+  return { ...begin(run.lesson, phase), generated: run.generated };
+}
+
+const newKeys = (): string[] =>
+  lessonKeys(layout.id, run.lesson).split(" ").filter(Boolean);
 
 // Storage loads alongside the word list, so it adds no wait of its own; any failure leaves the defaults.
 function finish(session: Session): void {
@@ -346,17 +372,33 @@ let help: HTMLDialogElement | undefined = $state();
     <Settings onlayout={chooseLayout} />
   {:else if view === "stats"}
     {#key hash}<Stats sessions={readSessions()} onimported={afterImport} />{/key}
+  {:else if run.phase === "intro"}
+    <main class="intro" aria-label={t.nav.practice}>
+      <KeyIntro {layout} chars={newKeys()} onstart={() => leaveIntro(true)} onskip={() => leaveIntro(false)} />
+    </main>
   {:else}
-    {#key `${run.seed}${layout.id}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
-      <Practice
-        text={run.generated?.text ?? text(snippets)}
-        title={lessonTitle(layout.id, run.lesson)}
-        errorMode={ui.settings.errorMode}
-        timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
-        feedback={run.feedback}
-        onfinish={finish}
-        onnext={() => start(nextLesson(layout.id, run.lesson))}
-      />
+    {#key `${run.seed}${run.phase}${layout.id}${run.lesson.track}${run.lesson.stage}${ui.settings.length.kind}${ui.settings.length.amount}`}
+      {#if run.phase === "drill"}
+        <!-- Short and untimed whatever the length setting: it only rehearses the new reaches. -->
+        <Practice
+          text={keyDrill(newKeys(), seededRng(run.seed))}
+          title={t.intro.drillTitle(newKeys().join(" "))}
+          errorMode={ui.settings.errorMode}
+          feedback={run.feedback}
+          onfinish={finish}
+          onnext={() => (run = carry("lesson"))}
+        />
+      {:else}
+        <Practice
+          text={run.generated?.text ?? text(snippets)}
+          title={lessonTitle(layout.id, run.lesson)}
+          errorMode={ui.settings.errorMode}
+          timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
+          feedback={run.feedback}
+          onfinish={finish}
+          onnext={() => start(nextLesson(layout.id, run.lesson))}
+        />
+      {/if}
     {/key}
   {/if}
 {:catch}
@@ -367,6 +409,14 @@ let help: HTMLDialogElement | undefined = $state();
 {/await}
 
 <style>
+  .intro {
+    display: grid;
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding: calc(var(--space-8) + var(--space-4)) var(--space-4) var(--space-6);
+    place-content: center stretch;
+  }
+
   .error {
     display: grid;
     min-height: 100vh;

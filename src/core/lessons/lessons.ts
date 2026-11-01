@@ -16,6 +16,8 @@ export interface Lesson {
 export type Progress = Record<LessonTrack, number> & {
   stats: CharStats;
   lesson: Lesson;
+  /** Highest stage per track whose new keys have been introduced; 0 is none. */
+  introduced: Record<LessonTrack, number>;
 };
 
 export const TRACKS: readonly LessonTrack[] = [
@@ -32,6 +34,7 @@ export const initialProgress = (): Progress => ({
   code: 1,
   stats: {},
   lesson: { track: "letters", stage: 1 },
+  introduced: { letters: 0, punctuation: 0, numbers: 0, code: 0 },
 });
 
 export function lessonCount(id: Layout["id"], track: LessonTrack): number {
@@ -112,6 +115,16 @@ export function parseProgress(id: Layout["id"], raw: unknown): Progress {
     }
   }
   out.stats = parseCharStats(raw.stats);
+  // Records from before introductions existed count every unlocked stage as seen,
+  // so someone mid-course is not walked back through keys they already know.
+  const seen = isRecord(raw.introduced) ? raw.introduced : undefined;
+  for (const track of TRACKS) {
+    const v = seen?.[track];
+    out.introduced[track] =
+      typeof v === "number" && Number.isInteger(v) && v >= 0
+        ? Math.min(v, lessonCount(id, track))
+        : out[track];
+  }
   const l = raw.lesson;
   if (
     isRecord(l) &&

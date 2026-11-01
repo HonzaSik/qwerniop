@@ -220,6 +220,17 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue
 
 Checked 2026-11-02 headless Chromium (CDP, seeded sessions, real mouse hover): pass for 2 (hover), 4, 5 (light, dark), 6 and 7. Steps 1 and 3, keyboard focus and touch not automated.
 
+## New-key introduction
+
+1. With fresh data (new browser profile), open Practice: "New keys: f j" shows both keys as home row keys, F and J ringed on the keyboard, and "Start drill" has focus.
+2. Press Enter: the drill "Drill · f j" uses only f, j and spaces and is untimed even with a timed length set. Finish it: Continue opens "Lesson 1 · f j" with normal text; Repeat repeats the drill.
+3. Reload: Lesson 1 opens without the introduction.
+4. Unlock lesson 6 (r u): starting it shows "From F, reach up." and "From J, reach up.", with F and J dashed and R and U ringed. Skip goes straight to the lesson text.
+5. In Czech with the Czech layout, every line is Czech and a lesson with háčky or čárky names the dead key first.
+6. Import an export made before this feature: no introduction appears for lessons already unlocked.
+
+Checked 2026-11-02 headless Chromium (CDP): pass for 1, 2 (start and title), 4 (seeded progress), Skip saves `introduced` to IndexedDB, and the Czech intro at 360 px. Steps 3, 5 (dead keys) and 6 not automated; 6 and the old-record rule are covered by unit tests.
+
 ## README screenshots
 
 Re-capture before a release if the UI changed. `--virtual-time-budget` leaves the page blank (IndexedDB never resolves), so use `--timeout`.

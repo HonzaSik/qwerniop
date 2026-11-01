@@ -125,8 +125,8 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 15. New-key introduction
 
-- [ ] Each new key with its finger and the path from home row before a lesson's first session
-- [ ] Short drill of only the new keys, then the lesson text
+- [x] Each new key with its finger and the path from home row before a lesson's first session
+- [x] Short drill of only the new keys, then the lesson text
 
 ## 16. Developer mode
 

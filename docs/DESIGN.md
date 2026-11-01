@@ -102,6 +102,14 @@ All text and essential UI must meet WCAG AA contrast in both appearances. `--tex
   - "Continue" (Enter) starts the next lesson of the same track, with newly generated text; after the last lesson of a track it stays on that lesson with new text. "Repeat" (R) restarts the same text.
   - The text keeps its place under the summary, faded out and hidden from assistive technology, so the view does not move. Focus lands on "Continue".
 
+## New-key introduction
+
+- The first time a lesson that adds keys starts (its stage is above `introduced` for its track; capitals and whole snippets add none and are skipped), the Practice view shows an introduction instead of the text. A new learner therefore meets it on Lesson 1.
+- Title "New keys: r u" at `--text-size-xl`, a line on resting the fingers on the home row, then one row per new character: the character in practice type inside an accent-ringed box, the finger name ("Left index finger"), and the path from that finger's home key (A S D F / J K L ;, Space for the thumb), from `keyGuide`: "A home row key: the finger rests here.", "From F, reach up.", "From J, reach left.", "From A, reach two rows up." Rows are counted from home; sideways is a key-centre gap of half a key or more, so a reach up the row stagger still reads as straight. Shifted characters add "Hold right Shift with the other hand." (the opposite Shift from `strokesFor`), dead-key characters add the mark to press first and its Shift, from the layout's `deadBase` / `deadShift` ("Press ˇ (with left Shift) first, then this key."), and the dead key is ringed on the keyboard too
+- Below, the keyboard in finger colours with the new keys ringed in `--accent` and their home keys dashed in `--text-2` (`marked` prop, `data-marked`).
+- "Start drill" (primary, focused, Enter) and "Skip". Both mark the stage as introduced and save progress, so the introduction never returns for it.
+- The drill is a session titled "Drill · r u" on twelve groups of two to four of only the new characters, each at least twice (`keyDrill`), untimed whatever the length setting. It counts like any session (stats, history). "Continue" on its summary starts the lesson's normal text; "Repeat" repeats the drill.
+
 ## Lessons view
 
 - Reached from the nav links (Practice, Lessons, Stats) at the top left; the view is the location hash (`#practice`, `#lessons`), so Back works. Practice is the default and shows the current lesson, titled "Lesson 5 · e i" above the text (other tracks: "Numbers 2 · 6 7 8 9 0").

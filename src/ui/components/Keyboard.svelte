@@ -9,9 +9,11 @@ interface Props {
   mode: "fingers" | "next" | "heat";
   /** Heat mode only: 0..1 per key code; absent keys are cold. */
   heat?: ReadonlyMap<string, number>;
+  /** Keys to point out by code: a new key gets the accent ring, its finger's home key a dashed one. */
+  marked?: ReadonlyMap<string, "new" | "home">;
 }
 
-let { layout, mode, heat }: Props = $props();
+let { layout, mode, heat, marked }: Props = $props();
 
 let highlighter: ReturnType<typeof createHighlighter> | undefined;
 
@@ -64,7 +66,7 @@ const SPACE_ROW_OFFSET = 3.75;
       {/if}
       {#each layout.keys.filter((k) => k.row === row) as key (key.code)}
         {@const label = keyLabel(key)}
-        <span class="key" data-code={key.code} data-finger={key.finger} style:--w={key.width ?? 1} style:--heat={heat?.get(key.code) ?? 0}>
+        <span class="key" data-code={key.code} data-marked={marked?.get(key.code)} data-finger={key.finger} style:--w={key.width ?? 1} style:--heat={heat?.get(key.code) ?? 0}>
           {#if label.shift}<span class="shift">{label.shift}</span>{/if}
           <span>{label.main}</span>
         </span>
@@ -150,6 +152,16 @@ const SPACE_ROW_OFFSET = 3.75;
 
   .key:global(.next) {
     outline: var(--keyboard-next-ring) solid var(--accent);
+    outline-offset: calc(-1 * var(--keyboard-next-ring));
+  }
+
+  .key[data-marked="new"] {
+    outline: var(--keyboard-next-ring) solid var(--accent);
+    outline-offset: calc(-1 * var(--keyboard-next-ring));
+  }
+
+  .key[data-marked="home"] {
+    outline: var(--keyboard-next-ring) dashed var(--text-2);
     outline-offset: calc(-1 * var(--keyboard-next-ring));
   }
 

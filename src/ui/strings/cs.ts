@@ -152,6 +152,42 @@ export const cs: Strings = {
     paused: "Klikněte nebo stiskněte libovolnou klávesu a pokračujte",
     connectKeyboard: "Pro cvičení připojte klávesnici",
   },
+  intro: {
+    title: (keys) => `Nové klávesy: ${keys}`,
+    note: "Položte prsty na základní řadu. Na F a J nahmatáte výstupky.",
+    fingers: {
+      L5: "Levý malíček",
+      L4: "Levý prsteníček",
+      L3: "Levý prostředníček",
+      L2: "Levý ukazováček",
+      R2: "Pravý ukazováček",
+      R3: "Pravý prostředníček",
+      R4: "Pravý prsteníček",
+      R5: "Pravý malíček",
+      T: "Palec",
+    },
+    home: "Klávesa základní řady: prst na ní odpočívá.",
+    thumb: "Stiskněte kterýmkoli palcem.",
+    reach: (from, rows, side) => {
+      const parts = [
+        ...(rows === -2
+          ? ["o dvě řady nahoru"]
+          : rows === -1
+            ? ["nahoru"]
+            : rows === 1
+              ? ["dolů"]
+              : []),
+        ...(side === "left" ? ["doleva"] : side === "right" ? ["doprava"] : []),
+      ];
+      return `Z ${from} sáhněte ${parts.join(" a ")}.`;
+    },
+    shift: (left) => `Druhou rukou držte ${left ? "levý" : "pravý"} Shift.`,
+    dead: (mark, shift) =>
+      `Nejdřív stiskněte ${mark}${shift ? ` (s ${shift === "left" ? "levým" : "pravým"} Shiftem)` : ""}, pak tuto klávesu.`,
+    start: "Začít procvičení",
+    skip: "Přeskočit",
+    drillTitle: (keys) => `Procvičení · ${keys}`,
+  },
   summary: {
     label: "Výsledky cvičení",
     wpm: "Slov/min",
