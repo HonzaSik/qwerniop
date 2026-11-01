@@ -61,10 +61,12 @@
   --keyboard-label-ratio: 0.36;
   --heat-max-mix: 75%;
   --chart-line-width: 2px;
-  /* Practice calendar steps toward the accent; level 4 is the accent itself. */
-  --calendar-mix-1: 25%;
-  --calendar-mix-2: 50%;
-  --calendar-mix-3: 75%;
+  /* Practice calendar steps toward the accent; level 4 is the accent itself.
+     Capped at 50 % so the day number in --text stays at 5:1 or more on every accent and theme. */
+  --calendar-mix-1: 20%;
+  --calendar-mix-2: 35%;
+  --calendar-mix-3: 50%;
+  --calendar-max-width: 24rem;
 
   --finger-l5: #f2c9d4;
   --finger-l4: #f6d3b8;

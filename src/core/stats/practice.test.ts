@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { SessionRecord } from "../engine/record";
-import { calendarDays, dayKey, practiceByDay, practiceLevel } from "./practice";
+import { dayKey, monthGrid, practiceByDay, practiceLevel } from "./practice";
 
 const at = (y: number, m: number, d: number, h = 12, min = 0): number =>
   new Date(y, m - 1, d, h, min).getTime();
@@ -38,8 +38,8 @@ describe("practiceByDay", () => {
       other,
       record(at(2026, 11, 1, 22), 30_000),
     ]);
-    expect(days.get("2026-11-02")).toBe(180_000);
-    expect(days.get("2026-11-01")).toBe(30_000);
+    expect(days.get("2026-11-02")).toEqual({ ms: 180_000, sessions: 2 });
+    expect(days.get("2026-11-01")).toEqual({ ms: 30_000, sessions: 1 });
     expect(days.size).toBe(2);
   });
 
@@ -48,57 +48,52 @@ describe("practiceByDay", () => {
   });
 });
 
-describe("calendarDays", () => {
-  // 2026-11-02 is a Monday.
-  const monday = at(2026, 11, 2);
-
-  test("weeks starting Monday end with a partial current week", () => {
-    const weeks = calendarDays(monday, 2, 1);
-    expect(weeks).toEqual([
-      [
-        "2026-10-26",
-        "2026-10-27",
-        "2026-10-28",
-        "2026-10-29",
-        "2026-10-30",
-        "2026-10-31",
-        "2026-11-01",
-      ],
-      ["2026-11-02"],
+describe("monthGrid", () => {
+  // 1 November 2026 is a Sunday.
+  test("Monday weeks pad the first row before the 1st", () => {
+    const rows = monthGrid(2026, 10, 1);
+    expect(rows[0]).toEqual([
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "2026-11-01",
     ]);
+    expect(rows.at(-1)?.[0]).toBe("2026-11-30");
+    expect(rows).toHaveLength(6);
   });
 
-  test("one week is the current partial week", () => {
-    expect(calendarDays(at(2026, 11, 4), 1, 1)).toEqual([
-      ["2026-11-02", "2026-11-03", "2026-11-04"],
-    ]);
+  test("Sunday weeks start on the 1st", () => {
+    const rows = monthGrid(2026, 10, 0);
+    expect(rows[0]?.[0]).toBe("2026-11-01");
+    expect(rows).toHaveLength(5);
   });
 
-  test("today at local midnight still ends on today", () => {
-    expect(
-      calendarDays(at(2026, 11, 4, 0, 0), 1, 1)
-        .at(-1)
-        ?.at(-1),
-    ).toBe("2026-11-04");
+  test("every row has seven cells and every day appears once", () => {
+    for (const month of [0, 1, 2, 9, 11]) {
+      const rows = monthGrid(2026, month, 1);
+      expect(rows.every((r) => r.length === 7)).toBe(true);
+      const days = rows.flat().filter((d) => d !== undefined);
+      expect(new Set(days).size).toBe(days.length);
+      expect(days[0]?.endsWith("-01")).toBe(true);
+    }
   });
 
-  test("weeks starting Sunday put Sunday first", () => {
-    const weeks = calendarDays(monday, 2, 0);
-    expect(weeks[0]?.[0]).toBe("2026-10-25");
-    expect(weeks[1]).toEqual(["2026-11-01", "2026-11-02"]);
+  test("February 2026 with Sunday weeks is exactly four rows", () => {
+    const rows = monthGrid(2026, 1, 0);
+    expect(rows).toHaveLength(4);
+    expect(rows.flat().at(-1)).toBe("2026-02-28");
   });
 
-  test("a full year has 53 columns and every column but the last has 7 days", () => {
-    const weeks = calendarDays(monday, 53, 1);
-    expect(weeks).toHaveLength(53);
-    expect(weeks.slice(0, -1).every((w) => w.length === 7)).toBe(true);
-    expect(weeks.at(-1)?.at(-1)).toBe("2026-11-02");
+  test("a leap February has 29 days", () => {
+    expect(monthGrid(2028, 1, 1).flat()).toContain("2028-02-29");
   });
 
   test("days stay distinct across a daylight saving change", () => {
-    const days = calendarDays(at(2026, 4, 5), 3, 1).flat();
-    expect(new Set(days).size).toBe(days.length);
-    expect(days).toContain("2026-03-29");
+    const days = monthGrid(2026, 2, 1).flat().filter(Boolean);
+    expect(days).toHaveLength(31);
   });
 });
 

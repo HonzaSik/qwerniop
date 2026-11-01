@@ -8,58 +8,52 @@ export function dayKey(at: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-/** Milliseconds practised per local day, over every layout: time belongs to the learner, not the layout. */
+export interface DayPractice {
+  ms: number;
+  sessions: number;
+}
+
+/** Time and sessions per local day, over every layout: practice belongs to the learner, not the layout. */
 export function practiceByDay(
   records: readonly SessionRecord[],
-): Map<string, number> {
-  const days = new Map<string, number>();
+): Map<string, DayPractice> {
+  const days = new Map<string, DayPractice>();
   for (const r of records) {
     const key = dayKey(r.at);
-    days.set(key, (days.get(key) ?? 0) + r.durationMs);
+    const day = days.get(key) ?? { ms: 0, sessions: 0 };
+    days.set(key, { ms: day.ms + r.durationMs, sessions: day.sessions + 1 });
   }
   return days;
 }
 
 /**
- * Columns of day keys, oldest first, ending with the week that holds `today`.
- * The last column stops at today, so no future day is drawn.
+ * Weeks of one month (month 0–11) as rows of seven day keys; days outside the
+ * month are undefined so every row has seven cells.
  */
-export function calendarDays(
-  today: number,
-  weeks: number,
+export function monthGrid(
+  year: number,
+  month: number,
   weekStart: 0 | 1,
-): string[][] {
-  const end = new Date(today);
-  // Date arithmetic on the calendar fields, not milliseconds, so a DST day is still one day.
-  const back = (end.getDay() - weekStart + 7) % 7;
-  const first = new Date(
-    end.getFullYear(),
-    end.getMonth(),
-    end.getDate() - back - (weeks - 1) * 7,
+): (string | undefined)[][] {
+  const first = new Date(year, month, 1);
+  const lead = (first.getDay() - weekStart + 7) % 7;
+  const length = new Date(year, month + 1, 0).getDate();
+  const cells: (string | undefined)[] = Array.from(
+    { length: lead },
+    () => undefined,
   );
-  const last = dayKey(today);
-  const columns: string[][] = [];
-  for (let w = 0; w < weeks; w++) {
-    const column: string[] = [];
-    for (let d = 0; d < 7; d++) {
-      const key = dayKey(
-        new Date(
-          first.getFullYear(),
-          first.getMonth(),
-          first.getDate() + w * 7 + d,
-        ).getTime(),
-      );
-      column.push(key);
-      if (key === last) return [...columns, column];
-    }
-    columns.push(column);
+  for (let d = 1; d <= length; d++) {
+    cells.push(dayKey(new Date(year, month, d).getTime()));
   }
-  return columns;
+  while (cells.length % 7 !== 0) cells.push(undefined);
+  return Array.from({ length: cells.length / 7 }, (_, w) =>
+    cells.slice(w * 7, w * 7 + 7),
+  );
 }
 
 const MINUTE = 60_000;
 
-/** Fixed minute steps rather than quartiles, so a level means the same thing every week. */
+/** Fixed minute steps rather than quartiles, so a level means the same thing every month. */
 export function practiceLevel(ms: number): 0 | 1 | 2 | 3 | 4 {
   if (ms <= 0) return 0;
   if (ms < 5 * MINUTE) return 1;

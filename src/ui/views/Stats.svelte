@@ -37,8 +37,18 @@ function summarise(records: SessionRecord[]) {
     });
   const days = practiceByDay(records);
   const today = Date.now();
-  const minutesToday = Math.round((days.get(dayKey(today)) ?? 0) / 60_000);
-  return { recent, heat: heatScale(counts), worst, days, today, minutesToday };
+  const minutesToday = Math.round((days.get(dayKey(today))?.ms ?? 0) / 60_000);
+  // A reduce, not a spread: sessions are never pruned, and a spread of every record could overflow the stack.
+  const first = records.reduce((m, r) => Math.min(m, r.at), today);
+  return {
+    recent,
+    heat: heatScale(counts),
+    worst,
+    days,
+    today,
+    first,
+    minutesToday,
+  };
 }
 </script>
 
@@ -52,7 +62,7 @@ function summarise(records: SessionRecord[]) {
       <section aria-labelledby="practice">
         <h2 id="practice">{t.stats.practice}</h2>
         <p class="today">{t.stats.today(s.minutesToday)}</p>
-        <PracticeCalendar days={s.days} today={s.today} />
+        <PracticeCalendar days={s.days} today={s.today} first={s.first} />
       </section>
     {/if}
     {#if s.recent.length === 0}

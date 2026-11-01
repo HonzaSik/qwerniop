@@ -187,7 +187,12 @@ export const cs: Strings = {
     minutes: (n) => `${n} min`,
     less: "Méně",
     more: "Více",
-    calendar: (days) => `Dny s cvičením v tomto období: ${days}.`,
+    previousMonth: "Předchozí měsíc",
+    nextMonth: "Další měsíc",
+    dayTip: (minutes, sessions) =>
+      sessions === 0 ? "Bez cvičení" : `${minutes} min · ${sessions} cvičení`,
+    monthSummary: (days, minutes) =>
+      `Dny s cvičením: ${days}, celkem ${minutes} min.`,
     weekStart: 1,
     speed: "Rychlost",
     wpmUnit: "slov/min",

@@ -1,118 +1,123 @@
 <script lang="ts">
-import { calendarDays, practiceLevel } from "../../core/stats/practice";
+import {
+  type DayPractice,
+  dayKey,
+  monthGrid,
+  practiceLevel,
+} from "../../core/stats/practice";
 import { t } from "../strings";
 
 interface Props {
-  /** Milliseconds practised per "YYYY-MM-DD" local day. */
-  days: ReadonlyMap<string, number>;
+  days: ReadonlyMap<string, DayPractice>;
   today: number;
+  /** The earliest session, so paging back stops where the data starts. */
+  first: number;
 }
 
-let { days, today }: Props = $props();
+let { days, today, first }: Props = $props();
 
-// A year of columns does not fit a phone without shrinking cells below a tap's worth, so narrow screens show four months.
-const narrow = matchMedia("(width < 720px)");
-let weeks = $state(narrow.matches ? 17 : 53);
-$effect(() => {
-  const update = () => {
-    weeks = narrow.matches ? 17 : 53;
-  };
-  narrow.addEventListener("change", update);
-  return () => narrow.removeEventListener("change", update);
-});
-
-const CELL = 11;
-const STEP = 14;
-const LEFT = 38;
-// A short month name needs about three columns; closer labels would overlap or run off the edge.
-const LABEL_COLUMNS = 3;
-const TOP = 16;
-const LEVELS = [0, 1, 2, 3, 4] as const;
-
-const parse = (key: string): Date => {
-  const [y = 0, m = 1, d = 1] = key.split("-").map(Number);
-  return new Date(y, m - 1, d);
+const monthIndex = (at: number): number => {
+  const d = new Date(at);
+  return d.getFullYear() * 12 + d.getMonth();
 };
 
-const columns = $derived(calendarDays(today, weeks, t.stats.weekStart));
-const monthFormat = $derived(
-  new Intl.DateTimeFormat(t.language, { month: "short" }),
-);
-const dayFormat = $derived(
-  new Intl.DateTimeFormat(t.language, { day: "numeric", month: "short" }),
-);
-const weekdayFormat = $derived(
-  new Intl.DateTimeFormat(t.language, { weekday: "short" }),
-);
+// Months are counted from year 0, so stepping across a year is plain arithmetic.
+let shown = $state(monthIndex(Date.now()));
+const year = $derived(Math.floor(shown / 12));
+const month = $derived(shown % 12);
+const rows = $derived(monthGrid(year, month, t.stats.weekStart));
+const todayKey = $derived(dayKey(today));
 
-// A month is named above the first column whose first day falls in it, when it has room.
-const months = $derived.by(() => {
-  const out: { x: number; label: string }[] = [];
-  let lastAt = -LABEL_COLUMNS;
-  columns.forEach((column, i) => {
-    const first = column[0];
-    if (first === undefined) return;
-    const before = columns[i - 1]?.[0];
-    const starts =
-      before === undefined ||
-      parse(before).getMonth() !== parse(first).getMonth();
-    if (
-      !starts ||
-      i - lastAt < LABEL_COLUMNS ||
-      i > columns.length - LABEL_COLUMNS
-    ) {
-      return;
-    }
-    out.push({ x: LEFT + i * STEP, label: monthFormat.format(parse(first)) });
-    lastAt = i;
-  });
-  return out;
+const title = $derived(
+  new Intl.DateTimeFormat(t.language, {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(year, month, 1)),
+);
+// Any week of the grid gives the weekday order; a fixed reference week keeps the names stable.
+const weekdays = $derived.by(() => {
+  const format = new Intl.DateTimeFormat(t.language, { weekday: "short" });
+  // 4 January 1970 was a Sunday.
+  return Array.from({ length: 7 }, (_, i) =>
+    format.format(new Date(1970, 0, 4 + t.stats.weekStart + i)),
+  );
 });
-// Every other weekday, as GitHub does, so the labels never crowd.
-const weekdays = $derived(
-  [1, 3, 5].flatMap((row) => {
-    const key = columns[0]?.[row];
-    return key === undefined
-      ? []
-      : [
-          {
-            y: TOP + row * STEP + CELL - 2,
-            label: weekdayFormat.format(parse(key)),
-          },
-        ];
+
+const minutes = (ms: number): number => Math.round(ms / 60_000);
+const inMonth = $derived(
+  rows.flat().flatMap((key) => {
+    const day = key === undefined ? undefined : days.get(key);
+    return day ? [day] : [];
   }),
 );
-const practised = $derived(
-  columns.flat().filter((key) => (days.get(key) ?? 0) > 0).length,
+const summary = $derived(
+  t.stats.monthSummary(
+    inMonth.length,
+    minutes(inMonth.reduce((sum, d) => sum + d.ms, 0)),
+  ),
 );
-const minutes = (ms: number): number => Math.round(ms / 60_000);
+const dayOf = (key: string): number => Number(key.slice(8));
+const parse = (key: string): Date =>
+  new Date(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1, dayOf(key));
+const dateFormat = $derived(
+  new Intl.DateTimeFormat(t.language, { day: "numeric", month: "long" }),
+);
+const LEVELS = [0, 1, 2, 3, 4] as const;
 </script>
 
 <figure>
-  <svg
-    viewBox="0 0 {LEFT + weeks * STEP} {TOP + 7 * STEP}"
-    role="img"
-    aria-label={t.stats.calendar(practised)}
-  >
-    {#each months as m}<text x={m.x} y={TOP - 5} class="label">{m.label}</text>{/each}
-    {#each weekdays as d}<text x={LEFT - 6} y={d.y} class="label day">{d.label}</text>{/each}
-    {#each columns as column, i}
-      {#each column as key, row}
-        {@const ms = days.get(key) ?? 0}
-        <rect x={LEFT + i * STEP} y={TOP + row * STEP} width={CELL} height={CELL} rx="2" class="level-{practiceLevel(ms)}">
-          <title>{dayFormat.format(parse(key))}: {t.stats.minutes(minutes(ms))}</title>
-        </rect>
+  <div class="header">
+    <button
+      type="button"
+      aria-label={t.stats.previousMonth}
+      disabled={shown <= monthIndex(first)}
+      onclick={() => shown--}
+    >‹</button>
+    <h3 aria-live="polite">{title}</h3>
+    <button
+      type="button"
+      aria-label={t.stats.nextMonth}
+      disabled={shown >= monthIndex(today)}
+      onclick={() => shown++}
+    >›</button>
+  </div>
+  <table>
+    <thead>
+      <tr>{#each weekdays as d}<th scope="col">{d}</th>{/each}</tr>
+    </thead>
+    <tbody>
+      {#each rows as week}
+        <tr>
+          {#each week as key}
+            {#if key === undefined}
+              <td></td>
+            {:else}
+              {@const day = days.get(key) ?? { ms: 0, sessions: 0 }}
+              <td>
+                <!-- A button so the count shows on keyboard focus and on a tap, not only on hover. -->
+                <button
+                  type="button"
+                  class="cell level-{practiceLevel(day.ms)}"
+                  class:today={key === todayKey}
+                  disabled={key > todayKey}
+                  aria-current={key === todayKey ? "date" : undefined}
+                  aria-label="{dateFormat.format(parse(key))}: {t.stats.dayTip(minutes(day.ms), day.sessions)}"
+                >
+                  <span class="date" aria-hidden="true">{dayOf(key)}</span>
+                  <span class="tip" aria-hidden="true">{t.stats.dayTip(minutes(day.ms), day.sessions)}</span>
+                </button>
+              </td>
+            {/if}
+          {/each}
+        </tr>
       {/each}
-    {/each}
-  </svg>
+    </tbody>
+  </table>
   <figcaption>
-    <!-- The figure's aria-label already says this; hidden so it is not read twice. -->
-    <span aria-hidden="true">{t.stats.calendar(practised)}</span>
+    <span>{summary}</span>
     <span class="legend" aria-hidden="true">
       {t.stats.less}
-      <svg viewBox="0 0 {LEVELS.length * STEP} {CELL}" width={LEVELS.length * STEP} height={CELL}>
-        {#each LEVELS as level, i}<rect x={i * STEP} width={CELL} height={CELL} rx="2" class="level-{level}" />{/each}
-      </svg>
+      {#each LEVELS as level}<span class="swatch level-{level}"></span>{/each}
       {t.stats.more}
     </span>
   </figcaption>
@@ -120,42 +125,136 @@ const minutes = (ms: number): number => Math.round(ms / 60_000);
 
 <style>
   figure {
+    max-width: var(--calendar-max-width);
     margin: 0;
   }
 
-  svg {
-    display: block;
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: var(--text-size-md);
+    font-weight: var(--weight-semibold);
+  }
+
+  .header button {
+    min-width: var(--control-height);
+    font-size: var(--text-size-md);
+  }
+
+  table {
     width: 100%;
-    height: auto;
+    border-collapse: separate;
+    border-spacing: var(--space-1);
+    table-layout: fixed;
   }
 
-  .label {
-    fill: var(--text-2);
+  th {
+    color: var(--text-2);
     font-size: var(--text-size-sm);
+    font-weight: var(--weight-regular);
   }
 
-  .day {
-    text-anchor: end;
+  td {
+    padding: 0;
+  }
+
+  .cell {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 1;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: var(--space-1);
+    box-sizing: border-box;
+    border: 0;
+    border-radius: var(--radius-key);
+    color: var(--text);
+    font-size: var(--text-size-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The full accent takes the window colour for the number, as the primary button does. */
+  .cell.level-4 {
+    color: var(--bg);
+  }
+
+  /* Days still to come hold nothing to show. */
+  .cell:disabled {
+    background: none;
+    color: var(--text-3);
+  }
+
+  .cell.today {
+    outline: var(--focus-ring-width) dashed var(--text-2);
+    outline-offset: calc(-1 * var(--focus-ring-width));
   }
 
   .level-0 {
-    fill: var(--surface);
+    background: var(--surface);
   }
 
   .level-1 {
-    fill: color-mix(in srgb, var(--accent) var(--calendar-mix-1), var(--surface));
+    background: color-mix(in srgb, var(--accent) var(--calendar-mix-1), var(--surface));
   }
 
   .level-2 {
-    fill: color-mix(in srgb, var(--accent) var(--calendar-mix-2), var(--surface));
+    background: color-mix(in srgb, var(--accent) var(--calendar-mix-2), var(--surface));
   }
 
   .level-3 {
-    fill: color-mix(in srgb, var(--accent) var(--calendar-mix-3), var(--surface));
+    background: color-mix(in srgb, var(--accent) var(--calendar-mix-3), var(--surface));
   }
 
   .level-4 {
-    fill: var(--accent);
+    background: var(--accent);
+  }
+
+  /* In the DOM for screen readers; shown on hover or focus for everyone else. */
+  .tip {
+    position: absolute;
+    z-index: 1;
+    bottom: calc(100% + var(--space-1));
+    left: 50%;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--separator);
+    border-radius: var(--radius-control);
+    background: var(--bg);
+    color: var(--text);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%);
+  }
+
+  /* Edge columns anchor the tip inward, so it never leaves the page. */
+  td:first-child .tip,
+  td:nth-child(2) .tip {
+    left: 0;
+    transform: none;
+  }
+
+  td:last-child .tip,
+  td:nth-last-child(2) .tip {
+    right: 0;
+    left: auto;
+    transform: none;
+  }
+
+  .cell:not(:disabled):hover .tip,
+  .cell:focus .tip {
+    opacity: 1;
+  }
+
+  :global(:root:not([data-reduce-motion])) .tip {
+    transition: opacity var(--duration-press) var(--ease);
   }
 
   figcaption {
@@ -174,7 +273,9 @@ const minutes = (ms: number): number => Math.round(ms / 60_000);
     gap: var(--space-1);
   }
 
-  .legend svg {
-    width: auto;
+  .swatch {
+    width: var(--space-3);
+    height: var(--space-3);
+    border-radius: calc(var(--radius-key) / 3);
   }
 </style>

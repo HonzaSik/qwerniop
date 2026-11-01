@@ -49,7 +49,14 @@ button.primary:not(:disabled):hover {
 }
 
 :is(button, select, input):disabled {
+  color: var(--text-3);
   cursor: not-allowed;
+}
+
+/* Disabled text on the accent fill would be unreadable, so a disabled primary drops the fill. */
+button.primary:disabled {
+  border-color: var(--separator);
+  background: var(--surface);
 }
 
 input[type="checkbox"] {

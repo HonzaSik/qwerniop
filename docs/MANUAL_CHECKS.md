@@ -211,13 +211,14 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue
 ## Practice calendar
 
 1. With no sessions, Stats shows only the empty message; there is no Practice section.
-2. Finish a session. Stats shows "Today: n min" with today's minutes, and the last cell of the calendar is filled. Hover it: the title reads today's date and the minutes.
-3. Switch the layout and finish a session: today's minutes include both layouts, while History shows only the layout in use.
-4. Check light, dark and Black (OLED), and each accent: the five legend steps are distinct and level 0 cells are visible on the background.
-5. At 1280 px the calendar shows about a year; at 360 px about four months, with no horizontal scroll. Month labels do not overlap or run off either edge.
-6. In Czech, weeks start on Monday and month and weekday names are Czech; in English, weeks start on Sunday.
+2. Finish a session. Stats shows "Today: n min" and today's cell is filled with a dashed outline. Hover it: the tip shows the minutes and session count. Tab to a day: the tip shows on focus too. On a phone, a tap shows it.
+3. Switch the layout and finish a session: today's minutes and count include both layouts, while History shows only the layout in use.
+4. Press ‹ to page back: earlier months show their practice and the monthly summary changes. ‹ is disabled at the month of the first session, › at the current month.
+5. Check light, dark and Black (OLED), and each accent: the legend steps are distinct, the date is readable on every fill, and level 0 cells are visible on the background.
+6. At 360 px the month fits with no horizontal scroll, and tips in the first and last columns stay on screen.
+7. In Czech, weeks start on Monday and month and weekday names are Czech; in English, weeks start on Sunday.
 
-Checked 2026-11-02 headless Chromium (CDP, seeded sessions): pass for 2, 4 (light, OLED with green), 5 and 6 (Czech at 360 px). Steps 1 and 3 not automated.
+Checked 2026-11-02 headless Chromium (CDP, seeded sessions, real mouse hover): pass for 2 (hover), 4, 5 (light, dark), 6 and 7. Steps 1 and 3, keyboard focus and touch not automated.
 
 ## README screenshots
 

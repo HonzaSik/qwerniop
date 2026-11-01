@@ -121,7 +121,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 14. Practice calendar
 
 - [x] Minutes practised today in Stats
-- [x] Calendar of practice per day over the last year, all layouts, no streaks
+- [x] Month calendar of practice per day with earlier months and per-day details, all layouts, no streaks
 
 ## 15. New-key introduction
 

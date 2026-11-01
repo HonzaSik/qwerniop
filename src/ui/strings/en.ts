@@ -211,8 +211,14 @@ export const en = {
     minutes: (n: number): string => `${n} min`,
     less: "Less",
     more: "More",
-    calendar: (days: number): string =>
-      `Practised on ${days} ${days === 1 ? "day" : "days"} in this period.`,
+    previousMonth: "Previous month",
+    nextMonth: "Next month",
+    dayTip: (minutes: number, sessions: number): string =>
+      sessions === 0
+        ? "No practice"
+        : `${minutes} min · ${sessions} ${sessions === 1 ? "session" : "sessions"}`,
+    monthSummary: (days: number, minutes: number): string =>
+      `${days} ${days === 1 ? "day" : "days"} practised, ${minutes} min in total.`,
     weekStart: 0 as 0 | 1,
     chart: (
       title: string,
