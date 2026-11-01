@@ -118,10 +118,20 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Error mode and live stats in Settings
 - [x] Longer list of session lengths
 
-## 14. Developer mode
+## 14. Practice calendar
+
+- [x] Minutes practised today in Stats
+- [x] Calendar of practice per day over the last year, all layouts, no streaks
+
+## 15. New-key introduction
+
+- [ ] Each new key with its finger and the path from home row before a lesson's first session
+- [ ] Short drill of only the new keys, then the lesson text
+
+## 16. Developer mode
 
 - [ ] Setting that makes every lesson startable, without unlocking anything
 
-## 15. Custom text
+## 17. Custom text
 
 - [ ] Practise pasted text; counts toward stats and history, never unlocks

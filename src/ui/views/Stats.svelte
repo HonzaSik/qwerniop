@@ -2,10 +2,12 @@
 import type { SessionRecord } from "../../core/engine/record";
 import { layoutById } from "../../core/layouts/registry";
 import { heatScale, keyErrors, recentSessions } from "../../core/stats/history";
+import { dayKey, practiceByDay } from "../../core/stats/practice";
 import DataTransfer from "../components/DataTransfer.svelte";
 import Keyboard from "../components/Keyboard.svelte";
 import { keyLabel } from "../components/keyboard-labels";
 import LineChart from "../components/LineChart.svelte";
+import PracticeCalendar from "../components/PracticeCalendar.svelte";
 import { readSessions, ui } from "../state.svelte";
 import { t } from "../strings";
 
@@ -33,7 +35,10 @@ function summarise(records: SessionRecord[]) {
       const key = layout.keys.find((k) => k.code === code);
       return key ? [{ name: keyLabel(key).main || key.code, n }] : [];
     });
-  return { recent, heat: heatScale(counts), worst };
+  const days = practiceByDay(records);
+  const today = Date.now();
+  const minutesToday = Math.round((days.get(dayKey(today)) ?? 0) / 60_000);
+  return { recent, heat: heatScale(counts), worst, days, today, minutesToday };
 }
 </script>
 
@@ -43,6 +48,13 @@ function summarise(records: SessionRecord[]) {
     <p class="note">{t.stats.loading}</p>
   {:then records}
     {@const s = summarise(records)}
+    {#if records.length > 0}
+      <section aria-labelledby="practice">
+        <h2 id="practice">{t.stats.practice}</h2>
+        <p class="today">{t.stats.today(s.minutesToday)}</p>
+        <PracticeCalendar days={s.days} today={s.today} />
+      </section>
+    {/if}
     {#if s.recent.length === 0}
       <p class="note">{t.stats.empty}</p>
     {:else}
@@ -93,6 +105,12 @@ function summarise(records: SessionRecord[]) {
     margin: 0 0 var(--space-3);
     font-size: var(--text-size-md);
     font-weight: var(--weight-semibold);
+  }
+
+  .today {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-size-md);
+    font-variant-numeric: tabular-nums;
   }
 
   .note {

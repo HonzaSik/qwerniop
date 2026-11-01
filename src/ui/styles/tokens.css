@@ -61,6 +61,10 @@
   --keyboard-label-ratio: 0.36;
   --heat-max-mix: 75%;
   --chart-line-width: 2px;
+  /* Practice calendar steps toward the accent; level 4 is the accent itself. */
+  --calendar-mix-1: 25%;
+  --calendar-mix-2: 50%;
+  --calendar-mix-3: 75%;
 
   --finger-l5: #f2c9d4;
   --finger-l4: #f6d3b8;

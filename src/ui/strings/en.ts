@@ -205,6 +205,15 @@ export const en = {
     noErrors: "No errors recorded.",
     mostMissed: "Most missed:",
     loadFailed: "Stats could not be loaded.",
+    practice: "Practice",
+    today: (minutes: number): string =>
+      minutes === 0 ? "Not practised yet today" : `Today: ${minutes} min`,
+    minutes: (n: number): string => `${n} min`,
+    less: "Less",
+    more: "More",
+    calendar: (days: number): string =>
+      `Practised on ${days} ${days === 1 ? "day" : "days"} in this period.`,
+    weekStart: 0 as 0 | 1,
     chart: (
       title: string,
       n: number,
