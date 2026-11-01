@@ -2,7 +2,13 @@ import { type Targets, weakness } from "../adaptive/weakness";
 import type { Layout } from "../layouts/layout";
 import { type CharStats, isRecord, parseCharStats } from "../stats/chars";
 import { stageCount, unlockedLetters } from "./letters";
-import { type Track, trackChars, trackStages, tracksOpen } from "./tracks";
+import {
+  type Track,
+  trackChars,
+  trackStages,
+  tracksOpen,
+  tracksStart,
+} from "./tracks";
 
 export type LessonTrack = "letters" | Track;
 
@@ -55,6 +61,20 @@ export function isUnlocked(
   );
 }
 
+/**
+ * The letter stage a lesson's text draws from. Unlocked lessons use what is unlocked;
+ * a locked one, started in developer mode, uses the letters it would have when reached.
+ */
+export function lessonLetterStage(
+  id: Layout["id"],
+  progress: Progress,
+  lesson: Lesson,
+): number {
+  const needed =
+    lesson.track === "letters" ? lesson.stage : (tracksStart(id) ?? 1);
+  return Math.max(progress.letters, needed);
+}
+
 /** Unlocks the next stage of the lesson's track when every character unlocked there meets the targets; at most one stage per call. */
 export function completeLesson(
   id: Layout["id"],
@@ -75,12 +95,21 @@ export function completeLesson(
     : progress;
 }
 
-/** The following stage of the same track; the last stage stays where it is and gets new text. */
-export function nextLesson(id: Layout["id"], lesson: Lesson): Lesson {
-  return {
+/**
+ * The following stage of the same track, if it can be started; otherwise the same lesson again with new text.
+ * The last stage stays where it is. In developer mode locked stages can be started too.
+ */
+export function nextLesson(
+  id: Layout["id"],
+  progress: Progress,
+  lesson: Lesson,
+  anyLesson: boolean,
+): Lesson {
+  const next = {
     track: lesson.track,
     stage: Math.min(lesson.stage + 1, lessonCount(id, lesson.track)),
   };
+  return anyLesson || isUnlocked(id, progress, next) ? next : lesson;
 }
 
 export type NoNewKeys = "capitals" | "snippets";

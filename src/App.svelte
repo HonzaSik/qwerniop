@@ -13,6 +13,7 @@ import {
   completeLesson,
   type Lesson,
   lessonKeys,
+  lessonLetterStage,
   nextLesson,
 } from "./core/lessons/lessons";
 import { unlockedLetters } from "./core/lessons/letters";
@@ -125,7 +126,7 @@ function begin(
     lesson,
     phase,
     seed: Date.now(),
-    letterStage: ui.progress.letters,
+    letterStage: lessonLetterStage(layout.id, ui.progress, lesson),
     stats: $state.snapshot(ui.progress.stats),
     // Copied for the same reason: changing a target must not rewrite the text on screen.
     targets: $state.snapshot(ui.settings.targets),
@@ -160,13 +161,18 @@ const prefetch = createPrefetch<Generated>();
 
 // What the next session will ask for: the lesson after the current one, under the progress known now.
 function nextRequest() {
-  const lesson = nextLesson(layout.id, run.lesson);
+  const lesson = nextLesson(
+    layout.id,
+    ui.progress,
+    run.lesson,
+    ui.settings.developerMode,
+  );
   return {
     server: $state.snapshot(ui.settings.modelServer),
     request: {
       layout: layout.id,
       lesson,
-      letterStage: ui.progress.letters,
+      letterStage: lessonLetterStage(layout.id, ui.progress, lesson),
       stats: $state.snapshot(ui.progress.stats),
       targets: $state.snapshot(ui.settings.targets),
       words: targetWords(),
@@ -208,7 +214,7 @@ function start(lesson: Lesson): void {
 
 // Starting or skipping the drill both count as introduced, so the intro never returns for this stage.
 function leaveIntro(drill: boolean): void {
-  ui.progress = markIntroduced(ui.progress, run.lesson);
+  ui.progress = markIntroduced(layout.id, ui.progress, run.lesson);
   saveProgress();
   run = carry(drill ? "drill" : "lesson");
 }
@@ -396,7 +402,7 @@ let help: HTMLDialogElement | undefined = $state();
           timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
           feedback={run.feedback}
           onfinish={finish}
-          onnext={() => start(nextLesson(layout.id, run.lesson))}
+          onnext={() => start(nextLesson(layout.id, ui.progress, run.lesson, ui.settings.developerMode))}
         />
       {/if}
     {/key}

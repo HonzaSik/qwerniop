@@ -59,6 +59,7 @@ Check each screen in light and dark (system setting, then `data-theme` set to `l
 2. Keyboard: all eight finger colours are distinct and muted in both appearances, labels are legible on every key, next-key outline and Shift outline are visible.
 3. Summary: hairlines split the stats and at 360 px they wrap to two rows; weakest keys are keycaps; numbers are tabular, accuracy shows "97 %" with no wrap between number and sign, Continue has a visible focus ring.
 4. Lessons: locked buttons are readable but clearly disabled, the current lesson has an accent outline and "Current", each open track shows "n of m" and a progress bar.
+   Developer mode: turn it on in Settings, start Lesson 10 and finish it. Lessons still shows 1 of 14. Turn it off: locked lessons are disabled again, and Lesson 10's introduction appears when it is reached normally.
 5. Stats: chart ticks match the size of other small text, line is accent, grid is hairline; the heatmap tints toward red without losing key labels; the Your data status error is red.
 6. Nothing uses a colour, size or gap that looks off the scale (4, 8, 12, 16, 24, 32 px), and no gradients, shadows or glows appear.
 

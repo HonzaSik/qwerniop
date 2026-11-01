@@ -8,11 +8,14 @@ import {
   type Lesson,
   lessonCount,
   lessonKeys,
+  lessonLetterStage,
   nextLesson,
   noNewKeys,
   type Progress,
   parseProgress,
 } from "./lessons";
+
+import { tracksStart } from "./tracks";
 
 const letter = (stage: number) => ({ track: "letters" as const, stage });
 
@@ -101,9 +104,26 @@ describe("lessons", () => {
   });
 
   test("next lesson advances within the track and holds at the last stage", () => {
-    expect(nextLesson("en-us", letter(3))).toEqual(letter(4));
-    expect(nextLesson("en-us", letter(14))).toEqual(letter(14));
-    expect(nextLesson("en-us", { track: "code", stage: 4 }).stage).toBe(4);
+    const all = { ...initialProgress(), letters: 14, code: 4 };
+    expect(nextLesson("en-us", all, letter(3), false)).toEqual(letter(4));
+    expect(nextLesson("en-us", all, letter(14), false)).toEqual(letter(14));
+    expect(
+      nextLesson("en-us", all, { track: "code", stage: 4 }, false).stage,
+    ).toBe(4);
+  });
+
+  test("next lesson stays put while the following one is locked", () => {
+    const p = initialProgress();
+    expect(nextLesson("en-us", p, letter(1), false)).toEqual(letter(1));
+    expect(nextLesson("en-us", { ...p, letters: 2 }, letter(1), false)).toEqual(
+      letter(2),
+    );
+  });
+
+  test("in developer mode next lesson advances past locked ones", () => {
+    expect(nextLesson("en-us", initialProgress(), letter(1), true)).toEqual(
+      letter(2),
+    );
   });
 
   test("keys are what the stage adds", () => {
@@ -116,6 +136,29 @@ describe("lessons", () => {
     expect(noNewKeys({ track: "punctuation", stage: 1 })).toBe("capitals");
     expect(noNewKeys({ track: "code", stage: 4 })).toBe("snippets");
     expect(noNewKeys(letter(5))).toBeUndefined();
+  });
+});
+
+describe("lessonLetterStage", () => {
+  const p = { ...initialProgress(), letters: 3 };
+
+  test("an unlocked lesson uses the letters unlocked so far", () => {
+    expect(lessonLetterStage("en-us", p, letter(2))).toBe(3);
+  });
+
+  test("a locked letter lesson uses its own letters", () => {
+    expect(lessonLetterStage("en-us", p, letter(10))).toBe(10);
+  });
+
+  test("a closed track uses the letters of the step where tracks open", () => {
+    const start = tracksStart("en-us") ?? 1;
+    expect(lessonLetterStage("en-us", p, { track: "numbers", stage: 1 })).toBe(
+      start,
+    );
+    const far = { ...p, letters: start + 2 };
+    expect(
+      lessonLetterStage("en-us", far, { track: "numbers", stage: 1 }),
+    ).toBe(start + 2);
   });
 });
 

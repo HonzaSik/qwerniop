@@ -122,24 +122,28 @@ describe("migrateSettings", () => {
       textSize: "large",
       caret: "block",
       liveStats: true,
+      developerMode: true,
     });
     expect(got.theme).toBe("oled");
     expect(got.accent).toBe("green");
     expect(got.textSize).toBe("large");
     expect(got.caret).toBe("block");
     expect(got.liveStats).toBe(true);
+    expect(got.developerMode).toBe(true);
     const bad = migrateSettings({
       theme: "sepia",
       accent: "#ff0000",
       textSize: 3,
       caret: "beam",
       liveStats: "yes",
+      developerMode: 1,
     });
     expect(bad.theme).toBe("system");
     expect(bad.accent).toBe("blue");
     expect(bad.textSize).toBe("medium");
     expect(bad.caret).toBe("bar");
     expect(bad.liveStats).toBe(false);
+    expect(bad.developerMode).toBe(false);
   });
 
   test("the longer length list keeps old values and accepts new ones", () => {

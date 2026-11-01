@@ -222,6 +222,11 @@ async function test(): Promise<void> {
       <input type="checkbox" role="switch" bind:checked={ui.settings.liveStats} onchange={saveSettings} />
       {t.settings.liveStats}
     </label>
+    <label class="check">
+      <input type="checkbox" role="switch" bind:checked={ui.settings.developerMode} onchange={saveSettings} aria-describedby="developer-note" />
+      {t.settings.developerMode}
+    </label>
+    <p class="note" id="developer-note">{t.settings.developerModeNote}</p>
   </section>
   <section aria-labelledby="accessibility">
     <h2 id="accessibility">{t.settings.accessibility}</h2>

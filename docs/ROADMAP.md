@@ -139,7 +139,7 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 17. Developer mode
 
-- [ ] Setting that makes every lesson startable, without unlocking anything
+- [x] Setting that makes every lesson startable, without unlocking anything
 
 ## 18. Custom text
 

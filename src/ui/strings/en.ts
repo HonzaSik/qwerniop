@@ -98,6 +98,9 @@ export const en = {
       continue: "Keep going",
     },
     liveStats: "Show speed and accuracy while typing",
+    developerMode: "Developer mode: start any lesson",
+    developerModeNote:
+      "Locked lessons can be started to try them. Nothing is unlocked by it, and the sessions still count in Stats.",
     languageLabel: "Language",
     languageNames: { system: "System", en: "English", cs: "Čeština" } as Record<
       Language,
@@ -163,6 +166,7 @@ export const en = {
     done: "Done",
     current: "Current",
     count: (done: number, all: number): string => `${done} of ${all}`,
+    developerMode: "Developer mode is on: every lesson can be started.",
   },
   practice: {
     timeLeft: "Time left",

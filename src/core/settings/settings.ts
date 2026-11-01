@@ -80,6 +80,8 @@ export interface Settings {
   textSize: TextSize;
   caret: CaretStyle;
   liveStats: boolean;
+  /** Every lesson can be started; progress is never changed by it. */
+  developerMode: boolean;
   modelServer: ModelServer;
 }
 
@@ -97,6 +99,7 @@ export const defaultSettings = (): Settings => ({
   textSize: "medium",
   caret: "bar",
   liveStats: false,
+  developerMode: false,
   modelServer: {
     enabled: false,
     modes: { lesson: true, topic: true, code: true, feedback: true },
@@ -153,6 +156,7 @@ export function migrateSettings(old: unknown): Settings {
       TEXT_SIZE_VALUES.find((v) => v === old.textSize) ?? defaults.textSize,
     caret: CARET_VALUES.find((v) => v === old.caret) ?? defaults.caret,
     liveStats: flag(old.liveStats, defaults.liveStats),
+    developerMode: flag(old.developerMode, defaults.developerMode),
     modelServer: {
       enabled: flag(server?.enabled, defaults.modelServer.enabled),
       modes: {

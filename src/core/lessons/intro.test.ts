@@ -120,7 +120,7 @@ describe("needsIntro", () => {
   });
 
   test("an introduced stage is not introduced again", () => {
-    const seen = markIntroduced(fresh, { track: "letters", stage: 1 });
+    const seen = markIntroduced("en-us", fresh, { track: "letters", stage: 1 });
     expect(needsIntro("en-us", seen, { track: "letters", stage: 1 })).toBe(
       false,
     );
@@ -139,12 +139,25 @@ describe("needsIntro", () => {
 
 describe("markIntroduced", () => {
   test("only moves forward", () => {
-    const at3 = markIntroduced(initialProgress(), {
-      track: "letters",
-      stage: 3,
-    });
+    const at3 = markIntroduced(
+      "en-us",
+      { ...initialProgress(), letters: 3 },
+      { track: "letters", stage: 3 },
+    );
     expect(at3.introduced.letters).toBe(3);
-    expect(markIntroduced(at3, { track: "letters", stage: 2 })).toBe(at3);
+    expect(markIntroduced("en-us", at3, { track: "letters", stage: 2 })).toBe(
+      at3,
+    );
+  });
+
+  test("a stage not reached yet stays unintroduced, so its intro returns when it unlocks", () => {
+    const fresh = initialProgress();
+    expect(
+      markIntroduced("en-us", fresh, { track: "letters", stage: 10 }),
+    ).toBe(fresh);
+    expect(markIntroduced("en-us", fresh, { track: "numbers", stage: 1 })).toBe(
+      fresh,
+    );
   });
 });
 

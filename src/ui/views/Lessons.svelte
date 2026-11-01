@@ -9,6 +9,7 @@ import {
   TRACKS,
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
+import { ui } from "../state.svelte";
 import { lessonTitle, t } from "../strings";
 
 interface Props {
@@ -23,18 +24,26 @@ let { layout, progress, current, onstart }: Props = $props();
 const stages = (track: LessonTrack) =>
   Array.from({ length: lessonCount(layout, track) }, (_, i) => i + 1);
 
-const isOpen = (track: LessonTrack) =>
+const tracksReached = (track: LessonTrack) =>
   track === "letters" || tracksOpen(layout, progress.letters);
+
+// A closed track keeps a stored count of 1, but nothing in it is unlocked yet.
+const unlockedCount = (track: LessonTrack) =>
+  tracksReached(track) ? progress[track] : 0;
+
+const isOpen = (track: LessonTrack) =>
+  ui.settings.developerMode || tracksReached(track);
 </script>
 
 <main aria-label={t.nav.lessons}>
   <h1>{t.nav.lessons}</h1>
+  {#if ui.settings.developerMode}<p class="note developer">{t.lessons.developerMode}</p>{/if}
   {#each TRACKS as track}
     {@const all = lessonCount(layout, track)}
     <section aria-labelledby="track-{track}">
       <div class="heading">
         <h2 id="track-{track}">{t.trackNames[track]}</h2>
-        {#if isOpen(track)}<span class="note">{t.lessons.count(progress[track], all)}</span>{/if}
+        {#if isOpen(track)}<span class="note">{t.lessons.count(unlockedCount(track), all)}</span>{/if}
       </div>
       {#if isOpen(track)}
         <div
@@ -43,26 +52,28 @@ const isOpen = (track: LessonTrack) =>
           aria-labelledby="track-{track}"
           aria-valuemin={0}
           aria-valuemax={all}
-          aria-valuenow={progress[track]}
-          aria-valuetext={t.lessons.unlocked(progress[track], all)}
+          aria-valuenow={unlockedCount(track)}
+          aria-valuetext={t.lessons.unlocked(unlockedCount(track), all)}
         >
-          <div style:width="{(progress[track] / all) * 100}%"></div>
+          <div style:width="{(unlockedCount(track) / all) * 100}%"></div>
         </div>
         <ul>
           {#each stages(track) as stage}
             {@const lesson = { track, stage }}
-            {@const open = isUnlocked(layout, progress, lesson)}
+            {@const unlocked = isUnlocked(layout, progress, lesson)}
+            {@const open = unlocked || ui.settings.developerMode}
             {@const isCurrent = current.track === track && current.stage === stage}
             <li>
               <button
                 type="button"
                 disabled={!open}
+                class:locked={!unlocked}
                 aria-current={isCurrent}
                 onclick={() => onstart(lesson)}
               >
                 {lessonTitle(layout, lesson)}
                 {#if isCurrent}<span class="state current">{t.lessons.current}</span>
-                {:else if open && stage < progress[track]}<span class="state">{t.lessons.done}</span>{/if}
+                {:else if unlocked && stage < progress[track]}<span class="state">{t.lessons.done}</span>{/if}
               </button>
             </li>
           {/each}
@@ -148,11 +159,19 @@ const isOpen = (track: LessonTrack) =>
   }
 
   /* Locked reads as an outline only, so open lessons stand out by their fill. */
-  button:disabled {
+  button.locked {
     border-color: var(--separator);
     border-style: dashed;
     background: none;
+  }
+
+  /* Developer mode enables locked lessons; only a disabled one is dimmed. */
+  button:disabled {
     color: var(--text-3);
+  }
+
+  .developer {
+    margin: calc(-1 * var(--space-4)) 0 var(--space-5);
   }
 
   button[aria-current="true"] {

@@ -1,7 +1,13 @@
 import type { Finger, KeyDef, Layout } from "../layouts/layout";
 import { type Stroke, strokesFor } from "../layouts/strokes";
 import type { Rng } from "../text/rng";
-import { type Lesson, lessonKeys, noNewKeys, type Progress } from "./lessons";
+import {
+  isUnlocked,
+  type Lesson,
+  lessonKeys,
+  noNewKeys,
+  type Progress,
+} from "./lessons";
 
 /** Where each finger rests; every reach is described from here. */
 export const HOME_KEYS: Record<Finger, string> = {
@@ -109,9 +115,14 @@ export function needsIntro(
   );
 }
 
-export function markIntroduced(progress: Progress, lesson: Lesson): Progress {
+/** Only unlocked lessons: one tried locked in developer mode must still be introduced when it unlocks. */
+export function markIntroduced(
+  id: Layout["id"],
+  progress: Progress,
+  lesson: Lesson,
+): Progress {
   const seen = progress.introduced[lesson.track];
-  return seen >= lesson.stage
+  return seen >= lesson.stage || !isUnlocked(id, progress, lesson)
     ? progress
     : {
         ...progress,

@@ -86,6 +86,9 @@ export const cs: Strings = {
       continue: "Pokračovat dál",
     },
     liveStats: "Zobrazovat rychlost a přesnost při psaní",
+    developerMode: "Vývojářský režim: spustit libovolnou lekci",
+    developerModeNote:
+      "Zamčené lekce lze spustit a vyzkoušet. Nic se tím neodemkne a cvičení se dál počítají do statistik.",
     languageLabel: "Jazyk",
     languageNames: {
       system: "Podle systému",
@@ -147,6 +150,7 @@ export const cs: Strings = {
     done: "Hotovo",
     current: "Aktuální",
     count: (done, all) => `${done} z ${all}`,
+    developerMode: "Vývojářský režim je zapnutý: lze spustit každou lekci.",
   },
   practice: {
     timeLeft: "Zbývající čas",
