@@ -30,23 +30,39 @@ const isOpen = (track: LessonTrack) =>
 <main aria-label={t.nav.lessons}>
   <h1>{t.nav.lessons}</h1>
   {#each TRACKS as track}
+    {@const all = lessonCount(layout, track)}
     <section aria-labelledby="track-{track}">
-      <h2 id="track-{track}">{t.trackNames[track]}</h2>
+      <div class="heading">
+        <h2 id="track-{track}">{t.trackNames[track]}</h2>
+        {#if isOpen(track)}<span class="note">{t.lessons.count(progress[track], all)}</span>{/if}
+      </div>
       {#if isOpen(track)}
-        <p class="note">{t.lessons.unlocked(progress[track], lessonCount(layout, track))}</p>
+        <div
+          class="bar"
+          role="progressbar"
+          aria-labelledby="track-{track}"
+          aria-valuemin={0}
+          aria-valuemax={all}
+          aria-valuenow={progress[track]}
+          aria-valuetext={t.lessons.unlocked(progress[track], all)}
+        >
+          <div style:width="{(progress[track] / all) * 100}%"></div>
+        </div>
         <ul>
           {#each stages(track) as stage}
             {@const lesson = { track, stage }}
             {@const open = isUnlocked(layout, progress, lesson)}
+            {@const isCurrent = current.track === track && current.stage === stage}
             <li>
               <button
                 type="button"
                 disabled={!open}
-                aria-current={current.track === track && current.stage === stage}
+                aria-current={isCurrent}
                 onclick={() => onstart(lesson)}
               >
                 {lessonTitle(layout, lesson)}
-                {#if open && stage < progress[track]}<span class="state">{t.lessons.done}</span>{/if}
+                {#if isCurrent}<span class="state current">{t.lessons.current}</span>
+                {:else if open && stage < progress[track]}<span class="state">{t.lessons.done}</span>{/if}
               </button>
             </li>
           {/each}
@@ -77,6 +93,30 @@ const isOpen = (track: LessonTrack) =>
     margin-bottom: var(--space-6);
   }
 
+  .heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .heading .note {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bar {
+    height: var(--space-1);
+    margin: var(--space-2) 0 var(--space-3);
+    overflow: hidden;
+    border-radius: var(--radius-key);
+    background: var(--surface);
+  }
+
+  .bar > div {
+    height: 100%;
+    background: var(--accent);
+  }
+
   h2 {
     margin: 0;
     font-size: var(--text-size-md);
@@ -85,8 +125,6 @@ const isOpen = (track: LessonTrack) =>
 
   .note {
     margin: var(--space-1) 0 var(--space-3);
-    color: var(--text-2);
-    font-size: var(--text-size-sm);
   }
 
   ul {
@@ -123,5 +161,9 @@ const isOpen = (track: LessonTrack) =>
 
   .state {
     color: var(--text-2);
+  }
+
+  .state.current {
+    color: var(--accent);
   }
 </style>

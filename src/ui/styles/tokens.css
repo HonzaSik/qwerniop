@@ -21,6 +21,8 @@
   --correct: #1c1c1e;
   --error: #c4271d;
   --error-bg: #fde8e6;
+  /* Behind modal sheets: dims the page enough that the sheet reads as in front. */
+  --backdrop: rgb(0 0 0 / 0.35);
 
   --font-ui:
     system-ui, -apple-system, "Segoe UI", Cantarell, "Noto Sans", sans-serif;
@@ -102,6 +104,7 @@
     --correct: #f2f2f7;
     --error: #ff7b72;
     --error-bg: #4a2220;
+    --backdrop: rgb(0 0 0 / 0.6);
     --finger-l5: #5a3340;
     --finger-l4: #5a4030;
     --finger-l3: #55502a;
@@ -130,6 +133,7 @@
   --correct: #f2f2f7;
   --error: #ff7b72;
   --error-bg: #4a2220;
+  --backdrop: rgb(0 0 0 / 0.6);
   --finger-l5: #5a3340;
   --finger-l4: #5a4030;
   --finger-l3: #55502a;

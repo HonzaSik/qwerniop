@@ -40,7 +40,7 @@ function focusOnShow(button: HTMLButtonElement): void {
   <dl>
     <div>
       <dt>{t.summary.wpm}</dt>
-      <dd>{Math.round(netWpm(session))}</dd>
+      <dd>{Math.round(netWpm(session))} <span class="unit">{t.stats.wpmUnit}</span></dd>
     </div>
     <div>
       <dt>{t.summary.accuracy}</dt>
@@ -53,7 +53,7 @@ function focusOnShow(button: HTMLButtonElement): void {
     {#if feedback && feedback.weakest.length > 0}
       <div>
         <dt>{t.summary.weakest}</dt>
-        <dd>{feedback.weakest.join(" ")}</dd>
+        <dd class="keys">{#each feedback.weakest as key, i}{#if i > 0}{" "}{/if}<kbd>{key}</kbd>{/each}</dd>
       </div>
     {/if}
   </dl>
@@ -86,8 +86,28 @@ function focusOnShow(button: HTMLButtonElement): void {
 
   dl {
     display: flex;
-    gap: var(--space-6);
     margin: 0;
+  }
+
+  dl > div {
+    padding: 0 var(--space-5);
+  }
+
+  dl > div + div {
+    border-left: 1px solid var(--separator);
+  }
+
+  /* Four columns do not fit a phone; two rows of two read better than squeezed numbers. */
+  @media (width < 480px) {
+    dl {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4) 0;
+    }
+
+    dl > div:nth-child(odd) {
+      border-left: 0;
+    }
   }
 
   p {
@@ -106,6 +126,21 @@ function focusOnShow(button: HTMLButtonElement): void {
     font-size: var(--text-size-xl);
     font-weight: var(--weight-semibold);
     font-variant-numeric: tabular-nums;
+  }
+
+  .unit {
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
+    font-weight: var(--weight-regular);
+  }
+
+  .keys {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .keys kbd {
+    font-size: var(--text-size-md);
   }
 
   .actions {

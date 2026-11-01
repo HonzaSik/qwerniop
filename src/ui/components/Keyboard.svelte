@@ -86,6 +86,8 @@ const SPACE_ROW_OFFSET = 3.75;
 
   .board {
     padding: var(--keyboard-gap);
+    /* The board's edge would vanish against the page on true black without it. */
+    border: 1px solid var(--separator);
     border-radius: var(--radius-group);
     background: var(--surface);
     color: var(--text);

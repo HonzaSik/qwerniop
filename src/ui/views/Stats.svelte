@@ -125,7 +125,5 @@ function summarise(records: SessionRecord[]) {
 
   .note {
     margin: var(--space-1) 0 var(--space-3);
-    color: var(--text-2);
-    font-size: var(--text-size-sm);
   }
 </style>

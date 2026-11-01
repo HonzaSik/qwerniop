@@ -347,7 +347,7 @@ let help: HTMLDialogElement | undefined = $state();
 <dialog bind:this={help} aria-labelledby="help-title">
   <h2 id="help-title">{t.help.title}</h2>
   <dl>
-    {#each t.help.items as [key, what]}<dt>{key}</dt><dd>{what}</dd>{/each}
+    {#each t.help.items as [key, what]}<dt><kbd>{key}</kbd></dt><dd>{what}</dd>{/each}
   </dl>
   <form method="dialog"><button type="submit">{t.help.close}</button></form>
 </dialog>
@@ -483,8 +483,8 @@ let help: HTMLDialogElement | undefined = $state();
   }
 
   dialog {
-    max-width: 24rem;
-    padding: var(--space-5);
+    max-width: 26rem;
+    padding: var(--space-6);
     border: 1px solid var(--separator);
     border-radius: var(--radius-group);
     background: var(--bg);
@@ -500,13 +500,18 @@ let help: HTMLDialogElement | undefined = $state();
   dialog dl {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: var(--space-2) var(--space-4);
-    margin: 0 0 var(--space-4);
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+    margin: 0 0 var(--space-5);
     font-size: var(--text-size-sm);
   }
 
   dialog dt {
-    font-family: var(--font-practice);
+    justify-self: end;
+  }
+
+  dialog form button {
+    width: 100%;
   }
 
   dialog dd {

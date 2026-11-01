@@ -145,9 +145,12 @@ export const cs: Strings = {
     unlocked: (done, all) => `Odemčeno ${done} z ${all}`,
     opensAt: (stage) => `Otevře se u lekce písmen ${stage}`,
     done: "Hotovo",
+    current: "Aktuální",
+    count: (done, all) => `${done} z ${all}`,
   },
   practice: {
     timeLeft: "Zbývající čas",
+    startHint: "Až budete připraveni, začněte psát",
     typeText: "Pište text",
     paused: "Klikněte nebo stiskněte libovolnou klávesu a pokračujte",
     connectKeyboard: "Pro cvičení připojte klávesnici",
@@ -190,7 +193,7 @@ export const cs: Strings = {
   },
   summary: {
     label: "Výsledky cvičení",
-    wpm: "Slov/min",
+    wpm: "Rychlost",
     accuracy: "Přesnost",
     time: "Čas",
     weakest: "Nejslabší klávesy",

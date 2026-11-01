@@ -59,6 +59,32 @@ button.primary:disabled {
   background: var(--surface);
 }
 
+/* A key as it looks on the keyboard: raised by a thicker bottom border, not a shadow, in the practice font. */
+kbd {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: var(--space-5);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--separator);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-key);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-practice);
+  text-align: center;
+}
+
+/* Secondary text under a heading or control; views add only their margins. */
+.note {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--text-size-sm);
+}
+
+dialog::backdrop {
+  background: var(--backdrop);
+}
+
 input[type="checkbox"] {
   accent-color: var(--accent);
 }

@@ -140,8 +140,11 @@ async function confirm(): Promise<void> {
 
   .note {
     margin: var(--space-3) 0 0;
-    color: var(--text-2);
-    font-size: var(--text-size-sm);
+  }
+
+  /* Empty until there is something to report, and then it takes no room. */
+  .note:empty {
+    margin: 0;
   }
 
   .note.failed {

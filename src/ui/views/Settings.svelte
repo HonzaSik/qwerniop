@@ -344,7 +344,6 @@ async function test(): Promise<void> {
     margin: 0;
   }
 
-  .note,
   .cors {
     color: var(--text-2);
     font-size: var(--text-size-sm);

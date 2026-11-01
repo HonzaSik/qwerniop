@@ -90,8 +90,6 @@ function focusOnShow(button: HTMLButtonElement): void {
   }
 
   .note {
-    margin: 0;
-    color: var(--text-2);
     font-size: var(--text-size-md);
     text-align: center;
   }

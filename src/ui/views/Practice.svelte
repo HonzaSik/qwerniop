@@ -40,6 +40,8 @@ let { text, title, errorMode, timeLimit, onfinish, feedback, onnext }: Props =
 let session = $state.raw(newSession());
 let finished = $state(false);
 let paused = $state(false);
+// Only the first keystroke writes it, so the hint costs the keystroke path one boolean check.
+let started = $state(false);
 // Whole seconds only, so the readout changes once a second and never touches the text.
 let secondsLeft = $state(fullSeconds());
 let pausedTotal = 0;
@@ -94,6 +96,7 @@ function newSession() {
 function restart(): void {
   session = newSession();
   finished = false;
+  started = false;
   secondsLeft = fullSeconds();
   pausedTotal = 0;
   live = "";
@@ -136,6 +139,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     enterTypesNewline: text.includes("\n"),
     emit(event) {
       setTyping(true);
+      if (!started) started = true;
       const logged = session.log.length;
       view?.update(apply(session, event));
       if (
@@ -190,7 +194,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
         <textarea aria-label={t.practice.typeText} aria-describedby="passage" use:capture></textarea>
       {/if}
       <p class="pause" role="status">
-        {#if paused}{t.practice.paused}{/if}
+        {#if paused}{t.practice.paused}{:else if !started && !needsKeyboard}{t.practice.startHint}{/if}
       </p>
     </div>
     <!-- Stays mounted: a live region must exist before its content arrives. -->
@@ -240,7 +244,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
 
   .mode {
     justify-self: center;
-    margin-top: var(--space-4);
+    margin-top: var(--space-5);
     color: var(--text-2);
     font-size: var(--text-size-sm);
   }

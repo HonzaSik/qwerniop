@@ -128,10 +128,19 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 - [x] Each new key with its finger and the path from home row before a lesson's first session
 - [x] Short drill of only the new keys, then the lesson text
 
-## 16. Developer mode
+## 16. Polish pass 2
+
+- [x] Keycaps (`kbd`) in the help sheet and for the summary's weakest keys
+- [x] Help sheet: tinted backdrop (`--backdrop`), more padding, full-width Close
+- [x] "Start typing when ready" before the first key of a session
+- [x] Summary: dividers between stats, "Speed" with a small unit, two rows at phone width
+- [x] Lessons: "n of m" and a progress bar per track, "Current" on the current lesson
+- [x] Hairline edge on the keyboard, one shared `.note` style
+
+## 17. Developer mode
 
 - [ ] Setting that makes every lesson startable, without unlocking anything
 
-## 17. Custom text
+## 18. Custom text
 
 - [ ] Practise pasted text; counts toward stats and history, never unlocks

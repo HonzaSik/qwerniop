@@ -55,10 +55,10 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass for step 7 only (Settin
 
 Check each screen in light and dark (system setting, then `data-theme` set to `light` and `dark` on `<html>` in DevTools), at 1280 px and 360 px.
 
-1. Practice: typed text reads as primary, untyped as clearly dimmer; caret and next key are accent; a wrong character is red and underlined on a tinted background. Spacing around the nav, timer and keyboard is even.
+1. Practice: typed text reads as primary, untyped as clearly dimmer; caret and next key are accent; a wrong character is red and underlined on a tinted background. Spacing around the nav, timer and keyboard is even. "Start typing when ready" shows under the text until the first key, then goes without moving anything.
 2. Keyboard: all eight finger colours are distinct and muted in both appearances, labels are legible on every key, next-key outline and Shift outline are visible.
-3. Summary: numbers are tabular, accuracy shows "97 %" with no wrap between number and sign, Continue has a visible focus ring.
-4. Lessons: locked buttons are readable but clearly disabled, the current lesson has an accent outline, "Unlocked n of m" is secondary text.
+3. Summary: hairlines split the stats and at 360 px they wrap to two rows; weakest keys are keycaps; numbers are tabular, accuracy shows "97 %" with no wrap between number and sign, Continue has a visible focus ring.
+4. Lessons: locked buttons are readable but clearly disabled, the current lesson has an accent outline and "Current", each open track shows "n of m" and a progress bar.
 5. Stats: chart ticks match the size of other small text, line is accent, grid is hairline; the heatmap tints toward red without losing key labels; the Your data status error is red.
 6. Nothing uses a colour, size or gap that looks off the scale (4, 8, 12, 16, 24, 32 px), and no gradients, shadows or glows appear.
 
@@ -89,7 +89,7 @@ Setup: `pnpm build && pnpm preview`. Orca: Firefox or Chromium, start with `orca
 4. Typing: type 20 characters, including errors. Nothing is announced per keystroke (no character echo from the app, no "correct" or "wrong"). Orca's own key echo may speak typed characters; turn it off in Orca preferences for this check.
 5. Pause: press Esc or click away. "Click or press any key to continue" is announced once. Resuming does not repeat it.
 6. Timed session: choose a seconds length and start. The countdown is not announced every second (browse to it to read it: "Time left").
-7. Summary: finish a session. "Session results" with WPM, accuracy, time and the feedback is announced once, politely, after the final key. Focus lands on Continue, announced with its shortcut. Repeat and Continue are reachable.
+7. Summary: finish a session. "Session results" with speed, accuracy, time and the feedback is announced once, politely, after the final key. Focus lands on Continue, announced with its shortcut. Repeat and Continue are reachable.
 8. Dialogs: press `?` outside a session. The dialog and title "Keyboard shortcuts" are announced, shortcuts read as pairs; Esc closes and focus returns. On Stats, Your data: Import of a file opens the replace dialog with its title announced, and error or success messages are announced.
 9. Stats chart: the line chart is one image with a text summary; the heatmap keys are readable.
 

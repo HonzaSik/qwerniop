@@ -161,9 +161,12 @@ export const en = {
       `Unlocked ${done} of ${all}`,
     opensAt: (stage: number): string => `Opens at letter lesson ${stage}`,
     done: "Done",
+    current: "Current",
+    count: (done: number, all: number): string => `${done} of ${all}`,
   },
   practice: {
     timeLeft: "Time left",
+    startHint: "Start typing when ready",
     typeText: "Type the text",
     paused: "Click or press any key to continue",
     connectKeyboard: "Connect a keyboard to practice",
@@ -211,7 +214,7 @@ export const en = {
   },
   summary: {
     label: "Session results",
-    wpm: "WPM",
+    wpm: "Speed",
     accuracy: "Accuracy",
     time: "Time",
     weakest: "Weakest keys",
