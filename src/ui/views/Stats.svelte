@@ -60,8 +60,10 @@ function summarise(records: SessionRecord[]) {
     {@const s = summarise(records)}
     {#if records.length > 0}
       <section aria-labelledby="practice">
-        <h2 id="practice">{t.stats.practice}</h2>
-        <p class="today">{t.stats.today(s.minutesToday)}</p>
+        <div class="heading">
+          <h2 id="practice">{t.stats.practice}</h2>
+          <p class="today">{t.stats.today(s.minutesToday)}</p>
+        </div>
         <PracticeCalendar days={s.days} today={s.today} first={s.first} />
       </section>
     {/if}
@@ -108,18 +110,33 @@ function summarise(records: SessionRecord[]) {
   }
 
   section {
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-7);
+  }
+
+  /* The heading's figure sits beside it, as the unlocked count does in Lessons. */
+  .heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .heading h2 {
+    margin: 0;
   }
 
   h2 {
-    margin: 0 0 var(--space-3);
+    margin: 0 0 var(--space-4);
     font-size: var(--text-size-md);
     font-weight: var(--weight-semibold);
   }
 
   .today {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-size-md);
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
     font-variant-numeric: tabular-nums;
   }
 

@@ -53,17 +53,22 @@ const summary = $derived(
 
 <style>
   figure {
-    margin: 0 0 var(--space-4);
+    margin: 0 0 var(--space-6);
   }
 
   figcaption {
-    font-size: var(--text-size-sm);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
     color: var(--text-2);
+    font-size: var(--text-size-sm);
   }
 
   .latest {
-    margin-left: var(--space-2);
     color: var(--text);
+    font-size: var(--text-size-md);
+    font-weight: var(--weight-semibold);
     font-variant-numeric: tabular-nums;
   }
 

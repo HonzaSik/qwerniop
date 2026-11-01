@@ -68,7 +68,7 @@
   --calendar-mix-1: 20%;
   --calendar-mix-2: 35%;
   --calendar-mix-3: 50%;
-  --calendar-max-width: 24rem;
+  --calendar-cell-height: 2.75rem;
 
   --finger-l5: #f2c9d4;
   --finger-l4: #f6d3b8;

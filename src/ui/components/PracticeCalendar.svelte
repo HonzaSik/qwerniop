@@ -125,7 +125,6 @@ const LEVELS = [0, 1, 2, 3, 4] as const;
 
 <style>
   figure {
-    max-width: var(--calendar-max-width);
     margin: 0;
   }
 
@@ -133,7 +132,7 @@ const LEVELS = [0, 1, 2, 3, 4] as const;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-3);
   }
 
   h3 {
@@ -168,11 +167,12 @@ const LEVELS = [0, 1, 2, 3, 4] as const;
     position: relative;
     display: flex;
     width: 100%;
+    /* Wider than tall: square cells across the full column would make the month taller than the screen. */
+    height: var(--calendar-cell-height);
     min-height: 0;
-    aspect-ratio: 1;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: var(--space-1);
+    align-items: center;
+    justify-content: center;
+    padding: 0;
     box-sizing: border-box;
     border: 0;
     border-radius: var(--radius-key);
@@ -186,8 +186,9 @@ const LEVELS = [0, 1, 2, 3, 4] as const;
     color: var(--bg);
   }
 
-  /* Days still to come hold nothing to show. */
+  /* Days still to come hold nothing to show; the outline keeps the month's shape. */
   .cell:disabled {
+    border: 1px solid var(--separator);
     background: none;
     color: var(--text-3);
   }
@@ -262,7 +263,7 @@ const LEVELS = [0, 1, 2, 3, 4] as const;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--space-2);
-    margin-top: var(--space-2);
+    margin-top: var(--space-3);
     color: var(--text-2);
     font-size: var(--text-size-sm);
   }
