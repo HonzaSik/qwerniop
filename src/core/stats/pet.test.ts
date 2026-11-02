@@ -226,3 +226,37 @@ describe("petState", () => {
     expect(got).toMatchObject({ daysAway: 0, ageDays: 0, mood: "content" });
   });
 });
+
+describe("petMoment with something personal", () => {
+  const state = (over: Partial<PetState>): PetState => ({
+    stage: "egg",
+    mood: "content",
+    level: 1,
+    progress: 0,
+    minutes: 0,
+    toNext: 5,
+    ageDays: 0,
+    togetherDays: 0,
+    daysAway: 0,
+    lastPractised: "2026-03-01",
+    lost: 0,
+    ...over,
+  });
+  const speed = { kind: "speed", wpm: 40 } as const;
+
+  test("outranks a level", () => {
+    expect(petMoment(state({}), state({ level: 2 }), speed)).toEqual(speed);
+  });
+
+  test("gives way to a new stage and to coming back", () => {
+    expect(
+      petMoment(state({}), state({ stage: "hatchling" }), speed)?.kind,
+    ).toBe("stage");
+    expect(
+      petMoment(state({ mood: "hungry", daysAway: 5 }), state({}), speed)?.kind,
+    ).toBe("missed");
+    expect(petMoment(state({ mood: "dead" }), state({}), speed)?.kind).toBe(
+      "reborn",
+    );
+  });
+});

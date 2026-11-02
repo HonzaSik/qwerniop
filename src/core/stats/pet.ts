@@ -3,9 +3,9 @@ import { type DayPractice, dayKey } from "./practice";
 const MINUTE = 60_000;
 const DAY = 86_400_000;
 /** More than this in a day counts for nothing: regular practice should beat one long session. */
-const DAILY_CAP_MS = 60 * MINUTE;
+export const DAILY_CAP_MS = 60 * MINUTE;
 const HUNGRY_AFTER_DAYS = 4;
-const DIES_AFTER_DAYS = 14;
+export const DIES_AFTER_DAYS = 14;
 
 export const PET_STAGES = [
   "egg",
@@ -62,12 +62,15 @@ export interface PetState {
 }
 
 // Counted from the date alone, so a daylight saving change cannot shift a gap by a day.
-const dayNumber = (key: string): number =>
+export const dayNumber = (key: string): number =>
   Date.UTC(
     Number(key.slice(0, 4)),
     Number(key.slice(5, 7)) - 1,
     Number(key.slice(8)),
   ) / DAY;
+
+export const stageAt = (ms: number): PetStage =>
+  PET_STAGES.filter((s) => ms >= STAGE_FROM_MS[s]).at(-1) ?? "egg";
 
 /**
  * Worked out from practice history alone, so there is nothing extra to save, migrate or export.
@@ -104,8 +107,7 @@ export function petState(
       : daysAway >= HUNGRY_AFTER_DAYS
         ? "hungry"
         : "content";
-  const reached = PET_STAGES.filter((s) => ms >= STAGE_FROM_MS[s]);
-  const stage = reached.at(-1) ?? "egg";
+  const stage = stageAt(ms);
   const level = LEVEL_FROM_MINUTES.filter((m) => ms >= m * MINUTE).length;
   const from = (LEVEL_FROM_MINUTES[level - 1] ?? 0) * MINUTE;
   const next = LEVEL_FROM_MINUTES[level];
@@ -131,12 +133,19 @@ export type PetMoment =
   | { kind: "reborn" }
   | { kind: "missed"; days: number }
   | { kind: "stage"; stage: PetStage }
-  | { kind: "level"; level: number };
+  | { kind: "level"; level: number }
+  | { kind: "speed"; wpm: number }
+  | { kind: "key"; key: string }
+  | { kind: "clean" };
 
-/** What this session meant to the pet, comparing it just before and just after. */
+/**
+ * What this session meant to the pet, comparing it just before and just after.
+ * Something the learner did for the first time outranks a level, which comes round anyway.
+ */
 export function petMoment(
   before: PetState | null,
   after: PetState,
+  personal: PetMoment | null = null,
 ): PetMoment | null {
   if (before === null) return null;
   if (before.mood === "dead") return { kind: "reborn" };
@@ -144,6 +153,7 @@ export function petMoment(
     return { kind: "missed", days: before.daysAway };
   if (after.stage !== before.stage)
     return { kind: "stage", stage: after.stage };
+  if (personal !== null) return personal;
   if (after.level > before.level) return { kind: "level", level: after.level };
   return null;
 }

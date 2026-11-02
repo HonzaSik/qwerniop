@@ -1,3 +1,8 @@
+<script lang="ts" module>
+// Once per visit: the summary already shows the pet between sessions.
+let greeted = false;
+</script>
+
 <script lang="ts">
 import {
   apply,
@@ -15,7 +20,7 @@ import SessionSummary from "../components/SessionSummary.svelte";
 import { formatAccuracy } from "../components/session-summary";
 import TextView from "../components/TextView.svelte";
 import type { SummaryPet } from "../pet-summary";
-import { KEYBOARD_MODES, saveSettings, ui } from "../state.svelte";
+import { KEYBOARD_MODES, saveSettings, savesSessions, ui } from "../state.svelte";
 import { t } from "../strings";
 
 interface Props {
@@ -48,6 +53,7 @@ let finished = $state(false);
 let paused = $state(false);
 // Only the first keystroke writes it, so the hint costs the keystroke path one boolean check.
 let started = $state(false);
+let greet = $state(!greeted);
 // Whole seconds only, so the readout changes once a second and never touches the text.
 let secondsLeft = $state(fullSeconds());
 let pausedTotal = 0;
@@ -145,7 +151,11 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     enterTypesNewline: text.includes("\n"),
     emit(event) {
       setTyping(true);
-      if (!started) started = true;
+      if (!started) {
+        started = true;
+        greet = false;
+        greeted = true;
+      }
       const logged = session.log.length;
       view?.update(apply(session, event));
       if (
@@ -186,6 +196,11 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
 </script>
 
 <main aria-label={t.nav.practice}>
+  {#if greet && savesSessions()}
+    {#await import("../components/PetGreeting.svelte") then { default: PetGreeting }}
+      <PetGreeting />
+    {/await}
+  {/if}
   <h1>{title}</h1>
   {#if timeLimit !== undefined}
     <p class="timer" role="timer" aria-label={t.practice.timeLeft}>{secondsLeft}</p>

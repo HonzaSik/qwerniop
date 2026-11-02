@@ -76,6 +76,9 @@
   --pet-stroke: 1.5;
   --pet-blink: 5s;
   --pet-breath: 1.6s;
+  --pet-hop: 0.45s;
+  --pet-greeting-width: 9rem;
+  --pet-day-width: 4rem;
   /* The same in every theme: a warm body with soft edges stands out on white and on black alike. */
   --pet-fur: #fbe3bf;
   --pet-shade: #f2cc9c;

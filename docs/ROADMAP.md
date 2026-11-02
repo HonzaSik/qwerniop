@@ -168,4 +168,5 @@ Named by the learner, once.
 - [x] Pet worked out from practice history: growth by minutes, hungry after 4 days, dead after 14 (`core/stats/pet.ts`)
 - [x] Shown on the session summary and in Stats
 - [x] Named once on the first summary; the summary reacts to level-ups, new stages and coming back
+- [x] A greeting before the first key of a visit, reactions to personal bests and beaten keys, and memories in Stats
 - [x] 20 levels with a progress bar, and a sprout that grows with them

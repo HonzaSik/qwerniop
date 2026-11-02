@@ -11,7 +11,6 @@ import type {
   TextSize,
   Theme,
 } from "../../core/settings/settings";
-import type { PetMoment, PetState } from "../../core/stats/pet";
 
 /** "a, b and c". */
 const list = (keys: readonly string[]): string =>
@@ -253,65 +252,6 @@ export const en = {
     next: "Continue",
     repeat: "Repeat",
     recap: "Think about it:",
-  },
-  pet: {
-    unnamed: "Your pet",
-    askName: (egg: boolean): string =>
-      egg
-        ? "You found an egg! What will you call it?"
-        : "Your pet needs a name. What will you call it?",
-    giveName: "Name it",
-    nameOnce: "You choose this once, so make it a good one.",
-    moment: (moment: PetMoment, name: string): string => {
-      switch (moment.kind) {
-        case "reborn":
-          return `${name} is back as a new egg. Stay a while this time.`;
-        case "missed":
-          return `You came back after ${moment.days} days. ${name} missed you.`;
-        case "stage":
-          return `${name} grew into a ${en.pet.stages[moment.stage].toLowerCase()}!`;
-        case "level":
-          return `${name} reached level ${moment.level}!`;
-      }
-    },
-    together: "Together for",
-    stages: {
-      egg: "Egg",
-      hatchling: "Hatchling",
-      seedling: "Seedling",
-      sprout: "Sprout",
-      sapling: "Sapling",
-      bush: "Bush",
-      bloom: "Bloom",
-      guardian: "Guardian",
-    },
-    label: (pet: PetState, name: string): string => {
-      const who = `${name}: ${en.pet.stages[pet.stage].toLowerCase()}, level ${pet.level}`;
-      return pet.mood === "dead"
-        ? `${who}, dead`
-        : pet.mood === "hungry"
-          ? `${who}, hungry`
-          : `${who}, content`;
-    },
-    level: "Level",
-    toLevel: (level: number): string => `Progress to level ${level}`,
-    status: (pet: PetState, name: string): string =>
-      pet.mood === "dead"
-        ? `${name} died after 14 days without practice. Finish a session and ${name} comes back as a new egg. Your typing progress is safe.`
-        : pet.mood === "hungry"
-          ? `${name} is hungry: ${pet.daysAway} days without practice. One session fixes it.`
-          : pet.toNext === undefined
-            ? `${name} reached the top level.`
-            : `${pet.toNext} min to level ${pet.level + 1}.`,
-    note: (name: string): string =>
-      `${name} grows with practice, up to 60 minutes a day. Gets hungry after 4 days without practice and dies after 14.`,
-    stageLabel: "Stage",
-    age: "Age",
-    days: (n: number): string => `${n} ${n === 1 ? "day" : "days"}`,
-    counted: "Practice counted",
-    toNext: "To next level",
-    last: "Last practised",
-    lost: "Lives lost",
   },
   feedback: {
     unlocked: (title: string): string => `${title} is unlocked.`,

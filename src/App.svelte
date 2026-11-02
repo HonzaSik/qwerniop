@@ -357,7 +357,11 @@ function finish(session: Session): void {
     // Loaded here to keep the first paint small; a failed load only leaves the pet off the summary.
     Promise.all([saved, import("./ui/pet-summary")])
       .then(([records, { summaryPet }]) => {
-        const pet = summaryPet(records, record);
+        const pet = summaryPet(
+          records,
+          record,
+          session.chars.slice(0, session.cursor).map((c) => c.expected),
+        );
         if (pet && run === done && done.feedback) {
           done.feedback = { ...done.feedback, pet };
         }

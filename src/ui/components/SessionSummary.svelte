@@ -74,7 +74,7 @@ function focusOnShow(button: HTMLButtonElement): void {
       <div class="slot">
         {#if feedback?.pet}
           {#await import("./Pet.svelte") then { default: Pet }}
-            <Pet pet={feedback.pet.state} />
+            <Pet pet={feedback.pet.state} cheer={feedback.pet.cheer} />
           {/await}
         {/if}
       </div>

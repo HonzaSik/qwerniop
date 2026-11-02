@@ -1,14 +1,15 @@
 <script lang="ts">
 import { PET_STAGES, type PetStage, type PetState } from "../../core/stats/pet";
 import { ui } from "../state.svelte";
-import { t } from "../strings";
+import { tp } from "../strings/pet";
 
 interface Props {
   pet: PetState;
   large?: boolean;
+  cheer?: boolean;
 }
 
-let { pet, large = false }: Props = $props();
+let { pet, large = false, cheer = false }: Props = $props();
 
 const BOTTOM = 57;
 const dead = $derived(pet.mood === "dead");
@@ -118,8 +119,9 @@ const toLevel = $derived(pet.level + 1);
 </script>
 
 <figure class:large>
-  <svg class:dead class:hungry viewBox="-6 -14 76 76" role="img" aria-label={t.pet.label(pet, ui.settings.petName || t.pet.unnamed)}>
+  <svg class:dead class:hungry viewBox="-6 -14 76 76" role="img" aria-label={tp.label(pet, ui.settings.petName || tp.unnamed)}>
     <ellipse class="ground" cx="32" cy={BOTTOM + 3} rx={half * 0.95} ry="2.4" />
+    <g class="hop" class:cheer>
     <g class="creature">
       <!-- Slumped where it sat: tipped over it read as a thing, not a pet. -->
       <g transform={dead ? `rotate(-7 32 ${BOTTOM})` : undefined}>
@@ -167,6 +169,10 @@ const toLevel = $derived(pet.level + 1);
           {/each}
           <path class="line" d="M26 {y + r + 1.5}h12" />
           <ellipse class="tongue" cx="32" cy={y + r + 3.6} rx="3.2" ry="3" />
+        {:else if cheer}
+          {#each [left, right] as x}
+            <path class="line" d="M{x - r} {y + r * 0.4}q{r} {-r * 1.8} {r * 2} 0" />
+          {/each}
         {:else if asleep}
           {#each [left, right] as x}
             <path class="line" d="M{x - r} {y}q{r} {r} {r * 2} 0" />
@@ -184,6 +190,8 @@ const toLevel = $derived(pet.level + 1);
           <path class="line" d="M{left - 3} {y - r - 1.5}l5-2M{right + 3} {y - r - 1.5}l-5-2" />
           <path class="tear" d="M{right + 2.5} {y + r}c2 3 2 5 0 5s-2-2 0-5Z" />
           <path class="line" d="M29.5 {y + r + 2}q2.5-2 5 0" />
+        {:else if cheer}
+          <path class="line" d="M28.5 {y + r * 0.8}q3.5 4 7 0" />
         {:else if !dead}
           <path class="line" d="M29.5 {y + r * 0.7}q1.25 1.6 2.5 0q1.25 1.6 2.5 0" />
         {/if}
@@ -191,11 +199,12 @@ const toLevel = $derived(pet.level + 1);
       </g>
       {#if dead}<ellipse class="halo" cx="32" cy={haloY} rx="8" ry="2.2" />{/if}
     </g>
+    </g>
   </svg>
   <figcaption>
-    <span>{t.pet.level} {pet.level}</span>
+    <span>{tp.level} {pet.level}</span>
     {#if pet.toNext !== undefined}
-      <progress value={pet.progress} max="1" aria-label={t.pet.toLevel(toLevel)}></progress>
+      <progress value={pet.progress} max="1" aria-label={tp.toLevel(toLevel)}></progress>
     {/if}
   </figcaption>
 </figure>
@@ -397,6 +406,16 @@ const toLevel = $derived(pet.level + 1);
 
   :global(:root:not([data-reduce-motion])) svg:not(.dead) .creature {
     animation: breathe var(--pet-breath) var(--ease) infinite alternate;
+  }
+
+  :global(:root:not([data-reduce-motion])) .hop.cheer {
+    animation: hop var(--pet-hop) var(--ease) 3;
+  }
+
+  @keyframes hop {
+    50% {
+      transform: translateY(-4px);
+    }
   }
 
   @keyframes blink {

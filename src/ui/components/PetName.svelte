@@ -2,7 +2,7 @@
 import { cleanPetName, PET_NAME_MAX } from "../../core/settings/settings";
 import type { SummaryPet } from "../pet-summary";
 import { saveSettings, ui } from "../state.svelte";
-import { t } from "../strings";
+import { tp } from "../strings/pet";
 
 interface Props {
   pet: SummaryPet;
@@ -29,18 +29,18 @@ function submit(event: SubmitEvent): void {
 
 {#if ui.settings.petName === ""}
   <form onsubmit={submit}>
-    <label for="pet-name">{t.pet.askName(pet.state.stage === "egg")}</label>
+    <label for="pet-name">{tp.askName(pet.state.stage === "egg")}</label>
     <div class="row">
       <input id="pet-name" type="text" bind:value={draft} maxlength={PET_NAME_MAX} autocomplete="off" spellcheck="false" use:focusOnShow />
-      <button type="submit" disabled={draft.trim() === ""}>{t.pet.giveName}</button>
+      <button type="submit" disabled={draft.trim() === ""}>{tp.giveName}</button>
     </div>
-    <p class="once">{t.pet.nameOnce}</p>
+    <p class="once">{tp.nameOnce}</p>
   </form>
 {:else}
   <p>
     {pet.moment
-      ? t.pet.moment(pet.moment, ui.settings.petName)
-      : t.pet.status(pet.state, ui.settings.petName)}
+      ? tp.moment(pet.moment, ui.settings.petName)
+      : tp.status(pet.state, ui.settings.petName)}
   </p>
 {/if}
 

@@ -1,16 +1,19 @@
 <script lang="ts">
 import type { PetState } from "../../core/stats/pet";
+import type { PetMemory } from "../../core/stats/pet-memories";
 import { ui } from "../state.svelte";
 import { t } from "../strings";
+import { tp } from "../strings/pet";
 import Pet from "./Pet.svelte";
 
 interface Props {
   pet: PetState;
+  memories: readonly PetMemory[];
 }
 
-let { pet }: Props = $props();
+let { pet, memories }: Props = $props();
 
-const name = $derived(ui.settings.petName || t.pet.unnamed);
+const name = $derived(ui.settings.petName || tp.unnamed);
 
 const lastPractised = $derived(
   new Intl.DateTimeFormat(t.language, { day: "numeric", month: "long" }).format(
@@ -22,14 +25,14 @@ const lastPractised = $derived(
   ),
 );
 const rows = $derived([
-  [t.pet.stageLabel, t.pet.stages[pet.stage]],
-  [t.pet.level, String(pet.level)],
-  [t.pet.together, t.pet.days(pet.togetherDays)],
-  [t.pet.age, t.pet.days(pet.ageDays)],
-  [t.pet.counted, `${pet.minutes} min`],
-  ...(pet.toNext === undefined ? [] : [[t.pet.toNext, `${pet.toNext} min`]]),
-  [t.pet.last, lastPractised],
-  [t.pet.lost, String(pet.lost)],
+  [tp.stageLabel, tp.stages[pet.stage]],
+  [tp.level, String(pet.level)],
+  [tp.together, tp.days(pet.togetherDays)],
+  [tp.age, tp.days(pet.ageDays)],
+  [tp.counted, `${pet.minutes} min`],
+  ...(pet.toNext === undefined ? [] : [[tp.toNext, `${pet.toNext} min`]]),
+  [tp.last, lastPractised],
+  [tp.lost, String(pet.lost)],
 ]);
 </script>
 
@@ -48,8 +51,14 @@ const rows = $derived([
       </tbody>
     </table>
   </div>
-  <p class="note">{t.pet.status(pet, name)}</p>
-  <p class="note">{t.pet.note(name)}</p>
+  <p class="note">{tp.status(pet, name)}</p>
+  <p class="note">{tp.note(name)}</p>
+  <h3>{tp.memories}</h3>
+  <ol>
+    {#each [...memories].reverse() as memory}
+      <li><span class="day">{tp.day(memory.day)}</span> {tp.memory(memory, name)}</li>
+    {/each}
+  </ol>
 </section>
 
 <style>
@@ -91,5 +100,31 @@ const rows = $derived([
 
   .note {
     margin-top: var(--space-3);
+  }
+
+  h3 {
+    margin: var(--space-5) 0 var(--space-2);
+    font-size: var(--text-size-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  ol {
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-size-sm);
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-1) 0;
+  }
+
+  .day {
+    flex: none;
+    width: var(--pet-day-width);
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
   }
 </style>
