@@ -16,7 +16,7 @@ import {
   lessonLetterStage,
   nextLesson,
 } from "./core/lessons/lessons";
-import { unlockedLetters } from "./core/lessons/letters";
+import { stageCount, unlockedLetters } from "./core/lessons/letters";
 import { type CharStats, foldSession } from "./core/stats/chars";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
@@ -38,6 +38,7 @@ import {
   readSessions,
   saveProgress,
   saveSession,
+  saveSettings,
   switchLayout,
   topicStore,
   ui,
@@ -212,6 +213,46 @@ function start(lesson: Lesson): void {
   location.hash = "#practice";
 }
 
+// Waits for the model, unlike start(): the learner asked for this topic, so offline text would be the wrong answer.
+// Settings are written only on success, so a failure saves nothing and the prefetch cannot generate this passage too.
+async function startTopic(
+  topic: string,
+  signal: AbortSignal,
+): Promise<boolean> {
+  const snapshot = $state.snapshot(ui.settings.modelServer);
+  const server = {
+    ...snapshot,
+    topic,
+    modes: { ...snapshot.modes, topic: true },
+  };
+  const lesson: Lesson = { track: "letters", stage: stageCount(layout.id) };
+  const next = begin(lesson);
+  const request = {
+    layout: layout.id,
+    lesson,
+    letterStage: next.letterStage,
+    stats: next.stats,
+    targets: next.targets,
+    words: targetWords(),
+    wordList: words,
+  };
+  const key = textKey(server, request);
+  const ready = key === undefined ? undefined : prefetch.take(key);
+  if (ready === undefined) prefetch.cancel();
+  const generated =
+    ready ?? (await generatedText(server, request, signal, topicStore));
+  if (generated === undefined || signal.aborted) return false;
+  ui.settings.modelServer.topic = topic;
+  ui.settings.modelServer.modes.topic = true;
+  saveSettings();
+  ui.lesson = lesson;
+  saveProgress();
+  next.generated = generated;
+  run = next;
+  location.hash = "#practice";
+  return true;
+}
+
 // Starting or skipping the drill both count as introduced, so the intro never returns for this stage.
 function leaveIntro(drill: boolean): void {
   ui.progress = markIntroduced(layout.id, ui.progress, run.lesson);
@@ -373,7 +414,7 @@ let help: HTMLDialogElement | undefined = $state();
     <a href="#settings" aria-current={view === "settings" ? "page" : undefined}>{t.nav.settings}</a>
   </nav>
   {#if view === "lessons"}
-    <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} />
+    <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} onstarttopic={startTopic} />
   {:else if view === "settings"}
     <Settings onlayout={chooseLayout} />
   {:else if view === "stats"}
@@ -397,7 +438,7 @@ let help: HTMLDialogElement | undefined = $state();
       {:else}
         <Practice
           text={run.generated?.text ?? text(snippets)}
-          title={lessonTitle(layout.id, run.lesson)}
+          title={run.generated?.topic ? t.topics.passageTitle(run.generated.topic) : lessonTitle(layout.id, run.lesson)}
           errorMode={ui.settings.errorMode}
           timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
           feedback={run.feedback}

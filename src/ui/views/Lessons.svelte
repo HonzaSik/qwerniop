@@ -9,6 +9,7 @@ import {
   TRACKS,
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
+import TopicSection from "../components/TopicSection.svelte";
 import { ui } from "../state.svelte";
 import { lessonTitle, t } from "../strings";
 
@@ -17,9 +18,10 @@ interface Props {
   progress: Progress;
   current: Lesson;
   onstart: (lesson: Lesson) => void;
+  onstarttopic: (topic: string, signal: AbortSignal) => Promise<boolean>;
 }
 
-let { layout, progress, current, onstart }: Props = $props();
+let { layout, progress, current, onstart, onstarttopic }: Props = $props();
 
 const stages = (track: LessonTrack) =>
   Array.from({ length: lessonCount(layout, track) }, (_, i) => i + 1);
@@ -83,6 +85,7 @@ const isOpen = (track: LessonTrack) =>
       {/if}
     </section>
   {/each}
+  <TopicSection {layout} letters={progress.letters} onstart={onstarttopic} />
 </main>
 
 <style>

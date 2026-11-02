@@ -141,6 +141,12 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 - [x] Setting that makes every lesson startable, without unlocking anything
 
-## 18. Custom text
+## 18. Learn a topic from Lessons
+
+- [x] "Learn a topic" section in Lessons, with the topic field moved there from Settings
+- [x] Start waits for the first passage and says so if the model gives none
+- [x] "Next passage" and "Stop" while a topic is active
+
+## 19. Custom text
 
 - [ ] Practise pasted text; counts toward stats and history, never unlocks

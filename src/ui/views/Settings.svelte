@@ -263,10 +263,6 @@ async function test(): Promise<void> {
           </label>
         {/each}
       </fieldset>
-      <label>
-        {t.settings.topic}
-        <input type="text" spellcheck="false" autocomplete="off" maxlength="80" bind:value={server.topic} onchange={saveSettings} />
-      </label>
       <p class="note">{t.settings.topicNote}</p>
     {/if}
     <label>

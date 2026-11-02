@@ -85,6 +85,8 @@ export interface Recap {
 
 export interface Generated {
   text: string;
+  /** Set on a topic passage, so the view can title it whichever way it arrived. */
+  topic?: string;
   recap?: Recap;
 }
 
@@ -162,9 +164,10 @@ export async function generatedText(
       return recapDue(history)
         ? {
             text,
+            topic,
             recap: { topic, passages: history.passages.slice(-RECAP_PASSAGES) },
           }
-        : { text };
+        : { text, topic };
     }
     const letters = unlockedLetters(r.layout, r.letterStage) ?? "";
     const weak = [...letters]

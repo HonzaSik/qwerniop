@@ -40,7 +40,7 @@ Timeouts: 5 s to first token, 30 s total; both abort through `AbortController`. 
 | Setting | Default |
 |---|---|
 | Enabled | off |
-| Topic | empty (the subject for Learn a topic) |
+| Topic | empty (the subject for Learn a topic, set from Lessons) |
 | Base URL | `http://localhost:11434/v1` |
 | Model | none (chosen from the list returned by the server) |
 | API key | empty, stored locally, excluded from export |
@@ -73,7 +73,8 @@ Generates sentences for the current lesson.
 
 The learner types a topic (for example "how vaccines work" or "Rust ownership"), and the model writes a series of short teaching passages, each building on the last.
 
-- Available once all letters of the layout are unlocked, plus punctuation if the topic text needs it (otherwise punctuation is stripped).
+- Started from the "Learn a topic" section in Lessons (see DESIGN.md). Available once all letters of the layout are unlocked, plus punctuation if the topic text needs it (otherwise punctuation is stripped).
+- Start and Next passage in Lessons are the only places that wait for the model, because the learner asked for this topic: a failure shows a message and saves nothing, and offline text is never swapped in. Continue after a passage follows the usual rule: used if ready, otherwise offline text.
 - Passages are 40–80 words. The next one is requested as soon as the current one is shown, with a short summary of previous passages for continuity.
 - After every 3rd passage, an optional one-line recap question is shown (not typed) under the session feedback.
 - The topic history is kept locally so the learner can continue later.

@@ -112,15 +112,13 @@ export const en = {
     baseUrl: "Address",
     enabled: "Use the model server",
     modes: "Practice material",
+    topicNote: "Choose the topic for Learn a topic in Lessons.",
     modeNames: {
       lesson: "Lesson text",
       topic: "Learn a topic",
       code: "Code snippets",
       feedback: "Session feedback",
     } as Record<AiMode, string>,
-    topic: "Topic",
-    topicNote:
-      "For Learn a topic, once every letter is unlocked. For example: how vaccines work.",
     model: "Model",
     noModel: "Run the test to choose a model",
     apiKey: "API key (optional)",
@@ -167,6 +165,24 @@ export const en = {
     current: "Current",
     count: (done: number, all: number): string => `${done} of ${all}`,
     developerMode: "Developer mode is on: every lesson can be started.",
+  },
+  topics: {
+    title: "Learn a topic",
+    intro:
+      "Have a model on your own machine write passages to type about anything you want to learn.",
+    setUp: "Set up a model server",
+    locked: (done: number, all: number): string =>
+      `Opens once every letter is unlocked (${done} of ${all}).`,
+    field: "Topic",
+    placeholder: "how vaccines work",
+    start: "Start",
+    next: "Next passage",
+    stop: "Stop",
+    learning: (topic: string): string => `Learning: ${topic}`,
+    writing: "Writing a passage",
+    failed:
+      "The model could not write a passage. Check the model server in Settings.",
+    passageTitle: (topic: string): string => `Topic · ${topic}`,
   },
   practice: {
     timeLeft: "Time left",

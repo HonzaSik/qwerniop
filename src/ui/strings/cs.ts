@@ -101,15 +101,13 @@ export const cs: Strings = {
     baseUrl: "Adresa",
     enabled: "Používat model server",
     modes: "Cvičný materiál",
+    topicNote: "Téma pro učení tématu zvolíte v Lekcích.",
     modeNames: {
       lesson: "Text lekce",
       topic: "Učení tématu",
       code: "Úryvky kódu",
       feedback: "Zpětná vazba ke cvičení",
     } as Record<AiMode, string>,
-    topic: "Téma",
-    topicNote:
-      "Pro učení tématu, jakmile jsou odemčena všechna písmena. Například: jak fungují vakcíny.",
     model: "Model",
     noModel: "Spusťte test a vyberte model",
     apiKey: "Klíč API (volitelný)",
@@ -151,6 +149,23 @@ export const cs: Strings = {
     current: "Aktuální",
     count: (done, all) => `${done} z ${all}`,
     developerMode: "Vývojářský režim je zapnutý: lze spustit každou lekci.",
+  },
+  topics: {
+    title: "Učení tématu",
+    intro:
+      "Model na vašem počítači může psát texty k opsání o čemkoli, co se chcete naučit.",
+    setUp: "Nastavit model server",
+    locked: (done, all) =>
+      `Otevře se, až budou odemčena všechna písmena (${done} z ${all}).`,
+    field: "Téma",
+    placeholder: "jak fungují vakcíny",
+    start: "Začít",
+    next: "Další text",
+    stop: "Ukončit",
+    learning: (topic) => `Učíte se: ${topic}`,
+    writing: "Model píše text",
+    failed: "Model text nenapsal. Zkontrolujte model server v Nastavení.",
+    passageTitle: (topic) => `Téma · ${topic}`,
   },
   practice: {
     timeLeft: "Zbývající čas",
