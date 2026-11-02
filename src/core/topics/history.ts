@@ -1,5 +1,5 @@
 export interface TopicHistory {
-  /** Passages ever generated for the topic; `passages` only keeps the newest. */
+  /** Passages ever shown for the topic; `passages` only keeps the newest. */
   count: number;
   passages: string[];
 }

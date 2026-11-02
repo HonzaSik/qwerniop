@@ -157,17 +157,7 @@ export async function generatedText(
         { language, topic, previous: previous?.slice(-PREVIOUS_CHARS) },
         signal,
       );
-      if (text === undefined) return undefined;
-      history = addPassage(history, text);
-      histories.set(topic, history);
-      topics?.save(topic, history);
-      return recapDue(history)
-        ? {
-            text,
-            topic,
-            recap: { topic, passages: history.passages.slice(-RECAP_PASSAGES) },
-          }
-        : { text, topic };
+      return text === undefined ? undefined : { text, topic };
     }
     const letters = unlockedLetters(r.layout, r.letterStage) ?? "";
     const weak = [...letters]
@@ -194,6 +184,28 @@ export async function generatedText(
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Records a topic passage as seen, at the moment it is put on screen. Done here and not when it is
+ * generated: a prefetched passage may be dropped, and the next one must not continue from text never read.
+ */
+export function passageShown(
+  generated: Generated | undefined,
+  topics?: TopicStore,
+): Generated | undefined {
+  if (generated?.topic === undefined) return generated;
+  const { text, topic } = generated;
+  const history = addPassage(histories.get(topic) ?? emptyTopic(), text);
+  histories.set(topic, history);
+  topics?.save(topic, history);
+  return recapDue(history)
+    ? {
+        text,
+        topic,
+        recap: { topic, passages: history.passages.slice(-RECAP_PASSAGES) },
+      }
+    : generated;
 }
 
 export interface FeedbackRequest {

@@ -26,6 +26,7 @@ import {
   generatedFeedback,
   generatedRecap,
   generatedText,
+  passageShown,
   textKey,
 } from "./ui/ai";
 import KeyIntro from "./ui/components/KeyIntro.svelte";
@@ -210,7 +211,10 @@ function start(lesson: Lesson): void {
     words: targetWords(),
     wordList: words,
   });
-  next.generated = key === undefined ? undefined : prefetch.take(key);
+  next.generated = passageShown(
+    key === undefined ? undefined : prefetch.take(key),
+    topicStore,
+  );
   run = next;
   location.hash = "#practice";
 }
@@ -249,7 +253,7 @@ async function startTopic(
   saveSettings();
   ui.lesson = lesson;
   saveProgress();
-  next.generated = generated;
+  next.generated = passageShown(generated, topicStore);
   run = next;
   location.hash = "#practice";
   return true;
