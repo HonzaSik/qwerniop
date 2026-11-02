@@ -336,6 +336,16 @@ function startWeak(): void {
   location.hash = "#practice";
 }
 
+// Coming back to a finished session: its summary is gone, so it moves on as Continue would.
+function onhashchange(): void {
+  hash = location.hash;
+  // Pages differ a lot in height, so a new view would otherwise open part way down.
+  scrollTo(0, 0);
+  if (view !== "practice" || run.feedback === undefined) return;
+  if (run.phase === "drill") run = carry("lesson");
+  else practiceNext();
+}
+
 function practiceNext(): void {
   if (run.weakKeys !== undefined && weak.length > 0) startWeak();
   else if (run.custom !== undefined) start(ui.lesson);
@@ -513,7 +523,7 @@ function onkeydown(event: KeyboardEvent): void {
 let help: HTMLDialogElement | undefined = $state();
 </script>
 
-<svelte:window onhashchange={() => (hash = location.hash)} {onkeydown} />
+<svelte:window {onhashchange} {onkeydown} />
 
 <dialog bind:this={help} aria-labelledby="help-title">
   <h2 id="help-title">{t.help.title}</h2>

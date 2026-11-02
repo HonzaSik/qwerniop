@@ -53,7 +53,7 @@ function summarise(records: SessionRecord[]) {
     });
   const days = practiceByDay(records);
   const today = Date.now();
-  const minutesToday = Math.round((days.get(dayKey(today))?.ms ?? 0) / 60_000);
+  const msToday = days.get(dayKey(today))?.ms ?? 0;
   // A reduce, not a spread: sessions are never pruned, and a spread of every record could overflow the stack.
   const first = records.reduce((m, r) => Math.min(m, r.at), today);
   return {
@@ -65,7 +65,7 @@ function summarise(records: SessionRecord[]) {
     days,
     today,
     first,
-    minutesToday,
+    msToday,
     spread: recentSpread(days, today),
     pet: petState(days, today),
     streak: practiceStreak(days, today),
@@ -95,7 +95,7 @@ function summarise(records: SessionRecord[]) {
         <div>
           <dt>{t.stats.totalTime}</dt>
           <dd>{t.stats.time(s.overview.totalMs)}</dd>
-          <dd class="detail">{t.stats.today(s.minutesToday)}</dd>
+          <dd class="detail">{t.stats.today(s.msToday)}</dd>
         </div>
         <div>
           <dt>{t.stats.lastWeek}</dt>
@@ -173,7 +173,7 @@ function summarise(records: SessionRecord[]) {
     {/if}
   </Tabs>
   {#await summary then s}
-    {#if s.pet}<PetStreak pet={s.pet} streak={s.streak} />{/if}
+    {#if s.pet && tab !== "pet"}<PetStreak pet={s.pet} streak={s.streak} />{/if}
   {/await}
 </main>
 

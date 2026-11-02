@@ -53,7 +53,7 @@ export const en = {
     title: "Keyboard shortcuts",
     close: "Close",
     items: [
-      ["Enter", "Continue to the next lesson"],
+      ["Enter", "Continue to the next lesson, or start it from Lessons"],
       ["R", "Repeat the lesson"],
       ["Esc", "Pause while typing, go back to Practice elsewhere"],
       [",", "Open Settings"],
@@ -216,6 +216,7 @@ export const en = {
     startHint: "Start typing when ready",
     typeText: "Type the text",
     paused: "Click or press any key to continue",
+    startOver: "Start over",
     connectKeyboard: "Connect a keyboard to practice",
   },
   intro: {
@@ -294,6 +295,7 @@ export const en = {
     daysOfWeek: (days: number): string => `${days} of 7 days`,
     time: (ms: number): string => {
       const minutes = Math.round(ms / 60_000);
+      if (ms > 0 && minutes === 0) return "Under 1 min";
       return minutes < 60
         ? `${minutes} min`
         : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
@@ -315,8 +317,11 @@ export const en = {
       "Share of first tries on each key that went wrong, over all your practice. A key needs 10 tries.",
     loadFailed: "Stats could not be loaded. Reloading the page may help.",
     practice: "Practice",
-    today: (minutes: number): string =>
-      minutes === 0 ? "Not practised yet today" : `Today: ${minutes} min`,
+    today: (ms: number): string => {
+      const minutes = Math.round(ms / 60_000);
+      if (ms === 0) return "Not practised yet today";
+      return minutes === 0 ? "Today: under 1 min" : `Today: ${minutes} min`;
+    },
     minutes: (n: number): string => `${n} min`,
     less: "Less",
     more: "More",
@@ -325,7 +330,7 @@ export const en = {
     dayTip: (minutes: number, sessions: number): string =>
       sessions === 0
         ? "No practice"
-        : `${minutes} min · ${sessions} ${sessions === 1 ? "session" : "sessions"}`,
+        : `${minutes === 0 ? "Under 1" : minutes} min · ${sessions} ${sessions === 1 ? "session" : "sessions"}`,
     monthSummary: (days: number, minutes: number): string =>
       `${days} ${days === 1 ? "day" : "days"} practised, ${minutes} min in total.`,
     weekStart: 0 as 0 | 1,

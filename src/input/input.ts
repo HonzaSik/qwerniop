@@ -1,5 +1,7 @@
 import { createTranslator, type InputOptions } from "./translate";
 
+const CONTROLS = "a, button, input, select, textarea, summary";
+
 /**
  * Captures typing from a textarea the caller renders and hides. Attach once per passage.
  * Returns a function that removes the listeners.
@@ -62,6 +64,14 @@ export function attachInput(
   document.addEventListener(
     "keydown",
     (event) => {
+      // Paused with focus on a link or a control: the key is for that control.
+      if (
+        event.target instanceof Element &&
+        event.target !== textarea &&
+        event.target.closest(CONTROLS) !== null
+      ) {
+        return;
+      }
       if (translator.keyDown(event)) event.preventDefault();
     },
     { signal },

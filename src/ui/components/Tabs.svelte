@@ -11,7 +11,7 @@ interface Props {
 
 let { label, tabs, selected = $bindable(), children }: Props = $props();
 
-const buttons: HTMLButtonElement[] = [];
+const buttons = $state<HTMLButtonElement[]>([]);
 
 function onkeydown(event: KeyboardEvent, index: number): void {
   const next = nextTab(event.key, index, tabs.length);
@@ -64,6 +64,14 @@ function onkeydown(event: KeyboardEvent, index: number): void {
     background: none;
     color: var(--text);
     font-size: var(--text-size-md);
+  }
+
+  /* Four labels fit on one row at phone width only with less air around them. */
+  @media (width < 480px) {
+    button {
+      padding-inline: var(--space-2);
+      font-size: var(--text-size-sm);
+    }
   }
 
   button[aria-selected="true"] {

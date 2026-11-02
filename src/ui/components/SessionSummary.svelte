@@ -83,7 +83,7 @@ function focusOnShow(button: HTMLButtonElement): void {
       {#if feedback}<p>{feedback.sentence}</p>{/if}
       {#if feedback?.pet}
         {#await import("./PetName.svelte") then { default: PetName }}
-          <PetName pet={feedback.pet} onnamed={() => continueButton?.focus({ preventScroll: true })} />
+          <PetName pet={feedback.pet} onnamed={() => continueButton?.focus({ preventScroll: true })} onskip={onnext} />
         {/await}
       {/if}
     </div>

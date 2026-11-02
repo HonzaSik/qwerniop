@@ -18,6 +18,7 @@ import Tabs from "../components/Tabs.svelte";
 import TopicSection from "../components/TopicSection.svelte";
 import WeakKeysSection from "../components/WeakKeysSection.svelte";
 import type { PetStatus } from "../pet-status";
+import { isStartKey } from "../shortcuts";
 import { ui } from "../state.svelte";
 import { lessonParts, lessonTitle, t } from "../strings";
 
@@ -46,6 +47,13 @@ let {
   onstartweak,
   petStatus,
 }: Props = $props();
+
+function onkeydown(event: KeyboardEvent): void {
+  if (!isStartKey(event, event.target instanceof Element ? event.target : null))
+    return;
+  event.preventDefault();
+  onstart(current);
+}
 
 // Only where the view opens: picking a tab must not follow the current lesson afterwards.
 let track = $state<LessonTrack>(untrack(() => current.track));
@@ -77,6 +85,8 @@ const nextTitle = $derived(
   }),
 );
 </script>
+
+<svelte:window {onkeydown} />
 
 <main aria-label={t.nav.lessons}>
   <h1>{t.nav.lessons}</h1>

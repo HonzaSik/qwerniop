@@ -31,6 +31,13 @@ function plain(event: Key, target: Target | null): boolean {
   );
 }
 
+// Enter on any of these already does what the control means.
+const onControl = (target: Target | null): boolean =>
+  typingTarget(target) || /^(A|BUTTON|SUMMARY)$/.test(target?.tagName ?? "");
+
+export const isStartKey = (event: Key, target: Target | null): boolean =>
+  plain(event, target) && event.key === "Enter" && !onControl(target);
+
 export const isHelpKey = (event: Key, target: Target | null): boolean =>
   plain(event, target) && event.key === "?";
 

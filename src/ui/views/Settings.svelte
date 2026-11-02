@@ -383,6 +383,8 @@ async function test(): Promise<void> {
 
   .check {
     display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
     align-items: center;
     gap: var(--space-2);
   }

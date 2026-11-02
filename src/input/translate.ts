@@ -13,6 +13,9 @@ const MODIFIER_KEYS = new Set([
   "Shift",
 ]);
 
+/** Esc is what paused the session, and Tab moves on to the controls around it. */
+const STAY_PAUSED_KEYS = new Set(["Escape", "Tab"]);
+
 /** Left to the browser while paused. AltGr types characters, and Windows reports it as Ctrl+Alt. */
 function isShortcut(
   event: Pick<KeyboardEvent, "key" | "ctrlKey" | "metaKey" | "altKey">,
@@ -105,7 +108,13 @@ export function createTranslator(options: InputOptions) {
       flush();
       options.onKeyDown(event.code);
       if (pausedAt !== undefined) {
-        if (MODIFIER_KEYS.has(event.key) || isShortcut(event)) return false;
+        if (
+          MODIFIER_KEYS.has(event.key) ||
+          STAY_PAUSED_KEYS.has(event.key) ||
+          isShortcut(event)
+        ) {
+          return false;
+        }
         resume(event.timeStamp);
         return true;
       }

@@ -41,7 +41,7 @@ export const cs: Strings = {
     title: "Klávesové zkratky",
     close: "Zavřít",
     items: [
-      ["Enter", "Pokračovat na další lekci"],
+      ["Enter", "Pokračovat na další lekci, nebo ji spustit z Lekcí"],
       ["R", "Zopakovat lekci"],
       ["Esc", "Pozastavit při psaní, jinde zpět na Procvičování"],
       [",", "Otevřít Nastavení"],
@@ -200,6 +200,7 @@ export const cs: Strings = {
     startHint: "Až budete připraveni, začněte psát",
     typeText: "Pište text",
     paused: "Klikněte nebo stiskněte libovolnou klávesu a pokračujte",
+    startOver: "Začít znovu",
     connectKeyboard: "Pro cvičení připojte klávesnici",
   },
   intro: {
@@ -273,6 +274,7 @@ export const cs: Strings = {
     daysOfWeek: (days) => `${days} ze 7 dní`,
     time: (ms) => {
       const minutes = Math.round(ms / 60_000);
+      if (ms > 0 && minutes === 0) return "Méně než 1 min";
       return minutes < 60
         ? `${minutes} min`
         : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
@@ -284,8 +286,11 @@ export const cs: Strings = {
     empty: "Zatím žádná cvičení. Dokončete cvičení a objeví se tady.",
     history: "Historie",
     practice: "Cvičení",
-    today: (minutes) =>
-      minutes === 0 ? "Dnes zatím bez cvičení" : `Dnes: ${minutes} min`,
+    today: (ms) => {
+      const minutes = Math.round(ms / 60_000);
+      if (ms === 0) return "Dnes zatím bez cvičení";
+      return minutes === 0 ? "Dnes: méně než 1 min" : `Dnes: ${minutes} min`;
+    },
     minutes: (n) => `${n} min`,
     less: "Méně",
     more: "Více",

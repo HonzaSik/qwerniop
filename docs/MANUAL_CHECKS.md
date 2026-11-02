@@ -314,3 +314,10 @@ After the checks above pass and the license review is done:
 - [x] `package.json` version set to `1.0.0`; committed.
 - [x] Local tag `v1.0.0` created.
 - [ ] Push the commit and the tag (human step).
+
+## Tabs and pausing
+
+1. Two tabs. Name the pet, change a setting or finish a session in one, then focus the other: it reloads and shows the newer data. Saving in it keeps that data. Import or Delete all data in one: the other follows on focus and writes nothing back.
+2. Press Esc while typing: "Paused" stays until a key is typed, with Start over under the Keyboard select, and the keyboard does not move. Tab reaches the controls, and Enter on a nav link follows it. Start over restarts the same text.
+3. Finish a session, open Stats, return to Practice: new text, not the same one. On the first summary, Enter in the empty name box continues. On Lessons with nothing focused, Enter starts Next up.
+4. Export, then Import that file: it succeeds and the data is unchanged.

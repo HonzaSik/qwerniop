@@ -80,7 +80,7 @@ const rows = $derived([
 
   .row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-5);
   }
 

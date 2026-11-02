@@ -13,6 +13,7 @@ import {
 } from "../core/settings/settings";
 import type { TopicHistory } from "../core/topics/history";
 import type { Store, Stored } from "../storage/store";
+import { createTabSync } from "./tab-sync";
 
 export const KEYBOARD_MODES: readonly KeyboardMode[] = [
   "fingers",
@@ -32,6 +33,12 @@ export const ui: {
 
 // Null until storage opens, and for good when it is unavailable: the app then runs memory-only.
 let store: Store | null = null;
+let sync: ReturnType<typeof createTabSync> | null = null;
+
+// Memory-only tabs save nothing, so they have nothing to tell and nothing to lose by staying.
+const tellOtherTabs = (): void => {
+  if (store) sync?.tell();
+};
 
 export function hydrate(loaded: {
   store: Store | null;
@@ -43,19 +50,34 @@ export function hydrate(loaded: {
     ui.progress = loaded.stored.progress;
     ui.lesson = loaded.stored.progress.lesson;
   }
+  if (!store) return;
+  const tabs = createTabSync(() => location.reload());
+  sync = tabs;
+  const regained = (): void => {
+    if (document.visibilityState === "visible") tabs.regained();
+  };
+  addEventListener("focus", regained);
+  document.addEventListener("visibilitychange", regained);
 }
 
 /** Call after changing `ui.settings`, never per keystroke. */
-export const saveSettings = (): void =>
+export function saveSettings(): void {
   store?.saveSettings($state.snapshot(ui.settings));
+  tellOtherTabs();
+}
 /** The lesson lives in `ui.lesson`; it joins progress only here, so there is one source while running. */
 const withLesson = (): Progress => ({
   ...$state.snapshot(ui.progress),
   lesson: $state.snapshot(ui.lesson),
 });
-export const saveProgress = (): void =>
+export function saveProgress(): void {
   store?.saveProgress(ui.settings.layout, withLesson());
-export const saveSession: Store["addSession"] = (r) => store?.addSession(r);
+  tellOtherTabs();
+}
+export const saveSession: Store["addSession"] = (r) => {
+  store?.addSession(r);
+  tellOtherTabs();
+};
 /** Topic history lives only in storage: it is neither exported nor kept in memory-only mode. */
 export const topicStore = {
   load: async (topic: string) => (await store?.readTopic(topic)) ?? undefined,
@@ -118,6 +140,7 @@ export async function exportText(): Promise<string> {
 /** Deletes everything saved. Rejects with nothing deleted; the caller reloads on success, so nothing in memory survives. */
 export const deleteAllData = async (): Promise<void> => {
   await store?.clearAll();
+  tellOtherTabs();
 };
 
 /**
@@ -126,8 +149,13 @@ export const deleteAllData = async (): Promise<void> => {
  */
 export async function replaceAll(data: AppData): Promise<boolean> {
   // The export carries no model server, so an import keeps this device's.
-  const settings = { ...data.settings, modelServer: ui.settings.modelServer };
+  // A snapshot: IndexedDB cannot clone the reactive proxy.
+  const settings = {
+    ...data.settings,
+    modelServer: $state.snapshot(ui.settings.modelServer),
+  };
   await store?.replaceAll({ ...data, settings });
+  tellOtherTabs();
   ui.settings = settings;
   others = { ...data.progress };
   ui.progress = data.progress[data.settings.layout];

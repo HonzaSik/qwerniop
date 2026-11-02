@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isBackKey, isHelpKey, isSettingsKey } from "./shortcuts";
+import { isBackKey, isHelpKey, isSettingsKey, isStartKey } from "./shortcuts";
 
 const press = (key: string, extra = {}) => ({
   key,
@@ -16,6 +16,17 @@ describe("shortcuts", () => {
     expect(isHelpKey(press("?"), { tagName: "BODY" })).toBe(true);
     expect(isBackKey(press("Escape"), { tagName: "BODY" })).toBe(true);
     expect(isSettingsKey(press(","), { tagName: "BODY" })).toBe(true);
+  });
+
+  it("start only when no control would take the Enter itself", () => {
+    expect(isStartKey(press("Enter"), { tagName: "BODY" })).toBe(true);
+    expect(isStartKey(press("x"), { tagName: "BODY" })).toBe(false);
+    expect(
+      isStartKey(press("Enter", { repeat: true }), { tagName: "BODY" }),
+    ).toBe(false);
+    for (const tagName of ["A", "BUTTON", "INPUT", "SELECT", "TEXTAREA"]) {
+      expect(isStartKey(press("Enter"), { tagName })).toBe(false);
+    }
   });
 
   it("never fire while typing in a field", () => {

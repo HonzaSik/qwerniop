@@ -192,3 +192,11 @@ Named by the learner, once.
 ## 26. Danger zone
 
 - [x] Delete all data from Settings, with a confirmation; everything saved goes in one transaction, queued writes included (`clearAll`)
+
+## 27. Headed audit
+
+- [x] Import works again; Esc really pauses, and the keyboard can leave a paused session
+- [x] A tab reloads on focus after another tab saved, so it cannot undo newer data (`tab-sync.ts`)
+- [x] Coming back to a finished session moves on; practice under a minute reads as such
+- [x] Start over while paused, Enter continues from the empty name box, Enter starts Next up
+- [x] One-row tabs at phone width, one pet on the Pet tab, switches on the right in Settings

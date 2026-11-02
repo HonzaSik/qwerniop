@@ -208,6 +208,15 @@ describe("pausing", () => {
     expect(pausedChanges).toEqual([true]);
   });
 
+  it("stays paused on Esc, which is what paused it, and on Tab, which moves focus", () => {
+    const { translator, pausedChanges } = setup();
+    translator.pause(100);
+    for (const name of ["Escape", "Tab"]) {
+      expect(translator.keyDown(key(name, 200))).toBe(false);
+    }
+    expect(pausedChanges).toEqual([true]);
+  });
+
   it("leaves browser shortcuts and function keys alone", () => {
     const { translator, pausedChanges } = setup();
     translator.pause(100);

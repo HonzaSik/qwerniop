@@ -115,6 +115,15 @@ function restart(): void {
   live = "";
 }
 
+// The input stays attached and its clock keeps the time paused so far, so pausedTotal stays too.
+function startOver(): void {
+  greet = true;
+  session = newSession();
+  started = false;
+  secondsLeft = fullSeconds();
+  live = "";
+}
+
 function end(): void {
   // Removing the focused textarea fires blur during Svelte's update, where a pause may not set state.
   stop?.();
@@ -178,7 +187,10 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       if (value) setTyping(false);
       if (value) pausedSince = performance.now();
       else pausedTotal += performance.now() - pausedSince;
-      paused = value;
+      // Later: removing the focused textarea fires blur during Svelte's update, where state may not change.
+      queueMicrotask(() => {
+        paused = value;
+      });
     },
   });
   // Blur is what pauses, so Esc needs no pause path of its own.
@@ -231,21 +243,26 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   {#if ui.settings.liveStats && !finished}
     <p class="live">{live}</p>
   {/if}
-  <label class="mode">
-    {t.keyboardLabel}
-    <select
-      value={ui.settings.keyboardMode}
-      onchange={(e) => {
-        const mode = KEYBOARD_MODES[e.currentTarget.selectedIndex];
-        if (mode) {
-          ui.settings.keyboardMode = mode;
-          saveSettings();
-        }
-      }}
-    >
-      {#each KEYBOARD_MODES as m}<option value={m}>{t.keyboardModes[m]}</option>{/each}
-    </select>
-  </label>
+  <div class="controls">
+    <label class="mode">
+      {t.keyboardLabel}
+      <select
+        value={ui.settings.keyboardMode}
+        onchange={(e) => {
+          const mode = KEYBOARD_MODES[e.currentTarget.selectedIndex];
+          if (mode) {
+            ui.settings.keyboardMode = mode;
+            saveSettings();
+          }
+        }}
+      >
+        {#each KEYBOARD_MODES as m}<option value={m}>{t.keyboardModes[m]}</option>{/each}
+      </select>
+    </label>
+    {#if paused && started}
+      <button type="button" class="over" onclick={startOver}>{t.practice.startOver}</button>
+    {/if}
+  </div>
 </main>
 
 <style>
@@ -264,8 +281,6 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
   }
 
   .mode {
-    justify-self: center;
-    margin-top: var(--space-5);
     color: var(--text-2);
     font-size: var(--text-size-sm);
   }
@@ -352,6 +367,21 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     color: var(--text-2);
     font-size: var(--text-size-md);
     text-align: center;
+  }
+
+  .controls {
+    position: relative;
+    justify-self: center;
+    margin-top: var(--space-5);
+  }
+
+  /* Out of the flow: the page is centred, so any added height would move the keyboard. */
+  .over {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: var(--space-3);
   }
 
   .pause {
