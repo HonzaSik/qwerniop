@@ -165,6 +165,22 @@ export const en = {
     current: "Current",
     count: (done: number, all: number): string => `${done} of ${all}`,
     developerMode: "Developer mode is on: every lesson can be started.",
+    loadFailed: "Lessons could not be loaded. Reloading the page may help.",
+    tracks: "Tracks",
+    nextUp: "Next up",
+    unlockProgress: (ready: number, total: number, next: string): string =>
+      `${ready} of ${total} keys ready to unlock ${next}.`,
+    stillNeeds: "Still needs:",
+    unlockReady: (next: string): string =>
+      `Every key is ready. Finish a session to unlock ${next}.`,
+  },
+  weak: {
+    title: "Weakest keys",
+    intro:
+      "Drill the keys you miss most. The more often you miss a key, the more often it appears. It counts in Stats but unlocks nothing.",
+    empty: "No key is missed more often than your accuracy target allows.",
+    start: "Start",
+    practiceTitle: (keys: string): string => `Weakest keys · ${keys}`,
   },
   custom: {
     title: "Custom text",
@@ -269,6 +285,22 @@ export const en = {
         : "Both targets met.",
   },
   stats: {
+    sections: "Stats sections",
+    overview: "Overview",
+    keys: "Keys",
+    pet: "Pet",
+    totalTime: "Total time",
+    lastWeek: "Last 7 days",
+    daysOfWeek: (days: number): string => `${days} of 7 days`,
+    time: (ms: number): string => {
+      const minutes = Math.round(ms / 60_000);
+      return minutes < 60
+        ? `${minutes} min`
+        : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
+    },
+    lastSessions: (n: number): string =>
+      n === 1 ? "Last session" : `Last ${n} sessions`,
+    changeFrom: (change: string): string => `${change} vs the 10 before`,
     loading: "Loading",
     empty:
       "No sessions yet. Finish a practice session and it will show up here.",
@@ -279,6 +311,8 @@ export const en = {
     errorsByKey: "Errors by key",
     noErrors: "No errors recorded.",
     mostMissed: "Most missed:",
+    mostMissedNote:
+      "Share of first tries on each key that went wrong, over all your practice. A key needs 10 tries.",
     loadFailed: "Stats could not be loaded. Reloading the page may help.",
     practice: "Practice",
     today: (minutes: number): string =>
@@ -296,9 +330,7 @@ export const en = {
       `${days} ${days === 1 ? "day" : "days"} practised, ${minutes} min in total.`,
     weekStart: 0 as 0 | 1,
     spread: (days: number, minutes: number): string =>
-      days === 0
-        ? "No practice in the last 7 days."
-        : `Last 7 days: ${days} ${days === 1 ? "day" : "days"}, about ${minutes} min a day.`,
+      days === 0 ? "No practice" : `About ${minutes} min a day`,
     combinations: "Slowest letter combinations",
     combinationsEmpty:
       "Keep typing: combinations show after about 20 attempts each.",

@@ -38,7 +38,7 @@ Rules:
 ## Loading
 
 - Svelte compiles to small output; keep it that way by not adding UI libraries.
-- Dynamic `import()` for: word list per locale, code snippets, model integration, Stats view, import/export.
+- Dynamic `import()` for: word list per locale, code snippets, model integration, Lessons view, Stats view, import/export.
 - One font file, subset with `pyftsubset` or `glyphhanger` to the characters the layouts and code mode need. `font-display: swap`. Preload it.
 - No CSS framework. Component styles are scoped and small; `tokens.css` and `base.css` are global.
 - Build target: `es2022`. No polyfills.

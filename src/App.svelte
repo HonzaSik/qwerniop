@@ -2,8 +2,10 @@
 import "./ui/styles/tokens.css";
 import "./ui/styles/base.css";
 import { feedbackRule, weakestKeys } from "./core/adaptive/feedback";
+import { missRates } from "./core/adaptive/mistakes";
 import type { Targets } from "./core/adaptive/weakness";
 import type { Session } from "./core/engine/engine";
+import type { SessionRecord } from "./core/engine/record";
 import { sessionRecord } from "./core/engine/record";
 import { accuracy, netWpm } from "./core/engine/results";
 import type { Layout } from "./core/layouts/layout";
@@ -33,6 +35,7 @@ import {
 import KeyIntro from "./ui/components/KeyIntro.svelte";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
+import type { PetStatus } from "./ui/pet-status";
 import type { SummaryPet } from "./ui/pet-summary";
 import { createPrefetch } from "./ui/prefetch";
 import { isBackKey, isHelpKey, isSettingsKey } from "./ui/shortcuts";
@@ -48,7 +51,6 @@ import {
   ui,
 } from "./ui/state.svelte";
 import { feedbackText, lessonTitle, t } from "./ui/strings";
-import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
 import Settings from "./ui/views/Settings.svelte";
 import { applyUpdate, worker } from "./ui/worker.svelte";
@@ -123,6 +125,8 @@ interface Run {
   generated?: Generated | undefined;
   /** Pasted text; the lesson stays the current one to come back to and is not what is being typed. */
   custom?: string;
+  /** Set when `custom` is a weakest-keys drill: the keys it trains, for the title. */
+  weakKeys?: string;
 }
 
 // One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
@@ -153,6 +157,7 @@ async function afterImport(): Promise<void> {
     console.error("Word list failed to load", error);
   }
   run = begin(ui.lesson);
+  refreshPetStatus(readSessions());
 }
 
 async function chooseLayout(id: Layout["id"]): Promise<void> {
@@ -176,6 +181,30 @@ const loadStats = () =>
     statsView = undefined;
     throw error;
   }));
+
+// Loaded on first visit too: Practice is what opens, and the first paint should not wait for this either.
+let lessonsView:
+  | Promise<typeof import("./ui/views/Lessons.svelte")>
+  | undefined;
+const loadLessons = () =>
+  (lessonsView ??= import("./ui/views/Lessons.svelte").catch(
+    (error: unknown) => {
+      lessonsView = undefined;
+      throw error;
+    },
+  ));
+
+let petStatus = $state.raw<PetStatus | null>(null);
+
+// Loaded here to keep the first paint small; with no status Lessons just leaves the pet out.
+function refreshPetStatus(records: Promise<SessionRecord[]>): void {
+  if (!savesSessions()) return;
+  Promise.all([records, import("./ui/pet-status")])
+    .then(([read, status]) => {
+      petStatus = status.petStatus(read, Date.now());
+    })
+    .catch((error: unknown) => console.error("Pet failed to load", error));
+}
 
 const prefetch = createPrefetch<Generated>();
 
@@ -283,6 +312,39 @@ function startCustom(text: string): void {
   location.hash = "#practice";
 }
 
+const WEAK_KEYS = 5;
+const WEAK_DRILL_GROUPS = 24;
+const weak = $derived(
+  missRates(ui.progress.stats, ui.settings.targets, WEAK_KEYS),
+);
+
+// Built once here, not in the template, so finishing the drill cannot rewrite the text Repeat retypes.
+function startWeak(): void {
+  const next = begin(ui.lesson, "lesson");
+  const keys = weak.map((m) => m.char);
+  const rates = new Map(weak.map((m) => [m.char, m.rate]));
+  run = {
+    ...next,
+    custom: keyDrill(
+      keys,
+      seededRng(next.seed),
+      WEAK_DRILL_GROUPS,
+      (c) => rates.get(c) ?? 0,
+    ),
+    weakKeys: keys.join(" "),
+  };
+  location.hash = "#practice";
+}
+
+function practiceNext(): void {
+  if (run.weakKeys !== undefined && weak.length > 0) startWeak();
+  else if (run.custom !== undefined) start(ui.lesson);
+  else
+    start(
+      nextLesson(layout.id, ui.progress, run.lesson, ui.settings.developerMode),
+    );
+}
+
 // Starting or skipping the drill both count as introduced, so the intro never returns for this stage.
 function leaveIntro(drill: boolean): void {
   ui.progress = markIntroduced(layout.id, ui.progress, run.lesson);
@@ -353,6 +415,13 @@ function finish(session: Session): void {
   // Saved and read back, so the record itself is left out of its own trend.
   saveSession(record);
   const saved = readSessions();
+  // The write may still be queued, so the session is added here if missing.
+  refreshPetStatus(
+    saved.then((records) => [
+      ...records.filter((r) => r.at !== record.at),
+      record,
+    ]),
+  );
   if (savesSessions()) {
     // Loaded here to keep the first paint small; a failed load only leaves the pet off the summary.
     Promise.all([saved, import("./ui/pet-summary")])
@@ -405,6 +474,7 @@ const data = Promise.all([
 ]).then(([snippets, loaded]) => {
   words = loaded;
   run = begin(ui.lesson);
+  refreshPetStatus(readSessions());
   return snippets;
 });
 const targetWords = (): number =>
@@ -468,7 +538,13 @@ let help: HTMLDialogElement | undefined = $state();
     <a href="#settings" aria-current={view === "settings" ? "page" : undefined}>{t.nav.settings}</a>
   </nav>
   {#if view === "lessons"}
-    <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} onstarttopic={startTopic} onstartcustom={startCustom} bind:customDraft />
+    {#await loadLessons()}
+      <main class="notice"><p>{t.stats.loading}</p></main>
+    {:then { default: Lessons }}
+      <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} onstarttopic={startTopic} onstartcustom={startCustom} bind:customDraft {weak} onstartweak={startWeak} {petStatus} />
+    {:catch}
+      <main class="notice"><p>{t.lessons.loadFailed}</p></main>
+    {/await}
   {:else if view === "settings"}
     <Settings onlayout={chooseLayout} />
   {:else if view === "stats"}
@@ -498,12 +574,12 @@ let help: HTMLDialogElement | undefined = $state();
       {:else}
         <Practice
           text={run.custom ?? run.generated?.text ?? text(snippets)}
-          title={run.custom !== undefined ? t.custom.title : run.generated?.topic ? t.topics.passageTitle(run.generated.topic) : lessonTitle(layout.id, run.lesson)}
+          title={run.weakKeys !== undefined ? t.weak.practiceTitle(run.weakKeys) : run.custom !== undefined ? t.custom.title : run.generated?.topic ? t.topics.passageTitle(run.generated.topic) : lessonTitle(layout.id, run.lesson)}
           errorMode={ui.settings.errorMode}
           timeLimit={run.custom === undefined && ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
           feedback={run.feedback}
           onfinish={finish}
-          onnext={() => start(run.custom !== undefined ? ui.lesson : nextLesson(layout.id, ui.progress, run.lesson, ui.settings.developerMode))}
+          onnext={practiceNext}
         />
       {/if}
     {/key}

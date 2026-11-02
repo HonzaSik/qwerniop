@@ -10,7 +10,7 @@ export interface SessionRecord {
   at: number;
   layout: Layout["id"];
   mode: Session["config"]["errorMode"];
-  /** "custom" is pasted text: it belongs to no track, and stage is 0. */
+  /** "custom" is pasted text or a weakest-keys drill: it belongs to no track, and stage is 0. */
   lesson: { track: LessonTrack | "custom"; stage: number };
   wpm: number;
   accuracy: number;

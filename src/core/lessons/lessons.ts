@@ -65,17 +65,44 @@ export function isUnlocked(
 }
 
 /**
- * The letter stage a lesson's text draws from. Unlocked lessons use what is unlocked;
- * a locked one, started in developer mode, uses the letters it would have when reached.
+ * The letter stage a lesson's text draws from. A letter lesson uses its own letters, so
+ * going back drills just those; other tracks use what is unlocked, or, while closed and
+ * started in developer mode, the letters of the step where they open.
  */
 export function lessonLetterStage(
   id: Layout["id"],
   progress: Progress,
   lesson: Lesson,
 ): number {
-  const needed =
-    lesson.track === "letters" ? lesson.stage : (tracksStart(id) ?? 1);
-  return Math.max(progress.letters, needed);
+  if (lesson.track === "letters") return lesson.stage;
+  return Math.max(progress.letters, tracksStart(id) ?? 1);
+}
+
+export interface UnlockStatus {
+  /** Characters counted for the next unlock. */
+  total: number;
+  /** Those not yet at the targets. */
+  missing: string[];
+}
+
+/** How far the track is from unlocking its next stage; undefined at its last stage. */
+export function unlockStatus(
+  id: Layout["id"],
+  progress: Progress,
+  track: LessonTrack,
+  targets: Targets,
+): UnlockStatus | undefined {
+  const stage = progress[track];
+  if (stage >= lessonCount(id, track)) return undefined;
+  const chars = [
+    ...(track === "letters"
+      ? (unlockedLetters(id, stage) ?? "")
+      : trackChars(track, stage)),
+  ];
+  return {
+    total: chars.length,
+    missing: chars.filter((c) => weakness(progress.stats[c], targets) > 0),
+  };
 }
 
 /** Unlocks the next stage of the lesson's track when every character unlocked there meets the targets; at most one stage per call. */
@@ -87,14 +114,8 @@ export function completeLesson(
 ): Progress {
   if (!isUnlocked(id, progress, lesson)) return progress;
   const { track } = lesson;
-  const stage = progress[track];
-  if (stage >= lessonCount(id, track)) return progress;
-  const chars =
-    track === "letters"
-      ? (unlockedLetters(id, stage) ?? "")
-      : trackChars(track, stage);
-  return [...chars].every((c) => weakness(progress.stats[c], targets) === 0)
-    ? { ...progress, [track]: stage + 1 }
+  return unlockStatus(id, progress, track, targets)?.missing.length === 0
+    ? { ...progress, [track]: progress[track] + 1 }
     : progress;
 }
 

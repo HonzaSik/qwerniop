@@ -228,6 +228,27 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue
 
 Checked 2026-11-02 headless Chromium: pass for steps 1 to 3, and for step 5 in light, dark, Black (OLED), 360 px and Czech, on seeded data for every stage, hungry and dead. Naming the pet once on the first summary: pass. Step 6 on seeded data, with widths 1099 to 1920 px, 600 px high, and Czech: pass, except the hop itself, because the browser ran with reduced motion. Export and import through the page (step 4), a real screen reader and the blink not checked.
 
+## Streak and pet
+
+1. With a history of several days in a row, the pet in the bottom left corner of Lessons and Stats says the number and the best, and covers no content while scrolling. Under 1100 px it closes the page instead.
+2. With practice up to yesterday only, the number holds. With a missed day, the pet shows its status line. Hungry and dead pets read correctly.
+3. With no sessions, none of these show.
+4. Finish the first session of a day: the number goes up by one on Lessons. The corner pet returns before the next session and on Repeat, at 1100 px or wider, and goes at the first key.
+
+## Lessons and Stats layout
+
+1. At 1280, 768 and 360 px, in light, dark and Czech, neither page scrolls sideways. Lessons has its side column only from 900 px, and the figures in Stats go from four columns to two.
+2. Lessons: "Next up" names the current lesson and the keys still short of the targets; Continue starts it. Tabs open on the current lesson's track, closed tracks say when they open.
+3. Stats: each tab shows its content; arrow keys, Home and End move between tabs; export and import work from Your data, with no sessions too. Import keeps its status line after the data reloads.
+4. Keys: "Most missed" shows percents, and a key typed often with few misses is not listed above a rarely typed key missed often.
+
+## Weakest keys
+
+1. With fresh data, the Weakest keys section in Lessons shows only the note that no key is missed too often, and no Start.
+2. After sessions with deliberate misses on one key, that key is listed first with its percentage; keys with under 10 attempts are not listed.
+3. Start: Practice is titled "Weakest keys · ...", with only those keys, the worst one most often, and no timer even with a timed length set.
+4. Finish: Stats and history update, and no lesson unlocks. Repeat retypes the same text. Continue gives new text from the updated rates, or the current lesson when no key is left.
+
 ## Custom text
 
 1. In Lessons, paste a paragraph with curly quotes and an emoji. The note says how many characters are left out; Chinese text alone says nothing can be typed and Start stays disabled. A paste over 5000 characters is cut, and the note says so.

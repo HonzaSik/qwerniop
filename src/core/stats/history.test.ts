@@ -1,7 +1,6 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import type { SessionRecord } from "../engine/record";
-import { enUs } from "../layouts/en-us";
-import { heatScale, keyErrors, niceMax, recentSessions } from "./history";
+import { heatScale, niceMax, overview, recentSessions } from "./history";
 
 const rec = (
   at: number,
@@ -21,16 +20,6 @@ const rec = (
 test("recentSessions keeps the newest of one layout, oldest first", () => {
   const r = [rec(3, {}), rec(1, {}), rec(2, {}), rec(4, {}, "cs-qwertz")];
   expect(recentSessions(r, "en-us", 2).map((x) => x.at)).toEqual([2, 3]);
-});
-
-test("keyErrors sums across sessions and credits Shift for shifted characters", () => {
-  const m = keyErrors(enUs, [
-    rec(1, { a: 2, A: 1 }),
-    rec(2, { a: 1, "\u0001": 5 }),
-  ]);
-  expect(m.get("KeyA")).toBe(4);
-  expect(m.get("ShiftRight")).toBe(1);
-  expect(m.size).toBe(2);
 });
 
 test("heatScale is relative to the worst key", () => {
@@ -56,4 +45,48 @@ test("niceMax rounds up to 1, 2 or 5 times a power of ten", () => {
     niceMax(101),
     niceMax(0.3),
   ]).toEqual([1, 1, 50, 200, 0.5]);
+});
+
+describe("overview", () => {
+  const session = (at: number, wpm: number, accuracy: number) => ({
+    ...rec(at, {}),
+    wpm,
+    accuracy,
+  });
+
+  test("has only the total time with no session on the layout", () => {
+    expect(overview([rec(1, {}, "cs-qwertz")], "en-us")).toEqual({
+      totalMs: 1000,
+    });
+  });
+
+  test("averages the sessions there are, with no change yet", () => {
+    const o = overview([session(1, 20, 0.8), session(2, 40, 1)], "en-us");
+    expect(o.recent).toEqual({ sessions: 2, wpm: 30, accuracy: 0.9 });
+  });
+
+  test("shows no change one session short of two full windows", () => {
+    const records = Array.from({ length: 19 }, (_, i) => session(i, 30, 0.9));
+    expect(overview(records, "en-us").recent?.change).toBeUndefined();
+  });
+
+  test("compares the newest ten with the ten before", () => {
+    const records = Array.from({ length: 25 }, (_, i) =>
+      session(i, i < 15 ? 30 : 40, i < 15 ? 0.9 : 0.95),
+    );
+    const o = overview(records, "en-us");
+    expect(o.recent?.sessions).toBe(10);
+    expect(o.recent?.wpm).toBe(40);
+    expect(o.recent?.change?.wpm).toBe(10);
+    expect(o.recent?.change?.accuracy).toBeCloseTo(0.05);
+  });
+
+  test("counts time on every layout but speed only on this one", () => {
+    const o = overview(
+      [session(1, 20, 0.9), { ...session(2, 90, 1), layout: "cs-qwertz" }],
+      "en-us",
+    );
+    expect(o.totalMs).toBe(2000);
+    expect(o.recent?.wpm).toBe(20);
+  });
 });

@@ -23,17 +23,29 @@ export const t: Strings = new Proxy(en, {
     Reflect.get(stringsFor(ui.settings.language, navigator.language), key),
 });
 
+/** A lesson's two halves: "Lesson 5" and "e i", or "Numbers 2" and "6 7 8 9 0". */
+export function lessonParts(
+  id: Layout["id"],
+  lesson: Lesson,
+  s: Strings = t,
+): { name: string; keys: string } {
+  const note = noNewKeys(lesson);
+  const noun =
+    lesson.track === "letters" ? s.lesson : s.trackNames[lesson.track];
+  return {
+    name: `${noun} ${lesson.stage}`,
+    keys: lessonKeys(id, lesson) || (note ? s.noNewKeys[note] : ""),
+  };
+}
+
 /** "Lesson 5 · e i" for letters, "Numbers 2 · 6 7 8 9 0" for the other tracks. */
 export function lessonTitle(
   id: Layout["id"],
   lesson: Lesson,
   s: Strings = t,
 ): string {
-  const note = noNewKeys(lesson);
-  const keys = lessonKeys(id, lesson) || (note ? s.noNewKeys[note] : "");
-  const noun =
-    lesson.track === "letters" ? s.lesson : s.trackNames[lesson.track];
-  return `${noun} ${lesson.stage}${keys ? ` · ${keys}` : ""}`;
+  const { name, keys } = lessonParts(id, lesson, s);
+  return keys ? `${name} · ${keys}` : name;
 }
 
 export function feedbackText(f: Feedback, s: Strings = t): string {

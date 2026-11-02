@@ -170,3 +170,21 @@ Named by the learner, once.
 - [x] Named once on the first summary; the summary reacts to level-ups, new stages and coming back
 - [x] A greeting before the first key of a visit, reactions to personal bests and beaten keys, and memories in Stats
 - [x] 20 levels with a progress bar, and a sprout that grows with them
+
+## 23. Weakest keys practice
+
+- [x] Miss rate per character, above the accuracy target and over at least 10 attempts (`core/adaptive/mistakes.ts`)
+- [x] "Weakest keys" section in Lessons with each key's miss rate, and a drill where keys appear in proportion to it; counts toward stats and history, never unlocks
+
+## 24. Lessons and Stats layout
+
+- [x] Wider pages with columns from 900 px; sections switched by a segmented control
+- [x] Lessons: "Next up" with what the next unlock still needs (`unlockStatus`), tracks as tabs, a side column for other practice
+- [x] Stats: headline figures with change against earlier sessions (`overview`), tabs for overview, keys, pet and data
+- [x] Errors by key as the share of tries that went wrong, not a count (`keyMissRates`)
+
+## 25. Streak and more of the pet
+
+- [x] Days in a row and best, worked out from the history (`practiceStreak`)
+- [x] Streak said by the pet in the bottom left corner of Lessons, Stats and Practice
+- [x] Pet shown before every session in Practice

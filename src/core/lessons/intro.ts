@@ -1,5 +1,6 @@
 import type { Finger, KeyDef, Layout } from "../layouts/layout";
 import { type Stroke, strokesFor } from "../layouts/strokes";
+import { pickWeighted } from "../text/generate";
 import type { Rng } from "../text/rng";
 import {
   isUnlocked,
@@ -78,16 +79,17 @@ export function keyGuide(layout: Layout, char: string): KeyGuide | undefined {
 }
 
 /**
- * Short groups of only the new characters, each at least twice, so the drill
- * trains the new reaches and nothing else.
+ * Short groups of only the given characters, each at least twice, so the drill
+ * trains those reaches and nothing else. Characters appear in proportion to `weight`.
  */
 export function keyDrill(
   chars: readonly string[],
   rng: Rng,
   words = 12,
+  weight: (char: string) => number = () => 1,
 ): string {
   if (chars.length === 0) return "";
-  const pick = () => chars[Math.floor(rng() * chars.length)] ?? "";
+  const pick = () => pickWeighted(chars, weight, rng);
   const groups: string[] = [];
   // At least one group per character, so the guarantee below never overwrites one.
   for (let i = 0; i < Math.max(words, chars.length); i++) {

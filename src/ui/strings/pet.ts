@@ -74,6 +74,9 @@ const en = {
     if (pet.daysAway === 1) return `${name} is glad you are back.`;
     return `${name} waited ${pet.daysAway} days for you.`;
   },
+  streak: (name: string, n: number): string =>
+    `${name} has seen you ${n} days in a row.`,
+  best: (n: number): string => `Best: ${en.days(n)}`,
   memories: "Memories",
   day: (day: number): string => `Day ${day}`,
   memory: (memory: PetMemory, name: string): string => {
@@ -164,6 +167,8 @@ const cs: typeof en = {
     if (pet.daysAway === 1) return `${name} má radost, že jste zpět.`;
     return `${name} na vás čeká už ${pet.daysAway} dny.`;
   },
+  streak: (name, n) => `${name} vás vidí ${cs.days(n)} v řadě.`,
+  best: (n) => `Nejlépe: ${cs.days(n)}`,
   memories: "Vzpomínky",
   day: (day) => `Den ${day}`,
   memory: (memory, name) => {

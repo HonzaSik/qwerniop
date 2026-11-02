@@ -2,12 +2,11 @@ import type { SessionRecord } from "../engine/record";
 import {
   DAILY_CAP_MS,
   DIES_AFTER_DAYS,
-  dayNumber,
   type PetMoment,
   type PetStage,
   stageAt,
 } from "./pet";
-import { dayKey } from "./practice";
+import { dayKey, dayNumber } from "./practice";
 
 /** Shorter than this says little: a few lucky seconds should not be a record. */
 const MIN_RECORD_MS = 20_000;

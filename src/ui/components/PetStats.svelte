@@ -37,32 +37,38 @@ const rows = $derived([
 </script>
 
 <section aria-labelledby="pet">
-  <h2 id="pet">{name}</h2>
-  <div class="row">
-    <Pet {pet} large />
-    <table>
-      <tbody>
-        {#each rows as [name, value]}
-          <tr>
-            <th scope="row">{name}</th>
-            <td>{value}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+  <div>
+    <h2 id="pet">{name}</h2>
+    <div class="row">
+      <Pet {pet} large />
+      <table>
+        <tbody>
+          {#each rows as [name, value]}
+            <tr>
+              <th scope="row">{name}</th>
+              <td>{value}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{tp.status(pet, name)}</p>
+    <p class="note">{tp.note(name)}</p>
   </div>
-  <p class="note">{tp.status(pet, name)}</p>
-  <p class="note">{tp.note(name)}</p>
-  <h3>{tp.memories}</h3>
-  <ol>
-    {#each [...memories].reverse() as memory}
-      <li><span class="day">{tp.day(memory.day)}</span> {tp.memory(memory, name)}</li>
-    {/each}
-  </ol>
+  <div>
+    <h3>{tp.memories}</h3>
+    <ol>
+      {#each [...memories].reverse() as memory}
+        <li><span class="day">{tp.day(memory.day)}</span> {tp.memory(memory, name)}</li>
+      {/each}
+    </ol>
+  </div>
 </section>
 
 <style>
   section {
+    display: grid;
+    gap: 0 var(--space-7);
     margin-bottom: var(--space-7);
   }
 
@@ -126,5 +132,16 @@ const rows = $derived([
     width: var(--pet-day-width);
     color: var(--text-2);
     font-variant-numeric: tabular-nums;
+  }
+
+  @media (min-width: 900px) {
+    section {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
   }
 </style>

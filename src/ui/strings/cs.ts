@@ -149,6 +149,23 @@ export const cs: Strings = {
     current: "Aktuální",
     count: (done, all) => `${done} z ${all}`,
     developerMode: "Vývojářský režim je zapnutý: lze spustit každou lekci.",
+    loadFailed: "Lekce se nepodařilo načíst. Může pomoci znovu načíst stránku.",
+    tracks: "Okruhy",
+    nextUp: "Na řadě",
+    unlockProgress: (ready, total, next) =>
+      `Kláves připravených k odemčení: ${ready} z ${total}. Odemkne se ${next}.`,
+    stillNeeds: "Ještě chybí:",
+    unlockReady: (next) =>
+      `Všechny klávesy jsou připravené. Dokončete cvičení a odemkne se ${next}.`,
+  },
+  weak: {
+    title: "Nejslabší klávesy",
+    intro:
+      "Procvičte klávesy, ve kterých chybujete nejvíc. Čím častěji se v klávese spletete, tím častěji se objeví. Počítá se do statistik, ale nic neodemyká.",
+    empty:
+      "V žádné klávese nechybujete častěji, než dovoluje váš cíl přesnosti.",
+    start: "Začít",
+    practiceTitle: (keys) => `Nejslabší klávesy · ${keys}`,
   },
   custom: {
     title: "Vlastní text",
@@ -247,6 +264,22 @@ export const cs: Strings = {
         : "Oba cíle jsou splněné.",
   },
   stats: {
+    sections: "Části statistik",
+    overview: "Přehled",
+    keys: "Klávesy",
+    pet: "Mazlíček",
+    totalTime: "Celkový čas",
+    lastWeek: "Posledních 7 dní",
+    daysOfWeek: (days) => `${days} ze 7 dní`,
+    time: (ms) => {
+      const minutes = Math.round(ms / 60_000);
+      return minutes < 60
+        ? `${minutes} min`
+        : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
+    },
+    lastSessions: (n) =>
+      n === 1 ? "Poslední cvičení" : `Počet posledních cvičení: ${n}`,
+    changeFrom: (change) => `${change} oproti 10 předchozím`,
     loading: "Načítání",
     empty: "Zatím žádná cvičení. Dokončete cvičení a objeví se tady.",
     history: "Historie",
@@ -264,9 +297,7 @@ export const cs: Strings = {
       `Dny s cvičením: ${days}, celkem ${minutes} min.`,
     weekStart: 1,
     spread: (days, minutes) =>
-      days === 0
-        ? "Za posledních 7 dní žádné cvičení."
-        : `Posledních 7 dní: ${days} ${plural(days, "den", "dny", "dní")}, asi ${minutes} min denně.`,
+      days === 0 ? "Bez cvičení" : `Asi ${minutes} min denně`,
     combinations: "Nejpomalejší kombinace písmen",
     combinationsEmpty:
       "Pište dál: kombinace se objeví asi po 20 pokusech u každé.",
@@ -293,6 +324,8 @@ export const cs: Strings = {
     errorsByKey: "Chyby podle kláves",
     noErrors: "Žádné chyby.",
     mostMissed: "Nejčastěji chybné:",
+    mostMissedNote:
+      "Podíl prvních pokusů na každé klávese, které byly chybné, za celé cvičení. Klávesa potřebuje 10 pokusů.",
     loadFailed:
       "Statistiky se nepodařilo načíst. Pomoci může znovu načíst stránku.",
     chart: (title, n, last, unit, min, max) =>

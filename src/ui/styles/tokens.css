@@ -29,11 +29,15 @@
   --font-practice: "JetBrains Mono", ui-monospace, monospace;
   --text-size-sm: 0.8125rem;
   --text-size-md: 1.0625rem;
+  --text-size-lg: 1.375rem;
   --text-size-xl: 2rem;
   /* Scales so a full column fits the viewport, at about 0.6em per character, until the minimum. */
   --text-size-practice: clamp(1.375rem, 2.6vw, 1.75rem);
   --line-height-practice: 1.6;
   --practice-column: 64ch;
+  /* Lessons and Stats are read, not typed in, so they can use a desktop's width. */
+  --page-column: 72rem;
+  --side-column: 22rem;
   --weight-regular: 400;
   --weight-semibold: 600;
 
@@ -71,6 +75,8 @@
   --calendar-cell-height: 2.75rem;
   --pet-size: 6rem;
   --pet-size-large: 9rem;
+  /* The strip Lessons and Stats keep free for the pet in the corner. */
+  --pet-corner-width: calc(var(--pet-greeting-width) + 2 * var(--space-5));
   /* Room under the pet for its level and bar, so the summary holds its height while it loads. */
   --pet-caption: 1.75rem;
   --pet-stroke: 1.5;

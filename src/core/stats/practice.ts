@@ -8,6 +8,14 @@ export function dayKey(at: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+// Counted from the date alone, so a daylight saving change cannot shift a gap by a day.
+export const dayNumber = (key: string): number =>
+  Date.UTC(
+    Number(key.slice(0, 4)),
+    Number(key.slice(5, 7)) - 1,
+    Number(key.slice(8)),
+  ) / 86_400_000;
+
 export interface DayPractice {
   ms: number;
   sessions: number;
@@ -55,6 +63,29 @@ const MINUTE = 60_000;
 const SPREAD_DAYS = 7;
 
 /** How practice fell over the last week: days practised, and whole minutes per day practised. */
+export interface Streak {
+  /** Days in a row up to today; a day not yet practised does not break it until it ends. */
+  current: number;
+  /** The longest run ever. */
+  best: number;
+}
+
+export function practiceStreak(
+  days: ReadonlyMap<string, DayPractice>,
+  today: number,
+): Streak {
+  const practised = [...days.keys()].map(dayNumber).sort((a, b) => a - b);
+  let run = 0;
+  let best = 0;
+  practised.forEach((day, i) => {
+    run = i > 0 && day === (practised[i - 1] ?? 0) + 1 ? run + 1 : 1;
+    best = Math.max(best, run);
+  });
+  const last = practised.at(-1);
+  const alive = last !== undefined && dayNumber(dayKey(today)) - last <= 1;
+  return { current: alive ? run : 0, best };
+}
+
 export function recentSpread(
   days: ReadonlyMap<string, DayPractice>,
   today: number,

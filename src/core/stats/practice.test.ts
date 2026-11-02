@@ -5,6 +5,7 @@ import {
   monthGrid,
   practiceByDay,
   practiceLevel,
+  practiceStreak,
   recentSpread,
 } from "./practice";
 
@@ -139,5 +140,48 @@ describe("recentSpread", () => {
 
   test("no practice in the window", () => {
     expect(recentSpread(new Map(), today)).toEqual({ days: 0, minutes: 0 });
+  });
+});
+
+describe("practiceStreak", () => {
+  const seen = (...dates: [number, number, number][]) =>
+    new Map(
+      dates.map(([y, m, d]) => [dayKey(at(y, m, d)), { ms: 1, sessions: 1 }]),
+    );
+
+  test("is zero with no practice", () => {
+    expect(practiceStreak(new Map(), at(2026, 3, 10))).toEqual({
+      current: 0,
+      best: 0,
+    });
+  });
+
+  test("counts days in a row up to today", () => {
+    const days = seen([2026, 3, 8], [2026, 3, 9], [2026, 3, 10]);
+    expect(practiceStreak(days, at(2026, 3, 10)).current).toBe(3);
+  });
+
+  test("stays alive until today ends", () => {
+    const days = seen([2026, 3, 8], [2026, 3, 9]);
+    expect(practiceStreak(days, at(2026, 3, 10, 23, 59)).current).toBe(2);
+  });
+
+  test("a missed day ends it but keeps the best", () => {
+    const days = seen([2026, 3, 1], [2026, 3, 2], [2026, 3, 3], [2026, 3, 8]);
+    expect(practiceStreak(days, at(2026, 3, 8))).toEqual({
+      current: 1,
+      best: 3,
+    });
+    expect(practiceStreak(days, at(2026, 3, 10)).current).toBe(0);
+  });
+
+  test("runs across a month end", () => {
+    const days = seen([2026, 1, 31], [2026, 2, 1]);
+    expect(practiceStreak(days, at(2026, 2, 1)).current).toBe(2);
+  });
+
+  test("runs across a clock change", () => {
+    const days = seen([2026, 3, 28], [2026, 3, 29], [2026, 3, 30]);
+    expect(practiceStreak(days, at(2026, 3, 30)).current).toBe(3);
   });
 });

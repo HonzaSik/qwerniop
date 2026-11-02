@@ -1,20 +1,18 @@
 <script lang="ts">
-import { petState } from "../../core/stats/pet";
-import { practiceByDay } from "../../core/stats/practice";
+import { petStatus } from "../pet-status";
 import { readSessions, ui } from "../state.svelte";
 import { tp } from "../strings/pet";
 import Pet from "./Pet.svelte";
 
-const pet = readSessions().then((records) =>
-  petState(practiceByDay(records), Date.now()),
-);
+const status = readSessions().then((records) => petStatus(records, Date.now()));
+const name = $derived(ui.settings.petName || tp.unnamed);
 </script>
 
-{#await pet then pet}
-  {#if pet}
+{#await status then status}
+  {#if status}
     <aside>
-      <Pet {pet} />
-      <p>{tp.greeting(pet, ui.settings.petName || tp.unnamed)}</p>
+      <Pet pet={status.pet} />
+      <p>{status.streak.current >= 2 ? tp.streak(name, status.streak.current) : tp.greeting(status.pet, name)}</p>
     </aside>
   {/if}
 {/await}

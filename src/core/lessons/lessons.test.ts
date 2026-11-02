@@ -13,6 +13,7 @@ import {
   noNewKeys,
   type Progress,
   parseProgress,
+  unlockStatus,
 } from "./lessons";
 
 import { tracksStart } from "./tracks";
@@ -139,11 +140,51 @@ describe("lessons", () => {
   });
 });
 
+describe("unlockStatus", () => {
+  const targets = defaultSettings().targets;
+  const good: CharStat = {
+    attempts: 30,
+    correct: 30,
+    accuracy: 1,
+    timed: 30,
+    totalMs: 9000,
+    ms: 300,
+  };
+
+  test("names the unlocked letters still short of the targets", () => {
+    const p = { ...initialProgress(), letters: 2, stats: { f: good, j: good } };
+    expect(unlockStatus("en-us", p, "letters", targets)).toEqual({
+      total: 4,
+      missing: ["d", "k"],
+    });
+  });
+
+  test("has nothing missing when every letter meets the targets", () => {
+    const p = { ...initialProgress(), stats: { f: good, j: good } };
+    expect(unlockStatus("en-us", p, "letters", targets)?.missing).toEqual([]);
+  });
+
+  test("is undefined at the last stage", () => {
+    const p = {
+      ...initialProgress(),
+      letters: lessonCount("en-us", "letters"),
+    };
+    expect(unlockStatus("en-us", p, "letters", targets)).toBeUndefined();
+  });
+
+  test("a stage with no counted characters has nothing missing", () => {
+    expect(
+      unlockStatus("en-us", initialProgress(), "punctuation", targets),
+    ).toEqual({ total: 0, missing: [] });
+  });
+});
+
 describe("lessonLetterStage", () => {
   const p = { ...initialProgress(), letters: 3 };
 
-  test("an unlocked lesson uses the letters unlocked so far", () => {
-    expect(lessonLetterStage("en-us", p, letter(2))).toBe(3);
+  test("an earlier letter lesson uses only its own letters", () => {
+    expect(lessonLetterStage("en-us", p, letter(1))).toBe(1);
+    expect(lessonLetterStage("en-us", p, letter(2))).toBe(2);
   });
 
   test("a locked letter lesson uses its own letters", () => {

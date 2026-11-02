@@ -7,6 +7,12 @@ export function formatAccuracy(fraction: number): string {
   return `${fraction < 1 ? Math.min(percent, 99) : percent}\u00a0%`;
 }
 
+/** A rounded change with its sign, as in +3 or −1; a real minus, so it lines up with the plus. */
+export function formatChange(value: number): string {
+  const rounded = Math.round(value);
+  return rounded > 0 ? `+${rounded}` : String(rounded).replace("-", "\u2212");
+}
+
 /** Minutes and seconds, as in 1:05. */
 export function formatDuration(ms: number): string {
   const seconds = Math.round(ms / MS_PER_SECOND);

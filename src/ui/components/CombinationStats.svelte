@@ -7,7 +7,7 @@ import {
   transitionSummary,
 } from "../../core/stats/pairs";
 import { t } from "../strings";
-import { formatAccuracy } from "./session-summary";
+import { formatAccuracy, formatChange } from "./session-summary";
 
 interface Props {
   layout: Layout["id"];
@@ -20,70 +20,81 @@ let { layout, pairs, records }: Props = $props();
 const slow = $derived(slowestPairs(pairs));
 const moves = $derived(transitionSummary(records, layout));
 const ms = (value: number): string => String(Math.round(value));
-const change = (value: number | undefined): string => {
-  if (value === undefined) return "–";
-  const rounded = Math.round(value);
-  return rounded > 0 ? `+${rounded}` : String(rounded).replace("-", "−");
-};
+const change = (value: number | undefined): string =>
+  value === undefined ? "–" : formatChange(value);
 </script>
 
-<section aria-labelledby="combinations">
-  <h2 id="combinations">{t.stats.combinations}</h2>
-  {#if slow.length === 0}
-    <p class="note">{t.stats.combinationsEmpty}</p>
-  {:else}
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">{t.stats.pair}</th>
-          <th scope="col" class="number">{t.stats.msPerKey}</th>
-          <th scope="col" class="number">{t.stats.accuracy}</th>
-          <th scope="col" class="number">{t.stats.pairChange}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each slow as row}
+<div class="tables">
+  <section aria-labelledby="combinations">
+    <h2 id="combinations">{t.stats.combinations}</h2>
+    {#if slow.length === 0}
+      <p class="note">{t.stats.combinationsEmpty}</p>
+    {:else}
+      <table>
+        <thead>
           <tr>
-            <th scope="row" class="pair">{row.pair}</th>
-            <td class="number">{ms(row.ms)}</td>
-            <td class="number">{formatAccuracy(row.accuracy)}</td>
-            <td class="number">{change(row.change)}</td>
+            <th scope="col">{t.stats.pair}</th>
+            <th scope="col" class="number">{t.stats.msPerKey}</th>
+            <th scope="col" class="number">{t.stats.accuracy}</th>
+            <th scope="col" class="number">{t.stats.pairChange}</th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
-    <p class="note">{t.stats.combinationsNote}</p>
-  {/if}
-</section>
-
-{#if moves.length > 0}
-  <section aria-labelledby="moves">
-    <h2 id="moves">{t.stats.moves}</h2>
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">{t.stats.move}</th>
-          <th scope="col" class="number">{t.stats.earlier}</th>
-          <th scope="col" class="number">{t.stats.recent}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each moves as row}
-          <tr>
-            <th scope="row">{t.stats.moveNames[row.kind]}</th>
-            <td class="number">{row.earlier === undefined ? "–" : ms(row.earlier)}</td>
-            <td class="number">{ms(row.recent)}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-    <p class="note">{t.stats.movesNote}</p>
+        </thead>
+        <tbody>
+          {#each slow as row}
+            <tr>
+              <th scope="row" class="pair">{row.pair}</th>
+              <td class="number">{ms(row.ms)}</td>
+              <td class="number">{formatAccuracy(row.accuracy)}</td>
+              <td class="number">{change(row.change)}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+      <p class="note">{t.stats.combinationsNote}</p>
+    {/if}
   </section>
-{/if}
+
+  {#if moves.length > 0}
+    <section aria-labelledby="moves">
+      <h2 id="moves">{t.stats.moves}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{t.stats.move}</th>
+            <th scope="col" class="number">{t.stats.earlier}</th>
+            <th scope="col" class="number">{t.stats.recent}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each moves as row}
+            <tr>
+              <th scope="row">{t.stats.moveNames[row.kind]}</th>
+              <td class="number">{row.earlier === undefined ? "–" : ms(row.earlier)}</td>
+              <td class="number">{ms(row.recent)}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+      <p class="note">{t.stats.movesNote}</p>
+    </section>
+  {/if}
+</div>
 
 <style>
   section {
     margin-bottom: var(--space-7);
+  }
+
+  .tables {
+    display: grid;
+    gap: 0 var(--space-6);
+  }
+
+  @media (min-width: 900px) {
+    .tables {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
   }
 
   h2 {

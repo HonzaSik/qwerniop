@@ -20,7 +20,7 @@ export interface GenerateOptions {
   rng: Rng;
 }
 
-function pickWeighted(
+export function pickWeighted(
   letters: readonly string[],
   weight: (letter: string) => number,
   rng: Rng,

@@ -1,6 +1,5 @@
 import type { SessionRecord } from "../engine/record";
 import type { Layout } from "../layouts/layout";
-import { strokesFor } from "../layouts/strokes";
 
 /** Sessions shown in the history charts: enough for a trend, few enough to read. */
 export const HISTORY_LIMIT = 30;
@@ -17,30 +16,51 @@ export function recentSessions(
     .slice(-limit);
 }
 
-/**
- * Wrong attempts per physical key, summed over all sessions of the layout.
- * Source is the session records' `errors`.
- * Shift is credited too, since a shifted character needs it.
- */
-export function keyErrors(
-  layout: Layout,
-  records: readonly SessionRecord[],
-): Map<string, number> {
-  const out = new Map<string, number>();
-  for (const r of records) {
-    if (r.layout !== layout.id) continue;
-    for (const [char, n] of Object.entries(r.errors)) {
-      for (const stroke of strokesFor(layout, char) ?? []) {
-        for (const code of [stroke.code, stroke.shift]) {
-          if (code) out.set(code, (out.get(code) ?? 0) + n);
-        }
-      }
-    }
-  }
-  return out;
+const OVERVIEW_WINDOW = 10;
+
+const mean = (values: readonly number[]): number =>
+  values.reduce((sum, v) => sum + v, 0) / values.length;
+
+export interface Overview {
+  /** Practice time on every layout: time belongs to the learner, not the layout. */
+  totalMs: number;
+  /** Means over the newest sessions of the layout; undefined with none. */
+  recent?: {
+    sessions: number;
+    wpm: number;
+    accuracy: number;
+    /** Against the sessions before those; undefined until a full earlier window exists. */
+    change?: { wpm: number; accuracy: number };
+  };
 }
 
-/** Linear heat 0..1 relative to the worst key; keys with no errors are absent. */
+/** The headline figures of the Stats view. */
+export function overview(
+  records: readonly SessionRecord[],
+  layout: Layout["id"],
+): Overview {
+  const totalMs = records.reduce((sum, r) => sum + r.durationMs, 0);
+  const all = recentSessions(records, layout, OVERVIEW_WINDOW * 2);
+  const newest = all.slice(-OVERVIEW_WINDOW);
+  if (newest.length === 0) return { totalMs };
+  const wpm = mean(newest.map((r) => r.wpm));
+  const accuracy = mean(newest.map((r) => r.accuracy));
+  const recent = { sessions: newest.length, wpm, accuracy };
+  if (all.length < OVERVIEW_WINDOW * 2) return { totalMs, recent };
+  const earlier = all.slice(0, OVERVIEW_WINDOW);
+  return {
+    totalMs,
+    recent: {
+      ...recent,
+      change: {
+        wpm: wpm - mean(earlier.map((r) => r.wpm)),
+        accuracy: accuracy - mean(earlier.map((r) => r.accuracy)),
+      },
+    },
+  };
+}
+
+/** Linear heat 0..1 relative to the worst key; keys at 0 are absent. */
 export function heatScale(
   counts: ReadonlyMap<string, number>,
 ): Map<string, number> {

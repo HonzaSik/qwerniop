@@ -108,6 +108,25 @@ describe("keyDrill", () => {
   test("is empty without characters", () => {
     expect(keyDrill([], seededRng(1))).toBe("");
   });
+
+  test("characters appear in proportion to their weight", () => {
+    const text = keyDrill(["j", "f"], seededRng(4), 2000, (c) =>
+      c === "j" ? 0.3 : 0.1,
+    );
+    const j = text.split("j").length - 1;
+    const f = text.split("f").length - 1;
+    expect(j / f).toBeGreaterThan(2.7);
+    expect(j / f).toBeLessThan(3.3);
+  });
+
+  test("a rarely missed character still appears at least twice", () => {
+    for (let seed = 0; seed < 50; seed++) {
+      const text = keyDrill(["j", "f"], seededRng(seed), 24, (c) =>
+        c === "j" ? 0.9 : 0.01,
+      );
+      expect(text.split("f").length - 1).toBeGreaterThanOrEqual(2);
+    }
+  });
 });
 
 describe("needsIntro", () => {

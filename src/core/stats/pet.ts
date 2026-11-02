@@ -1,7 +1,6 @@
-import { type DayPractice, dayKey } from "./practice";
+import { type DayPractice, dayKey, dayNumber } from "./practice";
 
 const MINUTE = 60_000;
-const DAY = 86_400_000;
 /** More than this in a day counts for nothing: regular practice should beat one long session. */
 export const DAILY_CAP_MS = 60 * MINUTE;
 const HUNGRY_AFTER_DAYS = 4;
@@ -60,14 +59,6 @@ export interface PetState {
   /** Pets that died, including this one if it has. */
   lost: number;
 }
-
-// Counted from the date alone, so a daylight saving change cannot shift a gap by a day.
-export const dayNumber = (key: string): number =>
-  Date.UTC(
-    Number(key.slice(0, 4)),
-    Number(key.slice(5, 7)) - 1,
-    Number(key.slice(8)),
-  ) / DAY;
 
 export const stageAt = (ms: number): PetStage =>
   PET_STAGES.filter((s) => ms >= STAGE_FROM_MS[s]).at(-1) ?? "egg";
