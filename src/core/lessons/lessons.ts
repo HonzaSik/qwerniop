@@ -1,6 +1,7 @@
 import { type Targets, weakness } from "../adaptive/weakness";
 import type { Layout } from "../layouts/layout";
 import { type CharStats, isRecord, parseCharStats } from "../stats/chars";
+import { type PairStats, parsePairs } from "../stats/pairs";
 import { stageCount, unlockedLetters } from "./letters";
 import {
   type Track,
@@ -21,6 +22,7 @@ export interface Lesson {
 /** Stages unlocked per track, the per-character stats and the lesson last chosen. */
 export type Progress = Record<LessonTrack, number> & {
   stats: CharStats;
+  pairs: PairStats;
   lesson: Lesson;
   /** Highest stage per track whose new keys have been introduced; 0 is none. */
   introduced: Record<LessonTrack, number>;
@@ -39,6 +41,7 @@ export const initialProgress = (): Progress => ({
   numbers: 1,
   code: 1,
   stats: {},
+  pairs: {},
   lesson: { track: "letters", stage: 1 },
   introduced: { letters: 0, punctuation: 0, numbers: 0, code: 0 },
 });
@@ -144,6 +147,7 @@ export function parseProgress(id: Layout["id"], raw: unknown): Progress {
     }
   }
   out.stats = parseCharStats(raw.stats);
+  out.pairs = parsePairs(raw.pairs);
   // Records from before introductions existed count every unlocked stage as seen,
   // so someone mid-course is not walked back through keys they already know.
   const seen = isRecord(raw.introduced) ? raw.introduced : undefined;

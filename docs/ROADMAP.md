@@ -150,3 +150,15 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 19. Custom text
 
 - [x] Practise pasted text; counts toward stats and history, never unlocks
+
+## 20. Letter combinations: measure
+
+- [x] Per-pair speed, accuracy and change since the first attempts (`core/stats/pairs.ts`)
+- [x] Stats: slowest combinations, moves between keys, practice over the last 7 days
+- [x] Sources and gaps recorded in `docs/EVIDENCE.md`
+
+## 21. Letter combinations: practise and check
+
+- [ ] Real words containing slow pairs become likelier
+- [ ] Slow pairs randomly assigned to practised or left alone, with the comparison in Stats
+- [ ] Weighting removed if the comparison shows nothing

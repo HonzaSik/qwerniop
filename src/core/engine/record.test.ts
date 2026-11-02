@@ -35,6 +35,16 @@ test("parseSessionRecord keeps a valid record", () => {
   expect(parseSessionRecord(valid)).toEqual(valid);
 });
 
+test("parseSessionRecord keeps transitions and drops bad ones alone", () => {
+  const hands = { ms: 500, count: 5 };
+  expect(
+    parseSessionRecord({
+      ...valid,
+      transitions: { hands, finger: { ms: "x", count: 1 }, nope: hands },
+    }),
+  ).toEqual({ ...valid, transitions: { hands } });
+});
+
 test("parseSessionRecord keeps a custom text session", () => {
   const custom = { ...valid, lesson: { track: "custom", stage: 0 } };
   expect(parseSessionRecord(custom)).toEqual(custom);

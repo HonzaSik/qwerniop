@@ -18,6 +18,7 @@ import {
 } from "./core/lessons/lessons";
 import { stageCount, unlockedLetters } from "./core/lessons/letters";
 import { type CharStats, foldSession } from "./core/stats/chars";
+import { foldPairs, transitionTimes } from "./core/stats/pairs";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
@@ -48,7 +49,6 @@ import { feedbackText, lessonTitle, t } from "./ui/strings";
 import Lessons from "./ui/views/Lessons.svelte";
 import Practice from "./ui/views/Practice.svelte";
 import Settings from "./ui/views/Settings.svelte";
-import Stats from "./ui/views/Stats.svelte";
 import { applyUpdate, worker } from "./ui/worker.svelte";
 
 // Reads the system preference live so changing it needs no reload.
@@ -160,6 +160,15 @@ async function chooseLayout(id: Layout["id"]): Promise<void> {
 }
 
 let starting = 0;
+
+// Loaded on first visit: most sessions never open Stats, and the first paint should not wait for it.
+let statsView: Promise<typeof import("./ui/views/Stats.svelte")> | undefined;
+const loadStats = () =>
+  (statsView ??= import("./ui/views/Stats.svelte").catch((error: unknown) => {
+    // Forgotten so that the next visit tries again: Stats also holds backup export and import.
+    statsView = undefined;
+    throw error;
+  }));
 
 const prefetch = createPrefetch<Generated>();
 
@@ -288,6 +297,7 @@ function finish(session: Session): void {
   const progress = {
     ...ui.progress,
     stats: foldSession(ui.progress.stats, session.log),
+    pairs: foldPairs(layout, ui.progress.pairs, session.log),
   };
   const track = run.lesson.track;
   const before = ui.progress[track];
@@ -324,12 +334,15 @@ function finish(session: Session): void {
     ),
   };
   const done = run;
-  const record = sessionRecord(
-    session,
-    layout.id,
-    run.custom === undefined ? run.lesson : { track: "custom", stage: 0 },
-    Date.now(),
-  );
+  const record = {
+    ...sessionRecord(
+      session,
+      layout.id,
+      run.custom === undefined ? run.lesson : { track: "custom", stage: 0 },
+      Date.now(),
+    ),
+    transitions: transitionTimes(layout, session.log),
+  };
   // Saved and read back, so the record itself is left out of its own trend.
   saveSession(record);
   readSessions()
@@ -436,7 +449,13 @@ let help: HTMLDialogElement | undefined = $state();
   {:else if view === "settings"}
     <Settings onlayout={chooseLayout} />
   {:else if view === "stats"}
-    {#key hash}<Stats sessions={readSessions()} onimported={afterImport} />{/key}
+    {#await loadStats()}
+      <main class="notice"><p>{t.stats.loading}</p></main>
+    {:then { default: Stats }}
+      {#key hash}<Stats sessions={readSessions()} onimported={afterImport} />{/key}
+    {:catch}
+      <main class="notice"><p>{t.stats.loadFailed}</p></main>
+    {/await}
   {:else if run.phase === "intro"}
     <main class="intro" aria-label={t.nav.practice}>
       <KeyIntro {layout} chars={newKeys()} onstart={() => leaveIntro(true)} onskip={() => leaveIntro(false)} />
@@ -467,7 +486,7 @@ let help: HTMLDialogElement | undefined = $state();
     {/key}
   {/if}
 {:catch}
-  <main class="error">
+  <main class="notice">
     <p>{t.wordListError}</p>
     <button type="button" onclick={() => location.reload()}>{t.tryAgain}</button>
   </main>
@@ -482,7 +501,7 @@ let help: HTMLDialogElement | undefined = $state();
     place-content: center stretch;
   }
 
-  .error {
+  .notice {
     display: grid;
     min-height: 100vh;
     place-content: center;
@@ -504,7 +523,7 @@ let help: HTMLDialogElement | undefined = $state();
     font-size: var(--text-size-sm);
   }
 
-  .error p {
+  .notice p {
     margin: 0;
   }
 

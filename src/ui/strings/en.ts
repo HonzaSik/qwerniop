@@ -279,7 +279,7 @@ export const en = {
     errorsByKey: "Errors by key",
     noErrors: "No errors recorded.",
     mostMissed: "Most missed:",
-    loadFailed: "Stats could not be loaded.",
+    loadFailed: "Stats could not be loaded. Reloading the page may help.",
     practice: "Practice",
     today: (minutes: number): string =>
       minutes === 0 ? "Not practised yet today" : `Today: ${minutes} min`,
@@ -295,6 +295,30 @@ export const en = {
     monthSummary: (days: number, minutes: number): string =>
       `${days} ${days === 1 ? "day" : "days"} practised, ${minutes} min in total.`,
     weekStart: 0 as 0 | 1,
+    spread: (days: number, minutes: number): string =>
+      days === 0
+        ? "No practice in the last 7 days."
+        : `Last 7 days: ${days} ${days === 1 ? "day" : "days"}, about ${minutes} min a day.`,
+    combinations: "Slowest letter combinations",
+    combinationsEmpty:
+      "Keep typing: combinations show after about 20 attempts each.",
+    combinationsNote:
+      "Ranked by total time lost, so common combinations come first. Change compares with your first 30 attempts at each, in ms.",
+    pair: "Letters",
+    msPerKey: "ms per key",
+    pairChange: "Change",
+    moves: "Moves between keys",
+    move: "Move",
+    earlier: "Earlier sessions, ms",
+    recent: "Last 10 sessions, ms",
+    moveNames: {
+      hands: "Other hand",
+      fingers: "Same hand, other finger",
+      finger: "Same finger",
+      repeat: "Same key",
+    },
+    movesNote:
+      "In a study of 168,000 typists, times for letter pairs typed with alternating hands or one hand tracked overall speed more closely than repeated letters did. That is a link, not proof of cause.",
     chart: (
       title: string,
       n: number,

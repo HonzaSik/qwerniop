@@ -163,6 +163,21 @@ describe("lessonLetterStage", () => {
 });
 
 describe("parseProgress", () => {
+  test("letter pairs survive saving, and older records read as none", () => {
+    const pairs = {
+      th: {
+        attempts: 2,
+        correct: 2,
+        timed: 2,
+        totalMs: 200,
+        ms: 100,
+        earlyMs: 100,
+      },
+    };
+    expect(parseProgress("en-us", { letters: 3, pairs }).pairs).toEqual(pairs);
+    expect(parseProgress("en-us", { letters: 3 }).pairs).toEqual({});
+  });
+
   test.each([undefined, null, 3, "x"])("falls back for %j", (v) => {
     expect(parseProgress("en-us", v)).toEqual(initialProgress());
   });

@@ -13,6 +13,7 @@ Tenfold must feel instant on weak hardware: old laptops, Chromebooks, a Raspberr
 | Font (woff2, subset) | ≤ 60 KB | same |
 | Word list per locale (gzip) | ≤ 60 KB, loaded lazily | same |
 | Model integration chunk | loaded only when configured | build output check |
+| Stats view chunk | loaded on first visit to Stats | manual, DevTools Network panel |
 | Time to interactive, cold, throttled "Slow 4G" + 4× CPU | < 2 s | Lighthouse, manual |
 
 A failing budget fails CI. Raising a budget needs a reason in the pull request.
@@ -37,7 +38,7 @@ Rules:
 ## Loading
 
 - Svelte compiles to small output; keep it that way by not adding UI libraries.
-- Dynamic `import()` for: word list per locale, code snippets, model integration, Stats view (if it grows), import/export.
+- Dynamic `import()` for: word list per locale, code snippets, model integration, Stats view, import/export.
 - One font file, subset with `pyftsubset` or `glyphhanger` to the characters the layouts and code mode need. `font-display: swap`. Preload it.
 - No CSS framework. Component styles are scoped and small; `tokens.css` and `base.css` are global.
 - Build target: `es2022`. No polyfills.

@@ -263,13 +263,38 @@ export const cs: Strings = {
     monthSummary: (days, minutes) =>
       `Dny s cvičením: ${days}, celkem ${minutes} min.`,
     weekStart: 1,
+    spread: (days, minutes) =>
+      days === 0
+        ? "Za posledních 7 dní žádné cvičení."
+        : `Posledních 7 dní: ${days} ${plural(days, "den", "dny", "dní")}, asi ${minutes} min denně.`,
+    combinations: "Nejpomalejší kombinace písmen",
+    combinationsEmpty:
+      "Pište dál: kombinace se objeví asi po 20 pokusech u každé.",
+    combinationsNote:
+      "Seřazeno podle celkového ztraceného času, takže běžné kombinace jsou první. Změna je oproti vašim prvním 30 pokusům u každé, v ms.",
+    pair: "Písmena",
+    msPerKey: "ms na klávesu",
+    pairChange: "Změna",
+    moves: "Přechody mezi klávesami",
+    move: "Přechod",
+    earlier: "Dřívější cvičení, ms",
+    recent: "Posledních 10 cvičení, ms",
+    moveNames: {
+      hands: "Druhá ruka",
+      fingers: "Stejná ruka, jiný prst",
+      finger: "Stejný prst",
+      repeat: "Stejná klávesa",
+    },
+    movesNote:
+      "Ve studii se 168 000 lidmi souvisely časy dvojic psaných střídavě rukama nebo jednou rukou s celkovou rychlostí těsněji než u opakovaných písmen. Je to souvislost, ne důkaz příčiny.",
     speed: "Rychlost",
     wpmUnit: "slov/min",
     accuracy: "Přesnost",
     errorsByKey: "Chyby podle kláves",
     noErrors: "Žádné chyby.",
     mostMissed: "Nejčastěji chybné:",
-    loadFailed: "Statistiky se nepodařilo načíst.",
+    loadFailed:
+      "Statistiky se nepodařilo načíst. Pomoci může znovu načíst stránku.",
     chart: (title, n, last, unit, min, max) =>
       `${title} za ${n === 1 ? "poslední cvičení" : `posledních ${n} cvičení`}: poslední ${last} ${unit}, nejnižší ${min}, nejvyšší ${max}.`,
   },

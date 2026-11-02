@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vitest";
 import type { SessionRecord } from "../engine/record";
-import { dayKey, monthGrid, practiceByDay, practiceLevel } from "./practice";
+import {
+  dayKey,
+  monthGrid,
+  practiceByDay,
+  practiceLevel,
+  recentSpread,
+} from "./practice";
 
 const at = (y: number, m: number, d: number, h = 12, min = 0): number =>
   new Date(y, m - 1, d, h, min).getTime();
@@ -111,5 +117,27 @@ describe("practiceLevel", () => {
     [120 * min, 4],
   ])("%d ms is level %d", (ms, level) => {
     expect(practiceLevel(ms)).toBe(level);
+  });
+});
+
+describe("recentSpread", () => {
+  const today = new Date(2026, 10, 15, 12).getTime();
+  const days = new Map([
+    ["2026-11-15", { ms: 600_000, sessions: 1 }],
+    ["2026-11-09", { ms: 1_200_000, sessions: 2 }],
+    ["2026-11-08", { ms: 9_000_000, sessions: 9 }],
+  ]);
+
+  test("counts the last seven days including today and averages over days practised", () => {
+    expect(recentSpread(days, today)).toEqual({ days: 2, minutes: 15 });
+  });
+
+  test("a short practice never reads as zero minutes", () => {
+    const short = new Map([["2026-11-15", { ms: 5_000, sessions: 1 }]]);
+    expect(recentSpread(short, today)).toEqual({ days: 1, minutes: 1 });
+  });
+
+  test("no practice in the window", () => {
+    expect(recentSpread(new Map(), today)).toEqual({ days: 0, minutes: 0 });
   });
 });

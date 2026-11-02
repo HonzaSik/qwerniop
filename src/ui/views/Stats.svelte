@@ -2,7 +2,8 @@
 import type { SessionRecord } from "../../core/engine/record";
 import { layoutById } from "../../core/layouts/registry";
 import { heatScale, keyErrors, recentSessions } from "../../core/stats/history";
-import { dayKey, practiceByDay } from "../../core/stats/practice";
+import { dayKey, practiceByDay, recentSpread } from "../../core/stats/practice";
+import CombinationStats from "../components/CombinationStats.svelte";
 import DataTransfer from "../components/DataTransfer.svelte";
 import Keyboard from "../components/Keyboard.svelte";
 import { keyLabel } from "../components/keyboard-labels";
@@ -48,6 +49,7 @@ function summarise(records: SessionRecord[]) {
     today,
     first,
     minutesToday,
+    spread: recentSpread(days, today),
   };
 }
 </script>
@@ -65,6 +67,7 @@ function summarise(records: SessionRecord[]) {
           <p class="today">{t.stats.today(s.minutesToday)}</p>
         </div>
         <PracticeCalendar days={s.days} today={s.today} first={s.first} />
+        <p class="note spread">{t.stats.spread(s.spread.days, s.spread.minutes)}</p>
       </section>
     {/if}
     {#if s.recent.length === 0}
@@ -75,6 +78,7 @@ function summarise(records: SessionRecord[]) {
         <LineChart title={t.stats.speed} unit={t.stats.wpmUnit} values={s.recent.map((r) => Math.round(r.wpm))} />
         <LineChart title={t.stats.accuracy} unit="%" max={100} values={s.recent.map((r) => Math.round(r.accuracy * 100))} />
       </section>
+      <CombinationStats layout={ui.settings.layout} pairs={ui.progress.pairs} {records} />
       <section aria-labelledby="keys">
         <h2 id="keys">{t.stats.errorsByKey}</h2>
         {#if s.worst.length === 0}
@@ -142,5 +146,9 @@ function summarise(records: SessionRecord[]) {
 
   .note {
     margin: var(--space-1) 0 var(--space-3);
+  }
+
+  .spread {
+    margin: var(--space-2) 0 0;
   }
 </style>

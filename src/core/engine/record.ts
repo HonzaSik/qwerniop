@@ -1,5 +1,6 @@
 import type { Layout } from "../layouts/layout";
 import { type LessonTrack, TRACKS } from "../lessons/lessons";
+import { parseTransitionTimes, type TransitionTimes } from "../stats/pairs";
 import type { Session } from "./engine";
 import { accuracy, duration, netWpm } from "./results";
 
@@ -16,6 +17,8 @@ export interface SessionRecord {
   durationMs: number;
   /** Wrong keystrokes per expected character. */
   errors: Record<string, number>;
+  /** Time by kind of move between fingers; absent on sessions from before it was measured. */
+  transitions?: TransitionTimes;
 }
 
 export function sessionRecord(
@@ -53,6 +56,7 @@ const isFiniteNonNeg = (v: unknown): v is number =>
 export function parseSessionRecord(value: unknown): SessionRecord | null {
   if (!isRecord(value)) return null;
   const { at, layout, mode, lesson, wpm, accuracy, durationMs, errors } = value;
+  const { transitions } = value;
   if (!isFiniteNonNeg(at) || !isFiniteNonNeg(wpm)) return null;
   if (!isFiniteNonNeg(durationMs)) return null;
   if (!isFiniteNonNeg(accuracy) || accuracy > 1) return null;
@@ -78,5 +82,8 @@ export function parseSessionRecord(value: unknown): SessionRecord | null {
     accuracy,
     durationMs,
     errors: clean,
+    ...(transitions === undefined
+      ? {}
+      : { transitions: parseTransitionTimes(transitions) }),
   };
 }

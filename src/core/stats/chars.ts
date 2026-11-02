@@ -3,7 +3,7 @@ import type { Keystroke } from "../engine/engine";
 /** Weight of the newest sample in each moving average. */
 const ALPHA = 0.1;
 /** A longer gap is hesitation, not speed. */
-const MAX_GAP_MS = 2000;
+export const MAX_GAP_MS = 2000;
 
 export interface CharStat {
   /** First keystrokes at a text position; retries are not attempts. */
@@ -20,7 +20,7 @@ export interface CharStat {
 
 export type CharStats = Record<string, CharStat>;
 
-const average = (old: number, count: number, x: number): number =>
+export const average = (old: number, count: number, x: number): number =>
   count === 0 ? x : old + ALPHA * (x - old);
 
 /** A new stats object with the session's first attempts folded in, in log order. */
@@ -64,9 +64,9 @@ export function foldSession(
 
 export const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
-const isCount = (v: unknown): v is number =>
+export const isCount = (v: unknown): v is number =>
   typeof v === "number" && Number.isInteger(v) && v >= 0;
-const isNonNegative = (v: unknown): v is number =>
+export const isNonNegative = (v: unknown): v is number =>
   typeof v === "number" && Number.isFinite(v) && v >= 0;
 
 function parseStat(raw: unknown): CharStat | null {

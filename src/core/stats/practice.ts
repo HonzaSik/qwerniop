@@ -52,6 +52,37 @@ export function monthGrid(
 }
 
 const MINUTE = 60_000;
+const SPREAD_DAYS = 7;
+
+/** How practice fell over the last week: days practised, and whole minutes per day practised. */
+export function recentSpread(
+  days: ReadonlyMap<string, DayPractice>,
+  today: number,
+): { days: number; minutes: number } {
+  const now = new Date(today);
+  let count = 0;
+  let ms = 0;
+  for (let i = 0; i < SPREAD_DAYS; i++) {
+    const day = days.get(
+      dayKey(
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - i,
+        ).getTime(),
+      ),
+    );
+    if (day) {
+      count++;
+      ms += day.ms;
+    }
+  }
+  return {
+    days: count,
+    // At least 1: a day practised should not read as zero minutes.
+    minutes: count === 0 ? 0 : Math.max(1, Math.round(ms / count / MINUTE)),
+  };
+}
 
 /** Fixed minute steps rather than quartiles, so a level means the same thing every month. */
 export function practiceLevel(ms: number): 0 | 1 | 2 | 3 | 4 {

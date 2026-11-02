@@ -157,16 +157,29 @@ describe("parseExport", () => {
       ms: 300,
       totalMs: 300,
     };
+    const pair = {
+      attempts: 2,
+      correct: 1,
+      timed: 1,
+      totalMs: 300,
+      ms: 300,
+      earlyMs: 300,
+    };
     const data = {
       settings: defaultSettings(),
       progress: {
-        "en-us": { ...initialProgress(), stats: { a: stat } },
+        "en-us": {
+          ...initialProgress(),
+          stats: { a: stat },
+          pairs: { th: pair },
+        },
         "cs-qwertz": initialProgress(),
       },
       sessions: [],
     };
     const r = parseExport(JSON.parse(buildExport(data, new Date(0))));
     expect(r.ok && r.value.progress["en-us"].stats).toEqual({ a: stat });
+    expect(r.ok && r.value.progress["en-us"].pairs).toEqual({ th: pair });
     const { stats: _, ...old } = initialProgress();
     const o = parseExport(file({ progress: { "en-us": old } }));
     expect(o.ok && o.value.progress["en-us"].stats).toEqual({});

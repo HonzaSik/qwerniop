@@ -111,12 +111,12 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass for step 3 and 4 (touch
 
 ## Offline and install
 
-Setup: `pnpm build && pnpm preview`, Chromium with a fresh profile.
+Setup: `pnpm build && python3 -m http.server 4173 --directory dist`, Chromium with a fresh profile. Not `pnpm preview`: it sends `Vary: Origin`, so cached module scripts miss and an offline reload stays blank.
 
 1. Open the preview URL and let it load. DevTools, Application, Service Workers: `sw.js` is activated.
 2. Network panel: tick Offline and reload. The app loads and a session works.
 3. Back online, switch Layout to Czech (QWERTZ) once so its word list loads. Go offline, reload, switch between layouts. Both work.
-4. Update flow: change any source file, run `pnpm build` again (preview serves the new `dist`), reload the open tab. "Update available" shows. Click Reload: the page reloads and Application shows the new worker as activated.
+4. Update flow: change any source file, run `pnpm build` again (the server serves the new `dist`), reload the open tab. "Update available" shows. Click Reload: the page reloads and Application shows the new worker as activated.
 5. Application, Manifest: no errors, name "Tenfold", icon shown, installable (install icon in the address bar).
 6. With a model server configured, requests to it are not listed under Cache Storage.
 
@@ -208,6 +208,14 @@ Setup: model server disabled in Settings (the default); DevTools Network open wi
 Pass: the `ai-*` chunks load only after the server is enabled and used.
 
 Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue and `#settings` visit, and enabling the switch: 0 `ai-*` requests. After Test connection to `http://localhost:11434/v1`: `ai-openai-compatible-*.js` and `ai-provider-*.js` load.
+
+## Letter combination stats
+
+1. Fresh profile, finish a session: Stats shows "Keep typing: combinations show after about 20 attempts each."
+2. After several sessions: the slowest combinations table appears, its numbers line up, and Moves between keys appears once a kind of move has 20 samples.
+3. Export, then import: the combinations table is unchanged. Older exported files import with an empty table and no error.
+4. Check light, dark, Black (OLED), 360 px, and Czech.
+5. Under the setup of "Offline and install", with a fresh profile, let the worker activate, stop the server and open Stats: it loads from the cache.
 
 ## Custom text
 
