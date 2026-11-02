@@ -159,6 +159,4 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 21. Letter combinations: practise and check
 
-- [ ] Real words containing slow pairs become likelier
-- [ ] Slow pairs randomly assigned to practised or left alone, with the comparison in Stats
-- [ ] Weighting removed if the comparison shows nothing
+Not built. Simulation showed a test on one learner's typing could not detect the effect, so the weighting could not be proven. See EVIDENCE.md.
