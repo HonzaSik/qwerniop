@@ -92,23 +92,37 @@ export function createOpenAiProvider(options: OpenAiOptions): TextProvider {
       const onAbort = () => controller.abort();
       signal?.addEventListener("abort", onAbort);
       try {
-        const response = await send(
-          "/chat/completions",
-          {
-            method: "POST",
-            headers: headers(),
-            body: JSON.stringify({
-              model: options.model,
-              stream: true,
-              max_tokens: request.maxTokens,
-              temperature: request.temperature,
-              messages: [
-                { role: "system", content: request.system },
-                { role: "user", content: request.prompt },
-              ],
-            }),
+        const post = (extra: Record<string, unknown>) =>
+          send(
+            "/chat/completions",
+            {
+              method: "POST",
+              headers: headers(),
+              body: JSON.stringify({
+                model: options.model,
+                stream: true,
+                max_tokens: request.maxTokens,
+                temperature: request.temperature,
+                messages: [
+                  { role: "system", content: request.system },
+                  { role: "user", content: request.prompt },
+                ],
+                ...extra,
+              }),
+            },
+            controller.signal,
+          );
+        // A thinking model otherwise spends max_tokens on reasoning and writes nothing. Not every server knows the option.
+        const response = await post({ reasoning_effort: "none" }).catch(
+          (error: unknown) => {
+            if (
+              error instanceof ProviderError &&
+              error.message === "HTTP 400"
+            ) {
+              return post({});
+            }
+            throw error;
           },
-          controller.signal,
         );
         if (!response.body) {
           throw new ProviderError("bad-response", "No response body");

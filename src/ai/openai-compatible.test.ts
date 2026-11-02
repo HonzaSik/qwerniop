@@ -83,6 +83,35 @@ describe("stream", () => {
     expect(f.mock.calls[0]?.[1]?.headers).not.toHaveProperty("Authorization");
   });
 
+  test("asks the model not to spend its tokens on reasoning", async () => {
+    const f = fakeFetch(async () =>
+      streamOf([chunk("hi"), "data: [DONE]\n\n"]),
+    );
+    const p = createOpenAiProvider({
+      baseUrl: "http://x",
+      model: "m",
+      fetch: f,
+    });
+    await collect(p.stream(request));
+    const body = JSON.parse(String(f.mock.calls[0]?.[1]?.body));
+    expect(body.reasoning_effort).toBe("none");
+  });
+
+  test("a server that rejects that option gets the request without it", async () => {
+    const f = fakeFetch(async (init) =>
+      String(init.body).includes("reasoning_effort")
+        ? new Response("", { status: 400 })
+        : streamOf([chunk("hi"), "data: [DONE]\n\n"]),
+    );
+    const p = createOpenAiProvider({
+      baseUrl: "http://x",
+      model: "m",
+      fetch: f,
+    });
+    expect(await collect(p.stream(request))).toEqual(["hi"]);
+    expect(f).toHaveBeenCalledTimes(2);
+  });
+
   test("HTTP error", async () => {
     const f = fakeFetch(async () => new Response("", { status: 500 }));
     await expect(collect(make(f).stream(request))).rejects.toMatchObject({

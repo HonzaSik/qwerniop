@@ -58,6 +58,8 @@ Browsers only allow the app to call a local server that permits its origin.
 
 When a request fails in a way that looks like CORS (a `TypeError` from `fetch` with no response), Settings shows these instructions.
 
+Requests send `reasoning_effort: "none"`, and again without it if the server answers 400: a thinking model otherwise spends the token limit on reasoning and writes no text.
+
 ## Modes
 
 ### 1. Lesson text
