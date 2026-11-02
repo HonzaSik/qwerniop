@@ -149,4 +149,4 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 
 ## 19. Custom text
 
-- [ ] Practise pasted text; counts toward stats and history, never unlocks
+- [x] Practise pasted text; counts toward stats and history, never unlocks

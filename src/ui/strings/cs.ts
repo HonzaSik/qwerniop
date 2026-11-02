@@ -150,6 +150,17 @@ export const cs: Strings = {
     count: (done, all) => `${done} z ${all}`,
     developerMode: "Vývojářský režim je zapnutý: lze spustit každou lekci.",
   },
+  custom: {
+    title: "Vlastní text",
+    intro:
+      "Vložte cokoli a opište to. Počítá se do statistik, ale nic neodemyká a zůstává v tomto zařízení.",
+    field: "Text k opsání",
+    start: "Začít",
+    dropped: (n) =>
+      `${n} ${plural(n, "znak", "znaky", "znaků")} nelze na tomto rozložení napsat a ${plural(n, "bude vynechán", "budou vynechány", "bude vynecháno")}.`,
+    nothing: "Nic z toho nelze na tomto rozložení napsat.",
+    cut: (max) => `Zachová se jen prvních ${max} znaků.`,
+  },
   topics: {
     title: "Učení tématu",
     intro:

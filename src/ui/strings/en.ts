@@ -166,6 +166,17 @@ export const en = {
     count: (done: number, all: number): string => `${done} of ${all}`,
     developerMode: "Developer mode is on: every lesson can be started.",
   },
+  custom: {
+    title: "Custom text",
+    intro:
+      "Paste anything to type it. It counts in Stats but unlocks nothing, and it stays on this device.",
+    field: "Text to type",
+    start: "Start",
+    dropped: (n: number): string =>
+      `${n} ${n === 1 ? "character" : "characters"} can't be typed on this layout and will be left out.`,
+    nothing: "Nothing here can be typed on this layout.",
+    cut: (max: number): string => `Only the first ${max} characters are kept.`,
+  },
   topics: {
     title: "Learn a topic",
     intro:

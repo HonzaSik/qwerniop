@@ -35,6 +35,11 @@ test("parseSessionRecord keeps a valid record", () => {
   expect(parseSessionRecord(valid)).toEqual(valid);
 });
 
+test("parseSessionRecord keeps a custom text session", () => {
+  const custom = { ...valid, lesson: { track: "custom", stage: 0 } };
+  expect(parseSessionRecord(custom)).toEqual(custom);
+});
+
 test.each([
   null,
   "x",

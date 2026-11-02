@@ -9,7 +9,8 @@ export interface SessionRecord {
   at: number;
   layout: Layout["id"];
   mode: Session["config"]["errorMode"];
-  lesson: { track: LessonTrack; stage: number };
+  /** "custom" is pasted text: it belongs to no track, and stage is 0. */
+  lesson: { track: LessonTrack | "custom"; stage: number };
   wpm: number;
   accuracy: number;
   durationMs: number;
@@ -58,7 +59,10 @@ export function parseSessionRecord(value: unknown): SessionRecord | null {
   if (layout !== "en-us" && layout !== "cs-qwertz") return null;
   if (mode !== "stop" && mode !== "continue") return null;
   if (!isRecord(lesson) || !isCount(lesson.stage)) return null;
-  const track = TRACKS.find((t) => t === lesson.track);
+  const track =
+    lesson.track === "custom"
+      ? "custom"
+      : TRACKS.find((t) => t === lesson.track);
   if (!track || !isRecord(errors)) return null;
   const clean: Record<string, number> = {};
   for (const [char, n] of Object.entries(errors)) {

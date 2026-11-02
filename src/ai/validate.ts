@@ -1,5 +1,5 @@
 import type { Layout } from "../core/layouts/layout";
-import { strokesFor } from "../core/layouts/strokes";
+import { producible, typable } from "../core/text/typable";
 
 // `min` and `max` count characters of the cleaned result.
 export type ValidateOptions =
@@ -14,43 +14,9 @@ export type ValidateOptions =
 const LESSON_SURVIVAL = 0.6;
 const TAB = "    ";
 
-// Includes U+00A0 and U+202F (no-break spaces), which the formatter writes literally.
-const TYPOGRAPHIC: Record<string, string> = {
-  "‘": "'",
-  "’": "'",
-  "‚": "'",
-  "“": '"',
-  "”": '"',
-  "„": '"',
-  "–": "-",
-  "—": "-",
-  "…": "...",
-  " ": " ",
-  " ": " ",
-};
-
-// Letters that do not decompose under NFD.
-const TRANSLITERATE: Record<string, string> = {
-  ß: "ss",
-  æ: "ae",
-  Æ: "AE",
-  œ: "oe",
-  Œ: "OE",
-  ø: "o",
-  Ø: "O",
-  đ: "d",
-  Đ: "D",
-  ł: "l",
-  Ł: "L",
-};
-
 const FENCE = /^\s*```/;
 const QUOTES = /^["'`]+|["'`]+$/g;
 const LIST_MARKER = /^(?:(?:#{1,6}|[-•]|\d+[.)])\s+)+/;
-
-function typable(text: string): string {
-  return text.normalize("NFC").replace(/./gsu, (c) => TYPOGRAPHIC[c] ?? c);
-}
 
 /** Text of the first fenced block, or the input when the model did not fence. */
 function unfence(text: string): string {
@@ -89,14 +55,6 @@ function code(text: string): string {
     .map((l) => l.replace(/\t/g, TAB).trimEnd())
     .join("\n")
     .replace(/^\n+|\n+$/g, "");
-}
-
-/** The typable form of `ch`, or undefined when the layout cannot produce it. */
-function producible(layout: Layout, ch: string): string | undefined {
-  if (strokesFor(layout, ch)) return ch;
-  const base = TRANSLITERATE[ch] ?? ch.normalize("NFD").replace(/\p{M}/gu, "");
-  if (base === ch) return undefined;
-  return [...base].every((c) => strokesFor(layout, c)) ? base : undefined;
 }
 
 function convert(layout: Layout, word: string): string | undefined {

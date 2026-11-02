@@ -113,6 +113,8 @@ interface Run {
   feedback?: { weakest: string[]; sentence: string; recap?: string };
   /** Text from the model server, when one was asked for and passed validation. */
   generated?: Generated | undefined;
+  /** Pasted text; the lesson stays the current one to come back to and is not what is being typed. */
+  custom?: string;
 }
 
 // One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
@@ -253,6 +255,14 @@ async function startTopic(
   return true;
 }
 
+// Kept here so it survives leaving Lessons, and nowhere else: pasted text is never stored, exported or sent to a model.
+let customDraft = $state("");
+
+function startCustom(text: string): void {
+  run = { ...begin(ui.lesson, "lesson"), custom: text };
+  location.hash = "#practice";
+}
+
 // Starting or skipping the drill both count as introduced, so the intro never returns for this stage.
 function leaveIntro(drill: boolean): void {
   ui.progress = markIntroduced(layout.id, ui.progress, run.lesson);
@@ -277,12 +287,11 @@ function finish(session: Session): void {
   };
   const track = run.lesson.track;
   const before = ui.progress[track];
-  ui.progress = completeLesson(
-    layout.id,
-    progress,
-    run.lesson,
-    ui.settings.targets,
-  );
+  // Custom text feeds the stats but never runs the unlock rule.
+  ui.progress =
+    run.custom === undefined
+      ? completeLesson(layout.id, progress, run.lesson, ui.settings.targets)
+      : progress;
   const after = ui.progress[track];
   const codes = weakestKeys(
     layout,
@@ -311,7 +320,12 @@ function finish(session: Session): void {
     ),
   };
   const done = run;
-  const record = sessionRecord(session, layout.id, run.lesson, Date.now());
+  const record = sessionRecord(
+    session,
+    layout.id,
+    run.custom === undefined ? run.lesson : { track: "custom", stage: 0 },
+    Date.now(),
+  );
   // Saved and read back, so the record itself is left out of its own trend.
   saveSession(record);
   readSessions()
@@ -414,7 +428,7 @@ let help: HTMLDialogElement | undefined = $state();
     <a href="#settings" aria-current={view === "settings" ? "page" : undefined}>{t.nav.settings}</a>
   </nav>
   {#if view === "lessons"}
-    <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} onstarttopic={startTopic} />
+    <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} onstarttopic={startTopic} onstartcustom={startCustom} bind:customDraft />
   {:else if view === "settings"}
     <Settings onlayout={chooseLayout} />
   {:else if view === "stats"}
@@ -437,13 +451,13 @@ let help: HTMLDialogElement | undefined = $state();
         />
       {:else}
         <Practice
-          text={run.generated?.text ?? text(snippets)}
-          title={run.generated?.topic ? t.topics.passageTitle(run.generated.topic) : lessonTitle(layout.id, run.lesson)}
+          text={run.custom ?? run.generated?.text ?? text(snippets)}
+          title={run.custom !== undefined ? t.custom.title : run.generated?.topic ? t.topics.passageTitle(run.generated.topic) : lessonTitle(layout.id, run.lesson)}
           errorMode={ui.settings.errorMode}
-          timeLimit={ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
+          timeLimit={run.custom === undefined && ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
           feedback={run.feedback}
           onfinish={finish}
-          onnext={() => start(nextLesson(layout.id, ui.progress, run.lesson, ui.settings.developerMode))}
+          onnext={() => start(run.custom !== undefined ? ui.lesson : nextLesson(layout.id, ui.progress, run.lesson, ui.settings.developerMode))}
         />
       {/if}
     {/key}

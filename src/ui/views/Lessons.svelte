@@ -9,6 +9,7 @@ import {
   TRACKS,
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
+import CustomTextSection from "../components/CustomTextSection.svelte";
 import TopicSection from "../components/TopicSection.svelte";
 import { ui } from "../state.svelte";
 import { lessonTitle, t } from "../strings";
@@ -19,9 +20,19 @@ interface Props {
   current: Lesson;
   onstart: (lesson: Lesson) => void;
   onstarttopic: (topic: string, signal: AbortSignal) => Promise<boolean>;
+  onstartcustom: (text: string) => void;
+  customDraft: string;
 }
 
-let { layout, progress, current, onstart, onstarttopic }: Props = $props();
+let {
+  layout,
+  progress,
+  current,
+  onstart,
+  onstarttopic,
+  onstartcustom,
+  customDraft = $bindable(),
+}: Props = $props();
 
 const stages = (track: LessonTrack) =>
   Array.from({ length: lessonCount(layout, track) }, (_, i) => i + 1);
@@ -85,6 +96,7 @@ const isOpen = (track: LessonTrack) =>
       {/if}
     </section>
   {/each}
+  <CustomTextSection {layout} onstart={onstartcustom} bind:draft={customDraft} />
   <TopicSection {layout} letters={progress.letters} onstart={onstarttopic} />
 </main>
 

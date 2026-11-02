@@ -209,6 +209,12 @@ Pass: the `ai-*` chunks load only after the server is enabled and used.
 
 Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue and `#settings` visit, and enabling the switch: 0 `ai-*` requests. After Test connection to `http://localhost:11434/v1`: `ai-openai-compatible-*.js` and `ai-provider-*.js` load.
 
+## Custom text
+
+1. In Lessons, paste a paragraph with curly quotes and an emoji. The note says how many characters are left out; Chinese text alone says nothing can be typed and Start stays disabled. A paste over 5000 characters is cut, and the note says so.
+2. Start: Practice is titled "Custom text", with plain quotes, no emoji, no line breaks and no timer even with a timed length set.
+3. Finish it: Stats and the calendar show the session, and Lessons shows no new unlock. Repeat retypes it, Continue returns to the current lesson, and the text is still in the box until a reload.
+
 ## Practice calendar
 
 1. With no sessions, Stats shows only the empty message; there is no Practice section.
