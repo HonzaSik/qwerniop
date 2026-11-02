@@ -171,7 +171,7 @@ const toLevel = $derived(pet.level + 1);
           <ellipse class="tongue" cx="32" cy={y + r + 3.6} rx="3.2" ry="3" />
         {:else if cheer}
           {#each [left, right] as x}
-            <path class="line" d="M{x - r} {y + r * 0.4}q{r} {-r * 1.8} {r * 2} 0" />
+            <path class="line" d="M{x - r * 0.8} {y}q{r * 0.8} {-r * 1.8} {r * 1.6} 0" />
           {/each}
         {:else if asleep}
           {#each [left, right] as x}
@@ -191,7 +191,7 @@ const toLevel = $derived(pet.level + 1);
           <path class="tear" d="M{right + 2.5} {y + r}c2 3 2 5 0 5s-2-2 0-5Z" />
           <path class="line" d="M29.5 {y + r + 2}q2.5-2 5 0" />
         {:else if cheer}
-          <path class="line" d="M28.5 {y + r * 0.8}q3.5 4 7 0" />
+          <path class="line" d="M30 {y + r * 1.2}q2 2.6 4 0" />
         {:else if !dead}
           <path class="line" d="M29.5 {y + r * 0.7}q1.25 1.6 2.5 0q1.25 1.6 2.5 0" />
         {/if}

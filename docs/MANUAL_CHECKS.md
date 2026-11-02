@@ -224,7 +224,6 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue
 3. With sessions dated 5 days ago: hungry face and text. With sessions dated 20 days ago: dead face and text, and lives lost is 1. Finish a session: a new egg, with lessons and stats unchanged.
 4. On the first summary, name the pet, including `R`, `,` and `?`: no shortcut fires, Enter names it and focus moves to Continue. Stats has no way to rename it. It asks again on the next summary if you continued without naming. Export, then import: the pet and its name are unchanged.
 5. Check light, dark, Black (OLED), 360 px, Czech, and a screen reader's label. With motion reduced it does not blink.
-
 6. Open the app with a pet at least 1100 px wide: the pet greets from the bottom left corner and goes at the first key, with the text staying put. It does not return on the next session of that visit. Practise past a level or beat your best: the pet smiles, hops and the line says why. Stats lists Memories, newest first.
 
 Checked 2026-11-02 headless Chromium: pass for steps 1 to 3, and for step 5 in light, dark, Black (OLED), 360 px and Czech, on seeded data for every stage, hungry and dead. Naming the pet once on the first summary: pass. Step 6 on seeded data, with widths 1099 to 1920 px, 600 px high, and Czech: pass, except the hop itself, because the browser ran with reduced motion. Export and import through the page (step 4), a real screen reader and the blink not checked.

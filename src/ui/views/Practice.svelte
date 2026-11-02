@@ -201,7 +201,7 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       <PetGreeting />
     {/await}
   {/if}
-  <h1>{title}</h1>
+  <h1 class:done={finished}>{title}</h1>
   {#if timeLimit !== undefined}
     <p class="timer" role="timer" aria-label={t.practice.timeLeft}>{secondsLeft}</p>
   {/if}
@@ -289,6 +289,11 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     font-size: var(--text-size-md);
     font-weight: var(--weight-regular);
     text-align: center;
+  }
+
+  /* The summary is taller than the text, and on a short window it pushes the title under the fixed nav. */
+  h1.done {
+    opacity: 0;
   }
 
   .timer {
