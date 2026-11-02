@@ -60,6 +60,22 @@ export function overview(
   };
 }
 
+const CHANGE_MIN_SESSIONS = 5;
+
+/** This session's speed against the mean of the last ten before it; undefined with too few to mean much. */
+export function speedChange(
+  records: readonly SessionRecord[],
+  record: SessionRecord,
+): number | undefined {
+  const others = recentSessions(
+    records.filter((r) => r.at !== record.at),
+    record.layout,
+    OVERVIEW_WINDOW,
+  );
+  if (others.length < CHANGE_MIN_SESSIONS) return undefined;
+  return record.wpm - mean(others.map((r) => r.wpm));
+}
+
 /** Linear heat 0..1 relative to the worst key; keys at 0 are absent. */
 export function heatScale(
   counts: ReadonlyMap<string, number>,

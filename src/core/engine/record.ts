@@ -19,6 +19,8 @@ export interface SessionRecord {
   errors: Record<string, number>;
   /** Time by kind of move between fingers; absent on sessions from before it was measured. */
   transitions?: TransitionTimes;
+  /** The local date whose daily challenge this was; absent on any other session. */
+  daily?: string;
 }
 
 export function sessionRecord(
@@ -58,7 +60,7 @@ const MAX_DATE_MS = 8.64e15;
 export function parseSessionRecord(value: unknown): SessionRecord | null {
   if (!isRecord(value)) return null;
   const { at, layout, mode, lesson, wpm, accuracy, durationMs, errors } = value;
-  const { transitions } = value;
+  const { transitions, daily } = value;
   // Past the largest time a Date can hold, the record's day could not be worked out or shown.
   if (!isFiniteNonNeg(at) || at > MAX_DATE_MS) return null;
   if (!isFiniteNonNeg(wpm)) return null;
@@ -89,5 +91,8 @@ export function parseSessionRecord(value: unknown): SessionRecord | null {
     ...(transitions === undefined
       ? {}
       : { transitions: parseTransitionTimes(transitions) }),
+    ...(typeof daily === "string" && /^\d{4}-\d{2}-\d{2}$/.test(daily)
+      ? { daily }
+      : {}),
   };
 }

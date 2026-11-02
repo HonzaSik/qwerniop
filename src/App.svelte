@@ -20,6 +20,7 @@ import {
 } from "./core/lessons/lessons";
 import { stageCount, unlockedLetters } from "./core/lessons/letters";
 import { type CharStats, foldSession } from "./core/stats/chars";
+import type { DailyResult } from "./core/stats/daily";
 import { foldPairs, transitionTimes } from "./core/stats/pairs";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
@@ -34,6 +35,7 @@ import {
 } from "./ui/ai";
 import KeyIntro from "./ui/components/KeyIntro.svelte";
 import { keyLabel } from "./ui/components/keyboard-labels";
+import { drillKeys } from "./ui/components/session-summary";
 import { loadSnippets, loadWords } from "./ui/content";
 import type { PetStatus } from "./ui/pet-status";
 import type { SummaryPet } from "./ui/pet-summary";
@@ -120,6 +122,8 @@ interface Run {
     sentence: string;
     recap?: string;
     pet?: SummaryPet;
+    daily?: DailyResult;
+    change?: number;
   };
   /** Text from the model server, when one was asked for and passed validation. */
   generated?: Generated | undefined;
@@ -127,6 +131,9 @@ interface Run {
   custom?: string;
   /** Set when `custom` is a weakest-keys drill: the keys it trains, for the title. */
   weakKeys?: string;
+  /** Set when `custom` is a daily challenge: the date it began on, which it scores for. */
+  daily?: string;
+  dailyTitle?: string;
 }
 
 // One practice run: the lesson, a seed so every run has new text, and the letters and stats known when it began.
@@ -336,6 +343,22 @@ function startWeak(): void {
   location.hash = "#practice";
 }
 
+function startKeys(labels: readonly string[]): void {
+  const next = begin(ui.lesson, "lesson");
+  const keys = drillKeys(labels);
+  run = {
+    ...next,
+    custom: keyDrill(keys, seededRng(next.seed), WEAK_DRILL_GROUPS),
+    weakKeys: keys.join(" "),
+  };
+}
+
+async function startDaily(): Promise<void> {
+  const { dailyRun } = await import("./ui/daily-run");
+  run = { ...begin(ui.lesson, "lesson"), ...dailyRun(layout.id, words) };
+  location.hash = "#practice";
+}
+
 // Coming back to a finished session: its summary is gone, so it moves on as Continue would.
 function onhashchange(): void {
   hash = location.hash;
@@ -421,6 +444,7 @@ function finish(session: Session): void {
       Date.now(),
     ),
     transitions: transitionTimes(layout, session.log),
+    ...(run.daily === undefined ? {} : { daily: run.daily }),
   };
   // Saved and read back, so the record itself is left out of its own trend.
   saveSession(record);
@@ -435,14 +459,21 @@ function finish(session: Session): void {
   if (savesSessions()) {
     // Loaded here to keep the first paint small; a failed load only leaves the pet off the summary.
     Promise.all([saved, import("./ui/pet-summary")])
-      .then(([records, { summaryPet }]) => {
+      .then(([records, { speedChange, summaryDaily, summaryPet }]) => {
         const pet = summaryPet(
           records,
           record,
           session.chars.slice(0, session.cursor).map((c) => c.expected),
         );
-        if (pet && run === done && done.feedback) {
-          done.feedback = { ...done.feedback, pet };
+        const daily = summaryDaily(records, record);
+        const change = speedChange(records, record);
+        if (run === done && done.feedback) {
+          done.feedback = {
+            ...done.feedback,
+            ...(pet ? { pet } : {}),
+            ...(daily ? { daily } : {}),
+            ...(change === undefined ? {} : { change }),
+          };
         }
       })
       .catch((error: unknown) => console.error("Pet failed to load", error));
@@ -551,7 +582,7 @@ let help: HTMLDialogElement | undefined = $state();
     {#await loadLessons()}
       <main class="notice"><p>{t.stats.loading}</p></main>
     {:then { default: Lessons }}
-      <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} onstarttopic={startTopic} onstartcustom={startCustom} bind:customDraft {weak} onstartweak={startWeak} {petStatus} />
+      <Lessons layout={layout.id} progress={ui.progress} current={ui.lesson} onstart={start} onstarttopic={startTopic} onstartcustom={startCustom} bind:customDraft {weak} onstartweak={startWeak} onstartdaily={startDaily} {petStatus} />
     {:catch}
       <main class="notice"><p>{t.lessons.loadFailed}</p></main>
     {/await}
@@ -580,16 +611,18 @@ let help: HTMLDialogElement | undefined = $state();
           feedback={run.feedback}
           onfinish={finish}
           onnext={() => (run = carry("lesson"))}
+          ondrill={startKeys}
         />
       {:else}
         <Practice
           text={run.custom ?? run.generated?.text ?? text(snippets)}
-          title={run.weakKeys !== undefined ? t.weak.practiceTitle(run.weakKeys) : run.custom !== undefined ? t.custom.title : run.generated?.topic ? t.topics.passageTitle(run.generated.topic) : lessonTitle(layout.id, run.lesson)}
-          errorMode={ui.settings.errorMode}
+          title={run.dailyTitle ?? (run.weakKeys !== undefined ? t.weak.practiceTitle(run.weakKeys) : run.custom !== undefined ? t.custom.title : run.generated?.topic ? t.topics.passageTitle(run.generated.topic) : lessonTitle(layout.id, run.lesson))}
+          errorMode={run.daily !== undefined ? "stop" : ui.settings.errorMode}
           timeLimit={run.custom === undefined && ui.settings.length.kind === "seconds" ? ui.settings.length.amount * 1000 : undefined}
           feedback={run.feedback}
           onfinish={finish}
           onnext={practiceNext}
+          ondrill={startKeys}
         />
       {/if}
     {/key}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  drillKeys,
   formatAccuracy,
   formatDuration,
   isRestartKey,
@@ -66,4 +67,8 @@ describe("isRestartKey", () => {
       isRestartKey({ ...press("Enter"), defaultPrevented: true }, false),
     ).toBe(false);
   });
+});
+
+it("drillKeys lowercases key labels and drops named keys", () => {
+  expect(drillKeys(["J", "Ů", ";", "Enter"])).toEqual(["j", "ů", ";"]);
 });

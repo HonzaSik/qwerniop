@@ -40,3 +40,7 @@ export function isRestartKey(
   }
   return event.key === "Enter" ? !onButton : event.key.toLowerCase() === "r";
 }
+
+/** The characters behind key labels. Letters are shown as capitals, and a named key such as Enter cannot be drilled. */
+export const drillKeys = (labels: readonly string[]): string[] =>
+  labels.filter((label) => [...label].length === 1).map((l) => l.toLowerCase());

@@ -321,3 +321,17 @@ After the checks above pass and the license review is done:
 2. Press Esc while typing: "Paused" stays until a key is typed, with Start over under the Keyboard select, and the keyboard does not move. Tab reaches the controls, and Enter on a nav link follows it. Start over restarts the same text.
 3. Finish a session, open Stats, return to Practice: new text, not the same one. On the first summary, Enter in the empty name box continues. On Lessons with nothing focused, Enter starts Next up.
 4. Export, then Import that file: it succeeds and the data is unchanged.
+
+## Daily challenge
+
+1. Two profiles with different progress and targets, same layout and date: Lessons, Daily challenge, Start gives the same words in both.
+2. Finish a try: the summary says today's score. Repeat faster: it says practice and keeps the score. Reload: Lessons still shows the first score. Nothing is unlocked.
+3. With a timed length and Keep going set, the challenge is still untimed and stops on a wrong key.
+4. Copy result, then paste: date, layout, the day's score and the app's address. Switch layout: it has its own challenge and score.
+
+## Idle, change and drill
+
+1. Stop typing mid-session for over 10 s: it pauses, and the summary's time leaves the wait out. No pause before the first key. A timed session's seconds hold still.
+2. With 5 or more earlier sessions, the summary shows the change under Speed; with fewer, nothing.
+3. "Drill these" drills exactly the keys named, on both layouts, and unlocks nothing.
+4. In Firefox, the first finished session may ask to keep data; refusing changes nothing.

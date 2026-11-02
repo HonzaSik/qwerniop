@@ -247,6 +247,10 @@ export const cs: Strings = {
     weakest: "Nejslabší klávesy",
     next: "Pokračovat",
     repeat: "Opakovat",
+    change: (change) => `${change} oproti posledním 10`,
+    drill: "Procvičit",
+    loadFailed:
+      "Souhrn se nepodařilo načíst. Může pomoct znovu načíst stránku.",
     recap: "Zamyslete se:",
   },
   feedback: {

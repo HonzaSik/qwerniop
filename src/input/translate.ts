@@ -31,7 +31,8 @@ export interface InputOptions {
   emit: (event: SessionInput) => void;
   onKeyDown: (code: string) => void;
   onComposingChange: (composing: boolean) => void;
-  onPausedChange: (paused: boolean) => void;
+  /** `at` is when it took effect, which for an idle pause is before the call. */
+  onPausedChange: (paused: boolean, at: number) => void;
 }
 
 /**
@@ -71,7 +72,7 @@ export function createTranslator(options: InputOptions) {
     abandonComposition();
     pausedMs += timeStamp - pausedAt;
     pausedAt = undefined;
-    options.onPausedChange(false);
+    options.onPausedChange(false, timeStamp);
   }
 
   return {
@@ -144,7 +145,7 @@ export function createTranslator(options: InputOptions) {
       abandonComposition();
       committed = undefined;
       pausedAt = timeStamp;
-      options.onPausedChange(true);
+      options.onPausedChange(true, timeStamp);
     },
 
     resume,

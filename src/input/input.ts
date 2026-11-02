@@ -1,5 +1,8 @@
 import { createTranslator, type InputOptions } from "./translate";
 
+// Long enough not to catch someone searching for a key, short enough to spare a score from a phone call.
+const IDLE_MS = 10_000;
+
 const CONTROLS = "a, button, input, select, textarea, summary";
 
 /**
@@ -10,15 +13,24 @@ export function attachInput(
   textarea: HTMLTextAreaElement,
   options: InputOptions,
 ): () => void {
+  // Nothing idles before the first character, since the clock has not started.
+  let started = false;
+  let lastKey = 0;
   const translator = createTranslator({
     ...options,
-    onPausedChange(paused) {
+    emit(event) {
+      started = true;
+      options.emit(event);
+    },
+    onPausedChange(paused, at) {
       if (!paused) {
+        // A click resumes with no key, and the wait so far must not pause it again at once.
+        lastKey = at;
         // A composition abandoned on blur may never end, so nothing else clears its text.
         textarea.value = "";
         textarea.focus({ preventScroll: true });
       }
-      options.onPausedChange(paused);
+      options.onPausedChange(paused, at);
     },
   });
   const controller = new AbortController();
@@ -72,6 +84,7 @@ export function attachInput(
       ) {
         return;
       }
+      lastKey = event.timeStamp;
       if (translator.keyDown(event)) event.preventDefault();
     },
     { signal },
@@ -82,6 +95,17 @@ export function attachInput(
     { signal },
   );
 
+  // Back-dated to the last key, so the wait counts neither as typing time nor against speed.
+  const idle = setInterval(() => {
+    if (!started || document.activeElement !== textarea) return;
+    if (performance.now() - lastKey < IDLE_MS) return;
+    translator.pause(lastKey);
+    textarea.blur();
+  }, 1000);
+
   textarea.focus({ preventScroll: true });
-  return () => controller.abort();
+  return () => {
+    clearInterval(idle);
+    controller.abort();
+  };
 }

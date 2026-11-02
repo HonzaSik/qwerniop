@@ -1,4 +1,5 @@
 import type { SessionRecord } from "../core/engine/record";
+import { type DailyResult, dailyResult } from "../core/stats/daily";
 import {
   type PetMoment,
   type PetState,
@@ -37,3 +38,15 @@ export function summaryPet(
       moment !== null && moment.kind !== "reborn" && moment.kind !== "missed",
   };
 }
+
+/** The daily challenge's line for the summary; here so it arrives with the pet, off the first page load. */
+export function summaryDaily(
+  records: readonly SessionRecord[],
+  record: SessionRecord,
+): DailyResult | undefined {
+  if (record.daily === undefined) return undefined;
+  const all = [...records.filter((r) => r.at !== record.at), record];
+  return dailyResult(all, record, record.daily);
+}
+
+export { speedChange } from "../core/stats/history";

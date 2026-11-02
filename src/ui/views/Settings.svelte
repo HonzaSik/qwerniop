@@ -14,7 +14,6 @@ import {
   TEXT_SIZE_VALUES,
   THEME_VALUES,
 } from "../../core/settings/settings";
-import DangerZone from "../components/DangerZone.svelte";
 import { saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
 
@@ -306,7 +305,10 @@ async function test(): Promise<void> {
       </div>
     {/if}
   </section>
-  <DangerZone />
+  <!-- Loaded apart: rarely opened, and the first page load has a size budget. -->
+  {#await import("../components/DangerZone.svelte") then { default: DangerZone }}
+    <DangerZone />
+  {/await}
 </main>
 
 <style>

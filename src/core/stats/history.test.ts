@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vitest";
 import type { SessionRecord } from "../engine/record";
-import { heatScale, niceMax, overview, recentSessions } from "./history";
+import {
+  heatScale,
+  niceMax,
+  overview,
+  recentSessions,
+  speedChange,
+} from "./history";
 
 const rec = (
   at: number,
@@ -88,5 +94,43 @@ describe("overview", () => {
     );
     expect(o.totalMs).toBe(2000);
     expect(o.recent?.wpm).toBe(20);
+  });
+});
+
+describe("speedChange", () => {
+  const session = (
+    at: number,
+    wpm: number,
+    layout: SessionRecord["layout"] = "en-us",
+  ) => ({
+    ...rec(at, {}, layout),
+    wpm,
+  });
+  const earlier = (n: number, wpm = 30) =>
+    Array.from({ length: n }, (_, i) => session(i + 1, wpm));
+
+  test("needs five earlier sessions", () => {
+    const now = session(100, 40);
+    expect(speedChange(earlier(4), now)).toBeUndefined();
+    expect(speedChange(earlier(5), now)).toBe(10);
+  });
+
+  test("leaves this session out, saved or not", () => {
+    const now = session(100, 40);
+    expect(speedChange([...earlier(5), now], now)).toBe(10);
+    expect(speedChange([...earlier(4), now], now)).toBeUndefined();
+  });
+
+  test("uses only the last ten", () => {
+    const old = Array.from({ length: 10 }, (_, i) => session(i + 1, 90));
+    const recent = Array.from({ length: 10 }, (_, i) => session(i + 11, 30));
+    expect(speedChange([...old, ...recent], session(100, 40))).toBe(10);
+  });
+
+  test("ignores other layouts", () => {
+    const others = Array.from({ length: 5 }, (_, i) =>
+      session(i + 1, 30, "cs-qwertz"),
+    );
+    expect(speedChange(others, session(100, 40))).toBeUndefined();
   });
 });

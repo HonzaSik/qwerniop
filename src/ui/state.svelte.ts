@@ -77,7 +77,21 @@ export function saveProgress(): void {
 export const saveSession: Store["addSession"] = (r) => {
   store?.addSession(r);
   tellOtherTabs();
+  keepSavedData();
 };
+
+let askedToKeep = false;
+
+// Otherwise the browser may evict everything when disk runs low. Asked after a session, not on load,
+// because Firefox shows a prompt for it. A refusal changes nothing.
+function keepSavedData(): void {
+  if (!store || askedToKeep) return;
+  askedToKeep = true;
+  navigator.storage
+    ?.persisted?.()
+    .then((kept) => kept || navigator.storage.persist())
+    .catch(() => {});
+}
 /** Topic history lives only in storage: it is neither exported nor kept in memory-only mode. */
 export const topicStore = {
   load: async (topic: string) => (await store?.readTopic(topic)) ?? undefined,

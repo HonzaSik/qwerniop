@@ -11,6 +11,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Practice calendar in Stats, one month at a time, with minutes practised today.
 - Learn a topic from Lessons, using the optional model server.
 - Custom text: paste anything and type it. It counts in Stats and unlocks nothing.
+- Daily challenge: the same words for everyone each day. Your first finished try is your score, and Copy result lets you compare with friends. There is no server and no ranking, so a shared score is the sender's word.
+- A session pauses itself after 10 s with no key, and the wait counts neither as time nor against speed.
+- The summary shows your speed against your last 10 sessions, and "Drill these" drills the weakest keys it names.
+- The app asks the browser to keep your data, so it is not evicted when disk runs low. Firefox may show a prompt for this.
 - Weakest keys: a drill where each key appears in proportion to how often you miss it.
 - Letter combinations and moves between keys in Stats. These measure only and do not change what is practised.
 - A practice pet that grows with practice, is named once, greets you before a session and keeps memories. It also says how many days in a row you have practised.

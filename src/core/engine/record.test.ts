@@ -45,6 +45,22 @@ test("parseSessionRecord keeps transitions and drops bad ones alone", () => {
   ).toEqual({ ...valid, transitions: { hands } });
 });
 
+test("parseSessionRecord keeps a daily date and drops a bad one alone", () => {
+  const base = sessionRecord(
+    createSession({ text: "a", errorMode: "stop" }),
+    "en-us",
+    { track: "custom", stage: 0 },
+    1,
+  );
+  const good = parseSessionRecord({ ...base, daily: "2026-11-02" });
+  expect(good?.daily).toBe("2026-11-02");
+  for (const daily of ["soon", 7, "2026-11-2"]) {
+    const kept = parseSessionRecord({ ...base, daily });
+    expect(kept).not.toBeNull();
+    expect(kept && "daily" in kept).toBe(false);
+  }
+});
+
 test("parseSessionRecord keeps a custom text session", () => {
   const custom = { ...valid, lesson: { track: "custom", stage: 0 } };
   expect(parseSessionRecord(custom)).toEqual(custom);

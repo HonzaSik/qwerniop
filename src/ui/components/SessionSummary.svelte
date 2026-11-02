@@ -1,11 +1,14 @@
 <script lang="ts">
 import type { Session } from "../../core/engine/engine";
 import { accuracy, duration, netWpm } from "../../core/engine/results";
+import type { DailyResult } from "../../core/stats/daily";
 import type { SummaryPet } from "../pet-summary";
 import { savesSessions } from "../state.svelte";
 import { t } from "../strings";
 import {
+  drillKeys,
   formatAccuracy,
+  formatChange,
   formatDuration,
   isRestartKey,
 } from "./session-summary";
@@ -19,13 +22,16 @@ interface Props {
         sentence: string;
         recap?: string | undefined;
         pet?: SummaryPet | undefined;
+        daily?: DailyResult | undefined;
+        change?: number | undefined;
       }
     | undefined;
   onrestart: () => void;
   onnext: () => void;
+  ondrill: (labels: readonly string[]) => void;
 }
 
-let { session, feedback, onrestart, onnext }: Props = $props();
+let { session, feedback, onrestart, onnext, ondrill }: Props = $props();
 
 let continueButton = $state<HTMLButtonElement>();
 
@@ -52,6 +58,7 @@ function focusOnShow(button: HTMLButtonElement): void {
     <div>
       <dt>{t.summary.wpm}</dt>
       <dd>{Math.round(netWpm(session))} <span class="unit">{t.stats.wpmUnit}</span></dd>
+      {#if feedback?.change !== undefined}<dd class="change">{t.summary.change(formatChange(feedback.change))}</dd>{/if}
     </div>
     <div>
       <dt>{t.summary.accuracy}</dt>
@@ -65,6 +72,9 @@ function focusOnShow(button: HTMLButtonElement): void {
       <div>
         <dt>{t.summary.weakest}</dt>
         <dd class="keys">{#each feedback.weakest as key, i}{#if i > 0}{" "}{/if}<kbd>{key}</kbd>{/each}</dd>
+        {#if drillKeys(feedback.weakest).length > 0}
+          <dd><button type="button" class="drill" onclick={() => ondrill(feedback.weakest)}>{t.summary.drill}</button></dd>
+        {/if}
       </div>
     {/if}
   </dl>
@@ -88,6 +98,11 @@ function focusOnShow(button: HTMLButtonElement): void {
       {/if}
     </div>
   </div>
+  {#if feedback?.daily}
+    {#await import("./DailyResultLine.svelte") then { default: DailyResultLine }}
+      <DailyResultLine result={feedback.daily} />
+    {/await}
+  {/if}
   {#if feedback?.recap}<p><strong>{t.summary.recap}</strong> {feedback.recap}</p>{/if}
   <div class="actions">
     <button class="primary" aria-keyshortcuts="Enter" bind:this={continueButton} onclick={onnext} use:focusOnShow>
@@ -181,6 +196,12 @@ function focusOnShow(button: HTMLButtonElement): void {
     font-weight: var(--weight-regular);
   }
 
+  .change {
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
+    font-weight: var(--weight-regular);
+  }
+
   .keys {
     display: flex;
     gap: var(--space-1);
@@ -200,5 +221,14 @@ function focusOnShow(button: HTMLButtonElement): void {
     min-height: calc(var(--control-height) + var(--space-2));
     padding: 0 var(--space-5);
     font-size: var(--text-size-md);
+  }
+
+  /* Not an action of the screen: Continue stays the one to press. */
+  .drill {
+    min-height: 0;
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-size-sm);
+    font-weight: var(--weight-regular);
   }
 </style>

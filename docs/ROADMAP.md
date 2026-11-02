@@ -200,3 +200,16 @@ Named by the learner, once.
 - [x] Coming back to a finished session moves on; practice under a minute reads as such
 - [x] Start over while paused, Enter continues from the empty name box, Enter starts Next up
 - [x] One-row tabs at phone width, one pet on the Pet tab, switches on the right in Settings
+
+## 28. Daily challenge
+
+- [x] The same text for everyone on a layout and date, from a seed with nothing about the learner (`dailyText`)
+- [x] The first finished try of a date is the score, worked out from the sessions (`dailySummary`)
+- [x] A section in Lessons, the result on the summary, and Copy result to share with friends
+
+## 29. Keep data, fair timing, feedback
+
+- [x] Ask the browser to keep saved data, after a session
+- [x] Pause after 10 s with no key, with the wait left out of time and speed
+- [x] Change against the last 10 sessions on the summary (`speedChange`)
+- [x] "Drill these" on the summary, for the weakest keys it names

@@ -13,6 +13,7 @@ import {
 } from "../../core/lessons/lessons";
 import { tracksOpen, tracksStart } from "../../core/lessons/tracks";
 import CustomTextSection from "../components/CustomTextSection.svelte";
+import DailySection from "../components/DailySection.svelte";
 import PetStreak from "../components/PetStreak.svelte";
 import Tabs from "../components/Tabs.svelte";
 import TopicSection from "../components/TopicSection.svelte";
@@ -32,6 +33,7 @@ interface Props {
   customDraft: string;
   weak: readonly MissRate[];
   onstartweak: () => void;
+  onstartdaily: () => void;
   petStatus: PetStatus | null;
 }
 
@@ -45,6 +47,7 @@ let {
   customDraft = $bindable(),
   weak,
   onstartweak,
+  onstartdaily,
   petStatus,
 }: Props = $props();
 
@@ -162,6 +165,7 @@ const nextTitle = $derived(
       </Tabs>
     </div>
     <aside>
+      <DailySection {layout} onstart={onstartdaily} />
       <WeakKeysSection {weak} onstart={onstartweak} />
       <CustomTextSection {layout} onstart={onstartcustom} bind:draft={customDraft} />
       <TopicSection {layout} letters={progress.letters} onstart={onstarttopic} />

@@ -268,6 +268,9 @@ export const en = {
     weakest: "Weakest keys",
     next: "Continue",
     repeat: "Repeat",
+    change: (change: string): string => `${change} vs your last 10`,
+    drill: "Drill these",
+    loadFailed: "The summary could not be loaded. Reloading the page may help.",
     recap: "Think about it:",
   },
   feedback: {

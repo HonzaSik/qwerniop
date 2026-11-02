@@ -6,15 +6,26 @@ function setup(enterTypesNewline = false) {
   const emitted: SessionInput[] = [];
   const codes: string[] = [];
   const pausedChanges: boolean[] = [];
+  const pausedAts: number[] = [];
   const composingChanges: boolean[] = [];
   const translator = createTranslator({
     enterTypesNewline,
     emit: (event) => emitted.push(event),
     onKeyDown: (code) => codes.push(code),
     onComposingChange: (composing) => composingChanges.push(composing),
-    onPausedChange: (paused) => pausedChanges.push(paused),
+    onPausedChange: (paused, at) => {
+      pausedChanges.push(paused);
+      pausedAts.push(at);
+    },
   });
-  return { translator, emitted, codes, pausedChanges, composingChanges };
+  return {
+    translator,
+    emitted,
+    codes,
+    pausedChanges,
+    pausedAts,
+    composingChanges,
+  };
 }
 
 function insert(data: string | null, timeStamp = 0, isComposing = false) {
@@ -206,6 +217,16 @@ describe("pausing", () => {
       expect(translator.keyDown(key(name, 200))).toBe(false);
     }
     expect(pausedChanges).toEqual([true]);
+  });
+
+  it("back-dates a pause, so time before it was called does not count", () => {
+    const { translator, emitted, pausedAts } = setup();
+    translator.pause(100);
+    expect(pausedAts).toEqual([100]);
+    translator.keyDown(key("x", 10_100));
+    expect(pausedAts).toEqual([100, 10_100]);
+    translator.beforeInput(insert("a", 10_200));
+    expect(emitted).toEqual([{ kind: "char", char: "a", at: 200 }]);
   });
 
   it("stays paused on Esc, which is what paused it, and on Tab, which moves focus", () => {

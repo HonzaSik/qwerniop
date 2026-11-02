@@ -8,10 +8,10 @@ import {
 } from "../../core/engine/engine";
 import { accuracy, netWpm } from "../../core/engine/results";
 import { layoutById } from "../../core/layouts/registry";
+import type { DailyResult } from "../../core/stats/daily";
 import { attachInput } from "../../input/input";
 import { isPhysicalCode } from "../../input/physicalKey";
 import Keyboard from "../components/Keyboard.svelte";
-import SessionSummary from "../components/SessionSummary.svelte";
 import { formatAccuracy } from "../components/session-summary";
 import TextView from "../components/TextView.svelte";
 import type { SummaryPet } from "../pet-summary";
@@ -39,13 +39,27 @@ interface Props {
         sentence: string;
         recap?: string | undefined;
         pet?: SummaryPet | undefined;
+        daily?: DailyResult | undefined;
+        change?: number | undefined;
       }
     | undefined;
   onnext: () => void;
+  ondrill: (labels: readonly string[]) => void;
 }
 
-let { text, title, errorMode, timeLimit, onfinish, feedback, onnext }: Props =
-  $props();
+let {
+  text,
+  title,
+  errorMode,
+  timeLimit,
+  onfinish,
+  feedback,
+  onnext,
+  ondrill,
+}: Props = $props();
+
+// Fetched as the view opens, so it is there when a session ends yet stays off the first page load's budget.
+const summaryView = import("../components/SessionSummary.svelte");
 
 // Raw: a deep proxy would make every keystroke reactive. Only a new session is a change.
 let session = $state.raw(newSession());
@@ -131,6 +145,12 @@ function end(): void {
   onfinish(session);
 }
 
+// Clamped: a keydown can come a moment before the input that started the clock, and an idle pause dates from the keydown.
+function secondsAt(at: number): number {
+  const elapsed = Math.max(0, at - (session.startedAt ?? at));
+  return Math.ceil(((timeLimit ?? 0) - elapsed) / 1000);
+}
+
 // One slow interval, not per keystroke. Keystroke times are timeStamp minus paused time, so this clock is too.
 $effect(() => {
   if (timeLimit === undefined || finished) return;
@@ -139,7 +159,7 @@ $effect(() => {
     const at = performance.now() - pausedTotal;
     if (expire(session, at)) end();
     else if (session.startedAt !== undefined) {
-      secondsLeft = Math.ceil((timeLimit - (at - session.startedAt)) / 1000);
+      secondsLeft = secondsAt(at);
     }
   }, 250);
   return () => clearInterval(id);
@@ -183,10 +203,14 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
       board?.keyDown(code);
     },
     onComposingChange() {},
-    onPausedChange(value) {
+    onPausedChange(value, at) {
       if (value) setTyping(false);
-      if (value) pausedSince = performance.now();
-      else pausedTotal += performance.now() - pausedSince;
+      if (value) pausedSince = at;
+      else pausedTotal += at - pausedSince;
+      // An idle pause reaches back past what the readout showed, so it must not wait for the next tick.
+      if (value && timeLimit !== undefined && session.startedAt !== undefined) {
+        secondsLeft = secondsAt(at - pausedTotal);
+      }
       // Later: removing the focused textarea fires blur during Svelte's update, where state may not change.
       queueMicrotask(() => {
         paused = value;
@@ -233,7 +257,11 @@ function capture(textarea: HTMLTextAreaElement): { destroy: () => void } {
     <!-- Stays mounted: a live region must exist before its content arrives. -->
     <div class="layer" aria-live="polite">
       {#if finished}
-        <SessionSummary {session} {feedback} onrestart={restart} {onnext} />
+        {#await summaryView then { default: SessionSummary }}
+          <SessionSummary {session} {feedback} onrestart={restart} {onnext} {ondrill} />
+        {:catch}
+          <p>{t.summary.loadFailed}</p>
+        {/await}
       {/if}
     </div>
   </div>
