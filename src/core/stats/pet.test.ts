@@ -36,25 +36,41 @@ describe("petState", () => {
   });
 
   test.each([
-    [14, "egg", 1],
-    [15, "baby", 105],
-    [119, "baby", 1],
-    [120, "child", 360],
-    [479, "child", 1],
-    [480, "teen", 1620],
-    [2099, "teen", 1],
-    [2100, "adult", undefined],
-  ])(
-    "%i minutes make a %s, %s from the next stage",
-    (minutes, stage, toNext) => {
-      const days = practised(minutes);
-      expect(petState(days, dayAfter(days))).toMatchObject({
-        stage,
-        toNext,
-        minutes,
-      });
-    },
-  );
+    [14, "egg", 2],
+    [15, "baby", 3],
+    [119, "baby", 5],
+    [120, "child", 6],
+    [479, "child", 9],
+    [480, "teen", 10],
+    [2099, "teen", 16],
+    [2100, "adult", 17],
+  ])("%i minutes make a %s at level %i", (minutes, stage, level) => {
+    const days = practised(minutes);
+    expect(petState(days, dayAfter(days))).toMatchObject({
+      stage,
+      level,
+      minutes,
+    });
+  });
+
+  test("gives minutes to the next level and the share of this one", () => {
+    const days = practised(45);
+    expect(petState(days, dayAfter(days))).toMatchObject({
+      level: 4,
+      toNext: 15,
+      progress: 0.5,
+    });
+  });
+
+  test("the top level has no next level", () => {
+    const days = practised(6000);
+    expect(petState(days, dayAfter(days))).toMatchObject({
+      stage: "adult",
+      level: 20,
+      toNext: undefined,
+      progress: 1,
+    });
+  });
 
   test("a day counts for at most 60 minutes", () => {
     const got = petState(history([1, 300], [2, 30]), at(2026, 3, 2));

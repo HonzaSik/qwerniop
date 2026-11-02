@@ -70,7 +70,7 @@ function focusOnShow(button: HTMLButtonElement): void {
       <div class="slot">
         {#if feedback?.pet}
           {#await import("./Pet.svelte") then { default: Pet }}
-            <Pet stage={feedback.pet.stage} mood={feedback.pet.mood} />
+            <Pet pet={feedback.pet} />
           {/await}
         {/if}
       </div>
@@ -115,7 +115,7 @@ function focusOnShow(button: HTMLButtonElement): void {
   .slot {
     flex: none;
     width: var(--pet-size);
-    height: var(--pet-size);
+    height: calc(var(--pet-size) + var(--pet-caption));
   }
 
   .words {

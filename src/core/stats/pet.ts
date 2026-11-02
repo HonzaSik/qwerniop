@@ -20,12 +20,25 @@ const STAGE_FROM_MS: Record<PetStage, number> = {
   adult: 2100 * MINUTE,
 };
 
+// Minutes at which each level starts: quick at first, then slower. Stages begin on levels 3, 6, 10 and 17.
+const LEVEL_FROM_MINUTES = [
+  0, 5, 15, 30, 60, 120, 180, 270, 360, 480, 660, 840, 1080, 1320, 1560, 1800,
+  2100, 2700, 3600, 6000,
+] as const;
+export const BOW_LEVEL = 8;
+export const SCARF_LEVEL = 13;
+export const CROWN_LEVEL = LEVEL_FROM_MINUTES.length;
+
 export interface PetState {
   stage: PetStage;
   mood: PetMood;
+  /** From 1 to CROWN_LEVEL. */
+  level: number;
+  /** Share of the way through this level, from 0 to 1. */
+  progress: number;
   /** Practice that counted towards growth, in whole minutes. */
   minutes: number;
-  /** Undefined for an adult, and for a dead pet, which grows no further. */
+  /** Minutes to the next level. Undefined at the top level, and for a dead pet, which grows no further. */
   toNext: number | undefined;
   ageDays: number;
   daysAway: number;
@@ -79,15 +92,19 @@ export function petState(
         : "content";
   const reached = PET_STAGES.filter((s) => ms >= STAGE_FROM_MS[s]);
   const stage = reached.at(-1) ?? "egg";
-  const next = PET_STAGES[reached.length];
+  const level = LEVEL_FROM_MINUTES.filter((m) => ms >= m * MINUTE).length;
+  const from = (LEVEL_FROM_MINUTES[level - 1] ?? 0) * MINUTE;
+  const next = LEVEL_FROM_MINUTES[level];
   return {
     stage,
     mood,
+    level,
+    progress: next === undefined ? 1 : (ms - from) / (next * MINUTE - from),
     minutes: Math.floor(ms / MINUTE),
     toNext:
       mood === "dead" || next === undefined
         ? undefined
-        : Math.ceil((STAGE_FROM_MS[next] - ms) / MINUTE),
+        : Math.ceil((next * MINUTE - ms) / MINUTE),
     ageDays: Math.max(0, (mood === "dead" ? dayNumber(last) : now) - born),
     daysAway,
     lastPractised: last,

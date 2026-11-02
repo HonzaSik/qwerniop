@@ -70,9 +70,23 @@
   --calendar-mix-3: 50%;
   --calendar-cell-height: 2.75rem;
   --pet-size: 5rem;
+  --pet-size-large: 8rem;
+  /* Room under the pet for its level and bar, so the summary holds its height while it loads. */
+  --pet-caption: 1.75rem;
   --pet-stroke: 1.5;
-  --pet-fill-mix: 35%;
+  --pet-fill-mix: 45%;
+  --pet-soft-opacity: 0.6;
   --pet-blink: 5s;
+  --pet-breath: 1.6s;
+  /* The same in every theme: a pastel creature with dark ink stands out on white and on black alike. */
+  --pet-ink: #2a2a35;
+  --pet-light: #ffffff;
+  --pet-ghost: #e6e6ee;
+  --pet-cheek: #ffc2d1;
+  --pet-cheek-strong: #ff8fab;
+  --pet-leaf: #9fdc8c;
+  --pet-gold: #f4c542;
+  --pet-tear: #8fd3ff;
 
   --finger-l5: #f2c9d4;
   --finger-l4: #f6d3b8;

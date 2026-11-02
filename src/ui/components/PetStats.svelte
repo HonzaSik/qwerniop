@@ -20,6 +20,7 @@ const lastPractised = $derived(
 );
 const rows = $derived([
   [t.pet.stageLabel, t.pet.stages[pet.stage]],
+  [t.pet.level, String(pet.level)],
   [t.pet.age, t.pet.days(pet.ageDays)],
   [t.pet.counted, `${pet.minutes} min`],
   ...(pet.toNext === undefined ? [] : [[t.pet.toNext, `${pet.toNext} min`]]),
@@ -31,7 +32,7 @@ const rows = $derived([
 <section aria-labelledby="pet">
   <h2 id="pet">{t.pet.title}</h2>
   <div class="row">
-    <Pet stage={pet.stage} mood={pet.mood} />
+    <Pet {pet} large />
     <table>
       <tbody>
         {#each rows as [name, value]}

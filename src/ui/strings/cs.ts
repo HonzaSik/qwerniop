@@ -232,7 +232,7 @@ export const cs: Strings = {
     recap: "Zamyslete se:",
   },
   pet: {
-    title: "Mazlíček",
+    title: "Tenny",
     stages: {
       egg: "Vajíčko",
       baby: "Mládě",
@@ -240,30 +240,32 @@ export const cs: Strings = {
       teen: "Dospívající",
       adult: "Dospělý",
     },
-    label: (stage, mood) => {
-      const name = cs.pet.stages[stage];
-      return mood === "dead"
+    label: (pet) => {
+      const name = `Tenny, ${cs.pet.stages[pet.stage].toLowerCase()}, úroveň ${pet.level}`;
+      return pet.mood === "dead"
         ? `${name}: nežije`
-        : mood === "hungry"
+        : pet.mood === "hungry"
           ? `${name}: má hlad`
           : `${name}: v pohodě`;
     },
+    level: "Úroveň",
+    toLevel: (level) => `Postup na úroveň ${level}`,
     status: (pet) =>
       pet.mood === "dead"
-        ? "Mazlíček zemřel po 14 dnech bez cvičení. Po dalším cvičení se objeví nové vajíčko. O pokrok v psaní nepřijdete."
+        ? "Tenny zemřel po 14 dnech bez cvičení. Po dalším cvičení se vrátí jako nové vajíčko. O pokrok v psaní nepřijdete."
         : pet.mood === "hungry"
-          ? `Má hlad: ${pet.daysAway} ${plural(pet.daysAway, "den", "dny", "dní")} bez cvičení. Stačí jedno cvičení.`
+          ? `Tenny má hlad: ${pet.daysAway} ${plural(pet.daysAway, "den", "dny", "dní")} bez cvičení. Stačí jedno cvičení.`
           : pet.toNext === undefined
-            ? "Plně dospělý."
-            : `${pet.lost > 0 && pet.ageDays === 0 ? "Předchozí mazlíček zemřel, toto je nové vajíčko. " : ""}Roste: do další fáze zbývá ${pet.toNext} min.`,
-    note: "Roste se cvičením, nejvýše 60 minut denně. Po 4 dnech bez cvičení má hlad, po 14 zemře.",
+            ? "Tenny dosáhl nejvyšší úrovně."
+            : `${pet.lost > 0 && pet.ageDays === 0 ? "Tenny je zpět jako nové vajíčko. " : ""}Do úrovně ${pet.level + 1} zbývá ${pet.toNext} min.`,
+    note: "Tenny roste se cvičením, nejvýše 60 minut denně. Po 4 dnech bez cvičení má hlad, po 14 zemře.",
     stageLabel: "Fáze",
     age: "Věk",
     days: (n) => `${n} ${plural(n, "den", "dny", "dní")}`,
     counted: "Započtené cvičení",
-    toNext: "Do další fáze",
+    toNext: "Do další úrovně",
     last: "Naposledy cvičeno",
-    lost: "Ztracení mazlíčci",
+    lost: "Ztracené životy",
   },
   feedback: {
     unlocked: (title) => `Odemčeno: ${title}.`,
