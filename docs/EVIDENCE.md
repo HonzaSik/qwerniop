@@ -31,6 +31,10 @@ False positives with no real effect stayed around the expected 5 % or below, in 
 
 Pooling about 10 learners could answer it (a rough calculation, not simulated), but Tenfold sends no data anywhere, so that would need volunteers sharing export files.
 
+## Practice pet
+
+No study here shows that a virtual pet improves typing or learning; it is there for motivation only. A pet that can die may also make some people quit after a loss. Only its daily 60-minute growth cap and the 35 hours to adult draw on a source, Baddeley & Longman above.
+
 ## Left out
 
 - Rollover (pressing the next key before releasing the last): common and linked to speed in Dhakal et al., but it needs key-release timing near the keystroke path, and nothing found shows that training it helps.

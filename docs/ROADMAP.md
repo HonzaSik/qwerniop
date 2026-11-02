@@ -160,3 +160,8 @@ While milestone 1 is in progress, the `check`, `test` and `build` scripts are ad
 ## 21. Letter combinations: practise and check
 
 Not built. Simulation showed a test on one learner's typing could not detect the effect, so the weighting could not be proven. See EVIDENCE.md.
+
+## 22. Practice pet
+
+- [x] Pet worked out from practice history: growth by minutes, hungry after 4 days, dead after 14 (`core/stats/pet.ts`)
+- [x] Shown on the session summary and in Stats

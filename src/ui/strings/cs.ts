@@ -231,6 +231,40 @@ export const cs: Strings = {
     repeat: "Opakovat",
     recap: "Zamyslete se:",
   },
+  pet: {
+    title: "Mazlíček",
+    stages: {
+      egg: "Vajíčko",
+      baby: "Mládě",
+      child: "Dítě",
+      teen: "Dospívající",
+      adult: "Dospělý",
+    },
+    label: (stage, mood) => {
+      const name = cs.pet.stages[stage];
+      return mood === "dead"
+        ? `${name}: nežije`
+        : mood === "hungry"
+          ? `${name}: má hlad`
+          : `${name}: v pohodě`;
+    },
+    status: (pet) =>
+      pet.mood === "dead"
+        ? "Mazlíček zemřel po 14 dnech bez cvičení. Po dalším cvičení se objeví nové vajíčko. O pokrok v psaní nepřijdete."
+        : pet.mood === "hungry"
+          ? `Má hlad: ${pet.daysAway} ${plural(pet.daysAway, "den", "dny", "dní")} bez cvičení. Stačí jedno cvičení.`
+          : pet.toNext === undefined
+            ? "Plně dospělý."
+            : `${pet.lost > 0 && pet.ageDays === 0 ? "Předchozí mazlíček zemřel, toto je nové vajíčko. " : ""}Roste: do další fáze zbývá ${pet.toNext} min.`,
+    note: "Roste se cvičením, nejvýše 60 minut denně. Po 4 dnech bez cvičení má hlad, po 14 zemře.",
+    stageLabel: "Fáze",
+    age: "Věk",
+    days: (n) => `${n} ${plural(n, "den", "dny", "dní")}`,
+    counted: "Započtené cvičení",
+    toNext: "Do další fáze",
+    last: "Naposledy cvičeno",
+    lost: "Ztracení mazlíčci",
+  },
   feedback: {
     unlocked: (title) => `Odemčeno: ${title}.`,
     accuracy: (keys) =>

@@ -69,6 +69,10 @@
   --calendar-mix-2: 35%;
   --calendar-mix-3: 50%;
   --calendar-cell-height: 2.75rem;
+  --pet-size: 5rem;
+  --pet-stroke: 1.5;
+  --pet-fill-mix: 35%;
+  --pet-blink: 5s;
 
   --finger-l5: #f2c9d4;
   --finger-l4: #f6d3b8;

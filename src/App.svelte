@@ -19,6 +19,7 @@ import {
 import { stageCount, unlockedLetters } from "./core/lessons/letters";
 import { type CharStats, foldSession } from "./core/stats/chars";
 import { foldPairs, transitionTimes } from "./core/stats/pairs";
+import type { PetState } from "./core/stats/pet";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
@@ -41,6 +42,7 @@ import {
   saveProgress,
   saveSession,
   saveSettings,
+  savesSessions,
   switchLayout,
   topicStore,
   ui,
@@ -111,7 +113,12 @@ interface Run {
   stats: CharStats;
   targets: Targets;
   /** Set when the session ends; not part of what the text depends on. */
-  feedback?: { weakest: string[]; sentence: string; recap?: string };
+  feedback?: {
+    weakest: string[];
+    sentence: string;
+    recap?: string;
+    pet?: PetState;
+  };
   /** Text from the model server, when one was asked for and passed validation. */
   generated?: Generated | undefined;
   /** Pasted text; the lesson stays the current one to come back to and is not what is being typed. */
@@ -345,15 +352,27 @@ function finish(session: Session): void {
   };
   // Saved and read back, so the record itself is left out of its own trend.
   saveSession(record);
-  readSessions()
-    .then((saved) =>
+  const saved = readSessions();
+  if (savesSessions()) {
+    // Loaded here to keep the first paint small; a failed load only leaves the pet off the summary.
+    Promise.all([saved, import("./ui/pet-summary")])
+      .then(([records, { summaryPet }]) => {
+        const pet = summaryPet(records, record);
+        if (pet && run === done && done.feedback) {
+          done.feedback = { ...done.feedback, pet };
+        }
+      })
+      .catch((error: unknown) => console.error("Pet failed to load", error));
+  }
+  saved
+    .then((records) =>
       generatedFeedback($state.snapshot(ui.settings.modelServer), {
         layout: layout.id,
         wpm: record.wpm,
         accuracy: record.accuracy,
         weakest: labels,
         weakestCodes: codes,
-        history: saved.filter((r) => r.at !== record.at),
+        history: records.filter((r) => r.at !== record.at),
       }),
     )
     .then((sentence) => {

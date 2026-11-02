@@ -52,12 +52,16 @@ const isCount = (v: unknown): v is number =>
 const isFiniteNonNeg = (v: unknown): v is number =>
   typeof v === "number" && Number.isFinite(v) && v >= 0;
 
+const MAX_DATE_MS = 8.64e15;
+
 /** Stored records are unchecked; null means drop it. Never throws. */
 export function parseSessionRecord(value: unknown): SessionRecord | null {
   if (!isRecord(value)) return null;
   const { at, layout, mode, lesson, wpm, accuracy, durationMs, errors } = value;
   const { transitions } = value;
-  if (!isFiniteNonNeg(at) || !isFiniteNonNeg(wpm)) return null;
+  // Past the largest time a Date can hold, the record's day could not be worked out or shown.
+  if (!isFiniteNonNeg(at) || at > MAX_DATE_MS) return null;
+  if (!isFiniteNonNeg(wpm)) return null;
   if (!isFiniteNonNeg(durationMs)) return null;
   if (!isFiniteNonNeg(accuracy) || accuracy > 1) return null;
   if (layout !== "en-us" && layout !== "cs-qwertz") return null;

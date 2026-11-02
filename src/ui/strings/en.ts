@@ -11,6 +11,7 @@ import type {
   TextSize,
   Theme,
 } from "../../core/settings/settings";
+import type { PetMood, PetStage, PetState } from "../../core/stats/pet";
 
 /** "a, b and c". */
 const list = (keys: readonly string[]): string =>
@@ -252,6 +253,40 @@ export const en = {
     next: "Continue",
     repeat: "Repeat",
     recap: "Think about it:",
+  },
+  pet: {
+    title: "Pet",
+    stages: {
+      egg: "Egg",
+      baby: "Baby",
+      child: "Child",
+      teen: "Teen",
+      adult: "Adult",
+    },
+    label: (stage: PetStage, mood: PetMood): string => {
+      const name = en.pet.stages[stage];
+      return mood === "dead"
+        ? `${name}, dead`
+        : mood === "hungry"
+          ? `${name}, hungry`
+          : `${name}, content`;
+    },
+    status: (pet: PetState): string =>
+      pet.mood === "dead"
+        ? "Your pet died after 14 days without practice. Finish a session to start a new egg. Your typing progress is safe."
+        : pet.mood === "hungry"
+          ? `Hungry: ${pet.daysAway} days without practice. One session fixes it.`
+          : pet.toNext === undefined
+            ? "Fully grown."
+            : `${pet.lost > 0 && pet.ageDays === 0 ? "Your last pet died, so this is a new egg. " : ""}Growing: ${pet.toNext} min to the next stage.`,
+    note: "Grows with practice, up to 60 minutes a day. Gets hungry after 4 days without practice and dies after 14.",
+    stageLabel: "Stage",
+    age: "Age",
+    days: (n: number): string => `${n} ${n === 1 ? "day" : "days"}`,
+    counted: "Practice counted",
+    toNext: "To next stage",
+    last: "Last practised",
+    lost: "Pets lost",
   },
   feedback: {
     unlocked: (title: string): string => `${title} is unlocked.`,

@@ -217,6 +217,16 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue
 4. Check light, dark, Black (OLED), 360 px, and Czech.
 5. Under the setup of "Offline and install", with a fresh profile, let the worker activate, stop the server and open Stats: it loads from the cache.
 
+## Practice pet
+
+1. Fresh profile, finish a session: the summary shows an egg and "Growing: … min to the next stage.", the buttons do not jump, and Enter still continues. Nothing shows while typing.
+2. Stats shows the Pet section with matching numbers.
+3. With sessions dated 5 days ago: hungry face and text. With sessions dated 20 days ago: dead face and text, and pets lost is 1. Finish a session: a new egg, with lessons and stats unchanged.
+4. Export, then import: the pet is unchanged.
+5. Check light, dark, Black (OLED), 360 px, Czech, and a screen reader's label. With motion reduced it does not blink.
+
+Checked 2026-11-02 headless Chromium: pass for steps 1 to 3, and for step 5 in light, dark, Black (OLED), 360 px and Czech, on seeded data for every stage, hungry and dead. Export and import through the page (step 4), a real screen reader and the blink not checked.
+
 ## Custom text
 
 1. In Lessons, paste a paragraph with curly quotes and an emoji. The note says how many characters are left out; Chinese text alone says nothing can be typed and Start stays disabled. A paste over 5000 characters is cut, and the note says so.

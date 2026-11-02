@@ -8,6 +8,7 @@ import {
 } from "../../core/engine/engine";
 import { accuracy, netWpm } from "../../core/engine/results";
 import { layoutById } from "../../core/layouts/registry";
+import type { PetState } from "../../core/stats/pet";
 import { attachInput } from "../../input/input";
 import { isPhysicalCode } from "../../input/physicalKey";
 import Keyboard from "../components/Keyboard.svelte";
@@ -28,7 +29,12 @@ interface Props {
   onfinish: (session: Session) => void;
   /** Weakest-key labels and a sentence, set by the parent once onfinish has run. */
   feedback?:
-    | { weakest: string[]; sentence: string; recap?: string | undefined }
+    | {
+        weakest: string[];
+        sentence: string;
+        recap?: string | undefined;
+        pet?: PetState | undefined;
+      }
     | undefined;
   onnext: () => void;
 }

@@ -86,7 +86,10 @@ export async function switchLayout(id: Layout["id"]): Promise<void> {
   saveSettings();
 }
 
-/** Read when the Stats view opens, never while typing. */
+/** False in memory-only mode, where no history builds up. */
+export const savesSessions = (): boolean => store !== null;
+
+/** Read when the Stats view opens and when a session ends, never while typing. */
 export const readSessions = async (): Promise<SessionRecord[]> => {
   try {
     return (await store?.readSessions()) ?? [];

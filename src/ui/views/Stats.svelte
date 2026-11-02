@@ -2,12 +2,14 @@
 import type { SessionRecord } from "../../core/engine/record";
 import { layoutById } from "../../core/layouts/registry";
 import { heatScale, keyErrors, recentSessions } from "../../core/stats/history";
+import { petState } from "../../core/stats/pet";
 import { dayKey, practiceByDay, recentSpread } from "../../core/stats/practice";
 import CombinationStats from "../components/CombinationStats.svelte";
 import DataTransfer from "../components/DataTransfer.svelte";
 import Keyboard from "../components/Keyboard.svelte";
 import { keyLabel } from "../components/keyboard-labels";
 import LineChart from "../components/LineChart.svelte";
+import PetStats from "../components/PetStats.svelte";
 import PracticeCalendar from "../components/PracticeCalendar.svelte";
 import { readSessions, ui } from "../state.svelte";
 import { t } from "../strings";
@@ -50,6 +52,7 @@ function summarise(records: SessionRecord[]) {
     first,
     minutesToday,
     spread: recentSpread(days, today),
+    pet: petState(days, today),
   };
 }
 </script>
@@ -69,6 +72,7 @@ function summarise(records: SessionRecord[]) {
         <PracticeCalendar days={s.days} today={s.today} first={s.first} />
         <p class="note spread">{t.stats.spread(s.spread.days, s.spread.minutes)}</p>
       </section>
+      {#if s.pet}<PetStats pet={s.pet} />{/if}
     {/if}
     {#if s.recent.length === 0}
       <p class="note">{t.stats.empty}</p>

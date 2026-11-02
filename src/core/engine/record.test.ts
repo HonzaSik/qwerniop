@@ -57,6 +57,7 @@ test.each([
   { ...valid, wpm: "40" },
   { ...valid, accuracy: 2 },
   { ...valid, at: Number.NaN },
+  { ...valid, at: 1e20 },
   { ...valid, layout: "dvorak" },
   { ...valid, mode: "x" },
   { ...valid, lesson: { track: "nope", stage: 1 } },

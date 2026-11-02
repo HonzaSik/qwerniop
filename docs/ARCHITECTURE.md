@@ -192,6 +192,8 @@ Smoothing factor `α = 0.1` per attempt, in log order; a character's first sampl
 
 `foldPairs` (`core/stats/pairs.ts`) folds the same log into `Progress.pairs`, per layout. A pair is two adjacent lowercase letters, both first attempts, with the first one correct; what follows an error or a retry is not a pair. Its time is the second letter's `sincePrevious`, under the same rules as above, and a letter taking two presses (dead key) counts towards accuracy only. Growth is bounded by the layout's letters squared. `transitionTimes` stores one session's time per kind of move on its `SessionRecord`, leaving out Shift and dead-key letters.
 
+`petState` (`core/stats/pet.ts`) works out the practice pet from `practiceByDay` and the current time. It stores nothing, so it needs no migration and travels with exported sessions. Day gaps are counted from date keys, so daylight saving cannot shift them.
+
 ### `core/adaptive`
 
 Three decisions:

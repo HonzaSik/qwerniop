@@ -1,6 +1,8 @@
 <script lang="ts">
 import type { Session } from "../../core/engine/engine";
 import { accuracy, duration, netWpm } from "../../core/engine/results";
+import type { PetState } from "../../core/stats/pet";
+import { savesSessions } from "../state.svelte";
 import { t } from "../strings";
 import {
   formatAccuracy,
@@ -12,7 +14,12 @@ interface Props {
   /** Finished, so its results no longer change. */
   session: Session;
   feedback?:
-    | { weakest: string[]; sentence: string; recap?: string | undefined }
+    | {
+        weakest: string[];
+        sentence: string;
+        recap?: string | undefined;
+        pet?: PetState | undefined;
+      }
     | undefined;
   onrestart: () => void;
   onnext: () => void;
@@ -57,7 +64,22 @@ function focusOnShow(button: HTMLButtonElement): void {
       </div>
     {/if}
   </dl>
-  {#if feedback}<p>{feedback.sentence}</p>{/if}
+  <div class="result">
+    {#if savesSessions()}
+      <!-- Held open while the session saves, so nothing jumps when the pet arrives. -->
+      <div class="slot">
+        {#if feedback?.pet}
+          {#await import("./Pet.svelte") then { default: Pet }}
+            <Pet stage={feedback.pet.stage} mood={feedback.pet.mood} />
+          {/await}
+        {/if}
+      </div>
+    {/if}
+    <div class="words">
+      {#if feedback}<p>{feedback.sentence}</p>{/if}
+      {#if feedback?.pet}<p>{t.pet.status(feedback.pet)}</p>{/if}
+    </div>
+  </div>
   {#if feedback?.recap}<p><strong>{t.summary.recap}</strong> {feedback.recap}</p>{/if}
   <div class="actions">
     <button class="primary" aria-keyshortcuts="Enter" onclick={onnext} use:focusOnShow>
@@ -82,6 +104,23 @@ function focusOnShow(button: HTMLButtonElement): void {
     from {
       opacity: 0;
     }
+  }
+
+  .result {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .slot {
+    flex: none;
+    width: var(--pet-size);
+    height: var(--pet-size);
+  }
+
+  .words {
+    display: grid;
+    gap: var(--space-2);
   }
 
   dl {
