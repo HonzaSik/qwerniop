@@ -74,19 +74,20 @@
   /* Room under the pet for its level and bar, so the summary holds its height while it loads. */
   --pet-caption: 1.75rem;
   --pet-stroke: 1.5;
-  --pet-fill-mix: 45%;
-  --pet-soft-opacity: 0.6;
+  --pet-worn-mix: 55%;
   --pet-blink: 5s;
   --pet-breath: 1.6s;
-  /* The same in every theme: a pastel creature with dark ink stands out on white and on black alike. */
-  --pet-ink: #2a2a35;
+  /* The same in every theme: warm fur with soft edges stands out on white and on black alike. */
+  --pet-fur: #fbe3bf;
+  --pet-belly: #fff6e6;
+  --pet-patch: #edc594;
+  --pet-cheek: #f6c49c;
+  --pet-outline: #a57f5a;
+  --pet-ink: #33261c;
   --pet-light: #ffffff;
-  --pet-ghost: #e6e6ee;
-  --pet-tie: #f08a3c;
-  --pet-tongue: #ff7b7b;
-  --pet-leaf: #9fdc8c;
+  --pet-ghost: #eeeae4;
   --pet-gold: #f4c542;
-  --pet-drool: #8fd3ff;
+  --pet-tear: #8fd3ff;
 
   --finger-l5: #f2c9d4;
   --finger-l4: #f6d3b8;
