@@ -2,6 +2,42 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- Appearance settings: theme (with Black for OLED), accent colour, text size and caret style. Error mode and live stats moved to Settings, with more session lengths.
+- Each new key is introduced with its finger and reach before a lesson, followed by a short drill.
+- Practice calendar in Stats, one month at a time, with minutes practised today.
+- Learn a topic from Lessons, using the optional model server.
+- Custom text: paste anything and type it. It counts in Stats and unlocks nothing.
+- Weakest keys: a drill where each key appears in proportion to how often you miss it.
+- Letter combinations and moves between keys in Stats. These measure only and do not change what is practised.
+- A practice pet that grows with practice, is named once, greets you before a session and keeps memories. It also says how many days in a row you have practised.
+- Next up in Lessons, saying what the next unlock still needs.
+- Developer mode, which makes any lesson startable without unlocking anything.
+- Delete all data in Settings, with a confirmation.
+- Start over while paused. Enter starts Next up on Lessons.
+
+### Changed
+
+- Lessons and Stats are wider, with columns from 900 px and sections on tabs. Stats opens with headline figures and their change against earlier sessions.
+- Errors by key are the share of tries that went wrong, not a count.
+- A letter lesson uses only its own letters, so going back to Lesson 1 practises just f and j.
+- Coming back to a finished session moves on to new text.
+
+### Fixed
+
+- Import failed every time, in 1.0.0 too.
+- Esc did not pause a session, and keys on a link or control were taken by a paused session.
+- Esc in an open dialog also left the view behind it.
+- A tab left open could undo newer data with its next save. A tab now reloads when it regains focus after another tab saved, so a passage half typed there is lost.
+- Practice under a minute read as no practice.
+
+### Known limitations
+
+- These changes are checked in Chromium only. Firefox, Safari, screen readers and real phones are not checked.
+
 ## [1.0.0] - 2026-10-31
 
 First public release. See the known limitations below.
