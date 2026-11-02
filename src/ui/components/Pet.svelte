@@ -1,5 +1,6 @@
 <script lang="ts">
 import { leavesAt, type PetState, TOP_LEVEL } from "../../core/stats/pet";
+import { ui } from "../state.svelte";
 import { t } from "../strings";
 
 interface Props {
@@ -28,7 +29,7 @@ const right = $derived(32 + apart);
 const stemTop = $derived(shape.top - shape.stem);
 const dead = $derived(pet.mood === "dead");
 const hungry = $derived(pet.mood === "hungry");
-const asleep = $derived(dead || (pet.stage === "egg" && !hungry));
+const asleep = $derived(pet.stage === "egg" && pet.mood === "content");
 const fruit = $derived(pet.level >= TOP_LEVEL);
 // Leaves hang lower the longer it goes unfed, so the sprout shows its mood too.
 const droop = $derived(dead ? 62 : hungry ? 34 : 0);
@@ -62,16 +63,15 @@ const leaves = $derived.by((): Leaf[] => {
   if (count === 4) return [...pair(low, 0.85), ...pair(stemTop, 1)];
   return [...pair(low, 0.85), top, ...pair(stemTop, 1)];
 });
-const highest = $derived(stemTop - 11 * shape.leaf);
-const haloY = $derived(highest - (fruit ? 5 : 2));
+// Lying on its side, so its widest part sets how high the halo floats.
+const haloY = $derived(30 - shape.half);
 const toLevel = $derived(pet.level + 1);
 </script>
 
 <figure class:large>
-  <svg class:dead class:hungry viewBox="0 0 64 64" role="img" aria-label={t.pet.label(pet)}>
+  <svg class:dead class:hungry viewBox="0 0 64 64" role="img" aria-label={t.pet.label(pet, ui.settings.petName)}>
     <g class="creature">
-      {#if dead}<ellipse class="halo" cx="32" cy={haloY} rx="8" ry="2.2" />{/if}
-
+      <g transform={dead ? "translate(1 3) rotate(-82 32 36)" : undefined}>
       <path class="stem" d="M32 {shape.top + 1}V{stemTop}" />
       {#each leaves as leaf}
         <path
@@ -98,7 +98,11 @@ const toLevel = $derived(pet.level + 1);
       {#if !dead}
         <ellipse class="cheek" cx={left - r * 0.7} cy={y + r + 1} rx="3" ry="1.8" /><ellipse class="cheek" cx={right + r * 0.7} cy={y + r + 1} rx="3" ry="1.8" />
       {/if}
-      {#if asleep}
+      {#if dead}
+        {#each [left, right] as x}
+          <path class="line" d="M{x - r * 0.8} {y - r * 0.8}l{r * 1.6} {r * 1.6}m0-{r * 1.6}l-{r * 1.6} {r * 1.6}" />
+        {/each}
+      {:else if asleep}
         {#each [left, right] as x}
           <path class="line" d="M{x - r} {y}q{r} {r} {r * 2} 0" />
         {/each}
@@ -111,13 +115,18 @@ const toLevel = $derived(pet.level + 1);
           {/each}
         </g>
       {/if}
-      {#if hungry}
+      {#if dead}
+        <path class="line" d="M26 {y + r + 1.5}h12" />
+        <ellipse class="tongue" cx="35" cy={y + r + 3.8} rx="2.6" ry="2.4" />
+      {:else if hungry}
         <path class="line" d="M{left - 3} {y - r - 1.5}l5-2M{right + 3} {y - r - 1.5}l-5-2" />
         <path class="tear" d="M{right + 2.5} {y + r}c2 3 2 5 0 5s-2-2 0-5Z" />
         <path class="line" d="M29.5 {y + r + 2}q2.5-2 5 0" />
       {:else}
         <path class="line" d="M29.5 {y + r * 0.7}q1.25 1.6 2.5 0q1.25 1.6 2.5 0" />
       {/if}
+      </g>
+      {#if dead}<ellipse class="halo" cx="32" cy={haloY} rx="8" ry="2.2" />{/if}
     </g>
   </svg>
   <figcaption>
@@ -167,6 +176,20 @@ const toLevel = $derived(pet.level + 1);
     stroke: none;
   }
 
+  .dead {
+    stroke: var(--pet-dead-line);
+  }
+
+  .dead .speck {
+    fill: var(--pet-dead-line);
+    opacity: var(--pet-dead-speck);
+  }
+
+  .tongue {
+    fill: var(--pet-tongue);
+    stroke: var(--pet-ink);
+  }
+
   .cheek {
     fill: var(--pet-cheek);
     stroke: none;
@@ -187,11 +210,11 @@ const toLevel = $derived(pet.level + 1);
 
   .dead .leaf {
     fill: var(--pet-leaf-dead);
-    stroke: var(--pet-outline);
+    stroke: var(--pet-dead-line);
   }
 
   .dead .stem {
-    stroke: var(--pet-outline);
+    stroke: var(--pet-dead-line);
   }
 
   .fruit {

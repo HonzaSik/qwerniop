@@ -255,7 +255,7 @@ export const en = {
     recap: "Think about it:",
   },
   pet: {
-    title: "Tenny",
+    name: "Name",
     stages: {
       egg: "Egg",
       baby: "Baby",
@@ -263,25 +263,26 @@ export const en = {
       teen: "Teen",
       adult: "Adult",
     },
-    label: (pet: PetState): string => {
-      const name = `Tenny: ${en.pet.stages[pet.stage].toLowerCase()}, level ${pet.level}`;
+    label: (pet: PetState, name: string): string => {
+      const who = `${name}: ${en.pet.stages[pet.stage].toLowerCase()}, level ${pet.level}`;
       return pet.mood === "dead"
-        ? `${name}, dead`
+        ? `${who}, dead`
         : pet.mood === "hungry"
-          ? `${name}, hungry`
-          : `${name}, content`;
+          ? `${who}, hungry`
+          : `${who}, content`;
     },
     level: "Level",
     toLevel: (level: number): string => `Progress to level ${level}`,
-    status: (pet: PetState): string =>
+    status: (pet: PetState, name: string): string =>
       pet.mood === "dead"
-        ? "Tenny died after 14 days without practice. Finish a session and Tenny comes back as a new egg. Your typing progress is safe."
+        ? `${name} died after 14 days without practice. Finish a session and ${name} comes back as a new egg. Your typing progress is safe.`
         : pet.mood === "hungry"
-          ? `Tenny is hungry: ${pet.daysAway} days without practice. One session fixes it.`
+          ? `${name} is hungry: ${pet.daysAway} days without practice. One session fixes it.`
           : pet.toNext === undefined
-            ? "Tenny reached the top level."
-            : `${pet.lost > 0 && pet.ageDays === 0 ? "Tenny is back as a new egg. " : ""}${pet.toNext} min to level ${pet.level + 1}.`,
-    note: "Tenny grows with practice, up to 60 minutes a day. Gets hungry after 4 days without practice and dies after 14.",
+            ? `${name} reached the top level.`
+            : `${pet.lost > 0 && pet.ageDays === 0 ? `${name} is back as a new egg. ` : ""}${pet.toNext} min to level ${pet.level + 1}.`,
+    note: (name: string): string =>
+      `${name} grows with practice, up to 60 minutes a day. Gets hungry after 4 days without practice and dies after 14.`,
     stageLabel: "Stage",
     age: "Age",
     days: (n: number): string => `${n} ${n === 1 ? "day" : "days"}`,

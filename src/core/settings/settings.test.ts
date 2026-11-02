@@ -2,6 +2,18 @@ import { describe, expect, test } from "vitest";
 import { defaultSettings, migrateSettings } from "./settings";
 
 describe("migrateSettings", () => {
+  test.each([
+    ["Bean", "Bean"],
+    ["  Bean  ", "Bean"],
+    ["", "Tenny"],
+    ["   ", "Tenny"],
+    [7, "Tenny"],
+    [undefined, "Tenny"],
+    ["x".repeat(30), "x".repeat(20)],
+  ])("pet name %j reads as %j", (petName, want) => {
+    expect(migrateSettings({ petName }).petName).toBe(want);
+  });
+
   test("round-trips valid settings", () => {
     const s = {
       ...defaultSettings(),

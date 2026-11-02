@@ -83,11 +83,14 @@
   --pet-outline: #a57f5a;
   --pet-ink: #33261c;
   --pet-light: #ffffff;
-  --pet-ghost: #eeeae4;
+  --pet-ghost: #d4d3d1;
+  --pet-dead-line: #77736e;
+  --pet-dead-speck: 0.35;
+  --pet-tongue: #f59a8f;
   --pet-leaf: #a5dd8e;
   --pet-leaf-line: #5d9b58;
   --pet-leaf-dry: #dcd98f;
-  --pet-leaf-dead: #cdbda2;
+  --pet-leaf-dead: #a89a84;
   --pet-gold: #f4c542;
   --pet-tear: #8fd3ff;
 

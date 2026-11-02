@@ -1,5 +1,7 @@
 <script lang="ts">
+import { cleanPetName, PET_NAME_MAX } from "../../core/settings/settings";
 import type { PetState } from "../../core/stats/pet";
+import { saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
 import Pet from "./Pet.svelte";
 
@@ -8,6 +10,13 @@ interface Props {
 }
 
 let { pet }: Props = $props();
+
+const saveName = (event: Event & { currentTarget: HTMLInputElement }): void => {
+  ui.settings.petName = cleanPetName(event.currentTarget.value);
+  // A blank entry fell back to the default, so the box has to show that too.
+  event.currentTarget.value = ui.settings.petName;
+  saveSettings();
+};
 
 const lastPractised = $derived(
   new Intl.DateTimeFormat(t.language, { day: "numeric", month: "long" }).format(
@@ -30,7 +39,11 @@ const rows = $derived([
 </script>
 
 <section aria-labelledby="pet">
-  <h2 id="pet">{t.pet.title}</h2>
+  <h2 id="pet">{ui.settings.petName}</h2>
+  <label class="name">
+    {t.pet.name}
+    <input type="text" value={ui.settings.petName} maxlength={PET_NAME_MAX} autocomplete="off" spellcheck="false" onchange={saveName} />
+  </label>
   <div class="row">
     <Pet {pet} large />
     <table>
@@ -44,8 +57,8 @@ const rows = $derived([
       </tbody>
     </table>
   </div>
-  <p class="note">{t.pet.status(pet)}</p>
-  <p class="note">{t.pet.note}</p>
+  <p class="note">{t.pet.status(pet, ui.settings.petName)}</p>
+  <p class="note">{t.pet.note(ui.settings.petName)}</p>
 </section>
 
 <style>
@@ -57,6 +70,15 @@ const rows = $derived([
     margin: 0 0 var(--space-4);
     font-size: var(--text-size-md);
     font-weight: var(--weight-semibold);
+  }
+
+  .name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-size-sm);
   }
 
   .row {

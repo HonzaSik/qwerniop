@@ -2,7 +2,7 @@
 import type { Session } from "../../core/engine/engine";
 import { accuracy, duration, netWpm } from "../../core/engine/results";
 import type { PetState } from "../../core/stats/pet";
-import { savesSessions } from "../state.svelte";
+import { savesSessions, ui } from "../state.svelte";
 import { t } from "../strings";
 import {
   formatAccuracy,
@@ -77,7 +77,7 @@ function focusOnShow(button: HTMLButtonElement): void {
     {/if}
     <div class="words">
       {#if feedback}<p>{feedback.sentence}</p>{/if}
-      {#if feedback?.pet}<p>{t.pet.status(feedback.pet)}</p>{/if}
+      {#if feedback?.pet}<p>{t.pet.status(feedback.pet, ui.settings.petName)}</p>{/if}
     </div>
   </div>
   {#if feedback?.recap}<p><strong>{t.summary.recap}</strong> {feedback.recap}</p>{/if}

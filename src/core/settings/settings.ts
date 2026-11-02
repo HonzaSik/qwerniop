@@ -66,6 +66,14 @@ export interface ModelServer {
 
 export const DEFAULT_BASE_URL = "http://localhost:11434/v1";
 
+export const DEFAULT_PET_NAME = "Tenny";
+export const PET_NAME_MAX = 20;
+
+/** Anything unusable, blank included, reads as the default: the pet is never left without a name. */
+export const cleanPetName = (v: unknown): string =>
+  (typeof v === "string" ? v.trim().slice(0, PET_NAME_MAX).trim() : "") ||
+  DEFAULT_PET_NAME;
+
 export interface Settings {
   version: number;
   layout: Layout["id"];
@@ -82,6 +90,7 @@ export interface Settings {
   liveStats: boolean;
   /** Every lesson can be started; progress is never changed by it. */
   developerMode: boolean;
+  petName: string;
   modelServer: ModelServer;
 }
 
@@ -100,6 +109,7 @@ export const defaultSettings = (): Settings => ({
   caret: "bar",
   liveStats: false,
   developerMode: false,
+  petName: DEFAULT_PET_NAME,
   modelServer: {
     enabled: false,
     modes: { lesson: true, topic: true, code: true, feedback: true },
@@ -157,6 +167,7 @@ export function migrateSettings(old: unknown): Settings {
     caret: CARET_VALUES.find((v) => v === old.caret) ?? defaults.caret,
     liveStats: flag(old.liveStats, defaults.liveStats),
     developerMode: flag(old.developerMode, defaults.developerMode),
+    petName: cleanPetName(old.petName),
     modelServer: {
       enabled: flag(server?.enabled, defaults.modelServer.enabled),
       modes: {

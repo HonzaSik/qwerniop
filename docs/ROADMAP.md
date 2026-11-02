@@ -163,7 +163,7 @@ Not built. Simulation showed a test on one learner's typing could not detect the
 
 ## 22. Practice pet
 
-Named Tenny.
+Named Tenny by default; the learner can rename it.
 
 - [x] Pet worked out from practice history: growth by minutes, hungry after 4 days, dead after 14 (`core/stats/pet.ts`)
 - [x] Shown on the session summary and in Stats

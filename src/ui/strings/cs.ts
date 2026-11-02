@@ -232,7 +232,7 @@ export const cs: Strings = {
     recap: "Zamyslete se:",
   },
   pet: {
-    title: "Tenny",
+    name: "Jméno",
     stages: {
       egg: "Vajíčko",
       baby: "Mládě",
@@ -240,25 +240,26 @@ export const cs: Strings = {
       teen: "Dospívající",
       adult: "Dospělý",
     },
-    label: (pet) => {
-      const name = `Tenny, ${cs.pet.stages[pet.stage].toLowerCase()}, úroveň ${pet.level}`;
+    label: (pet, name) => {
+      const who = `${name}, ${cs.pet.stages[pet.stage].toLowerCase()}, úroveň ${pet.level}`;
       return pet.mood === "dead"
-        ? `${name}: nežije`
+        ? `${who}: nežije`
         : pet.mood === "hungry"
-          ? `${name}: má hlad`
-          : `${name}: v pohodě`;
+          ? `${who}: má hlad`
+          : `${who}: v pohodě`;
     },
     level: "Úroveň",
     toLevel: (level) => `Postup na úroveň ${level}`,
-    status: (pet) =>
+    status: (pet, name) =>
       pet.mood === "dead"
-        ? "Tenny zemřel po 14 dnech bez cvičení. Po dalším cvičení se vrátí jako nové vajíčko. O pokrok v psaní nepřijdete."
+        ? `Mazlíček ${name} zemřel po 14 dnech bez cvičení. Po dalším cvičení se vrátí jako nové vajíčko. O pokrok v psaní nepřijdete.`
         : pet.mood === "hungry"
-          ? `Tenny má hlad: ${pet.daysAway} ${plural(pet.daysAway, "den", "dny", "dní")} bez cvičení. Stačí jedno cvičení.`
+          ? `${name} má hlad: ${pet.daysAway} ${plural(pet.daysAway, "den", "dny", "dní")} bez cvičení. Stačí jedno cvičení.`
           : pet.toNext === undefined
-            ? "Tenny dosáhl nejvyšší úrovně."
-            : `${pet.lost > 0 && pet.ageDays === 0 ? "Tenny je zpět jako nové vajíčko. " : ""}Do úrovně ${pet.level + 1} zbývá ${pet.toNext} min.`,
-    note: "Tenny roste se cvičením, nejvýše 60 minut denně. Po 4 dnech bez cvičení má hlad, po 14 zemře.",
+            ? `Mazlíček ${name} dosáhl nejvyšší úrovně.`
+            : `${pet.lost > 0 && pet.ageDays === 0 ? `${name} je zpět jako nové vajíčko. ` : ""}Do úrovně ${pet.level + 1} zbývá ${pet.toNext} min.`,
+    note: (name) =>
+      `${name} roste se cvičením, nejvýše 60 minut denně. Po 4 dnech bez cvičení má hlad, po 14 zemře.`,
     stageLabel: "Fáze",
     age: "Věk",
     days: (n) => `${n} ${plural(n, "den", "dny", "dní")}`,
