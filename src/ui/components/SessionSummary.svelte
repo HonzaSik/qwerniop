@@ -1,8 +1,8 @@
 <script lang="ts">
 import type { Session } from "../../core/engine/engine";
 import { accuracy, duration, netWpm } from "../../core/engine/results";
-import type { PetState } from "../../core/stats/pet";
-import { savesSessions, ui } from "../state.svelte";
+import type { SummaryPet } from "../pet-summary";
+import { savesSessions } from "../state.svelte";
 import { t } from "../strings";
 import {
   formatAccuracy,
@@ -18,7 +18,7 @@ interface Props {
         weakest: string[];
         sentence: string;
         recap?: string | undefined;
-        pet?: PetState | undefined;
+        pet?: SummaryPet | undefined;
       }
     | undefined;
   onrestart: () => void;
@@ -27,7 +27,11 @@ interface Props {
 
 let { session, feedback, onrestart, onnext }: Props = $props();
 
+let continueButton = $state<HTMLButtonElement>();
+
 function onkeydown(event: KeyboardEvent): void {
+  // Letters in the name box are the name, not shortcuts.
+  if (event.target instanceof HTMLInputElement) return;
   if (isRestartKey(event, event.target instanceof HTMLButtonElement)) {
     event.preventDefault();
     if (event.key === "Enter") onnext();
@@ -70,19 +74,23 @@ function focusOnShow(button: HTMLButtonElement): void {
       <div class="slot">
         {#if feedback?.pet}
           {#await import("./Pet.svelte") then { default: Pet }}
-            <Pet pet={feedback.pet} />
+            <Pet pet={feedback.pet.state} />
           {/await}
         {/if}
       </div>
     {/if}
     <div class="words">
       {#if feedback}<p>{feedback.sentence}</p>{/if}
-      {#if feedback?.pet}<p>{t.pet.status(feedback.pet, ui.settings.petName)}</p>{/if}
+      {#if feedback?.pet}
+        {#await import("./PetName.svelte") then { default: PetName }}
+          <PetName pet={feedback.pet} onnamed={() => continueButton?.focus({ preventScroll: true })} />
+        {/await}
+      {/if}
     </div>
   </div>
   {#if feedback?.recap}<p><strong>{t.summary.recap}</strong> {feedback.recap}</p>{/if}
   <div class="actions">
-    <button class="primary" aria-keyshortcuts="Enter" onclick={onnext} use:focusOnShow>
+    <button class="primary" aria-keyshortcuts="Enter" bind:this={continueButton} onclick={onnext} use:focusOnShow>
       {t.summary.next}
     </button>
     <button aria-keyshortcuts="R" onclick={onrestart}>{t.summary.repeat}</button>

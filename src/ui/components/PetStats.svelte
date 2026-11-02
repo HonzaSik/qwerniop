@@ -1,7 +1,6 @@
 <script lang="ts">
-import { cleanPetName, PET_NAME_MAX } from "../../core/settings/settings";
 import type { PetState } from "../../core/stats/pet";
-import { saveSettings, ui } from "../state.svelte";
+import { ui } from "../state.svelte";
 import { t } from "../strings";
 import Pet from "./Pet.svelte";
 
@@ -11,12 +10,7 @@ interface Props {
 
 let { pet }: Props = $props();
 
-const saveName = (event: Event & { currentTarget: HTMLInputElement }): void => {
-  ui.settings.petName = cleanPetName(event.currentTarget.value);
-  // A blank entry fell back to the default, so the box has to show that too.
-  event.currentTarget.value = ui.settings.petName;
-  saveSettings();
-};
+const name = $derived(ui.settings.petName || t.pet.unnamed);
 
 const lastPractised = $derived(
   new Intl.DateTimeFormat(t.language, { day: "numeric", month: "long" }).format(
@@ -30,6 +24,7 @@ const lastPractised = $derived(
 const rows = $derived([
   [t.pet.stageLabel, t.pet.stages[pet.stage]],
   [t.pet.level, String(pet.level)],
+  [t.pet.together, t.pet.days(pet.togetherDays)],
   [t.pet.age, t.pet.days(pet.ageDays)],
   [t.pet.counted, `${pet.minutes} min`],
   ...(pet.toNext === undefined ? [] : [[t.pet.toNext, `${pet.toNext} min`]]),
@@ -39,11 +34,7 @@ const rows = $derived([
 </script>
 
 <section aria-labelledby="pet">
-  <h2 id="pet">{ui.settings.petName}</h2>
-  <label class="name">
-    {t.pet.name}
-    <input type="text" value={ui.settings.petName} maxlength={PET_NAME_MAX} autocomplete="off" spellcheck="false" onchange={saveName} />
-  </label>
+  <h2 id="pet">{name}</h2>
   <div class="row">
     <Pet {pet} large />
     <table>
@@ -57,8 +48,8 @@ const rows = $derived([
       </tbody>
     </table>
   </div>
-  <p class="note">{t.pet.status(pet, ui.settings.petName)}</p>
-  <p class="note">{t.pet.note(ui.settings.petName)}</p>
+  <p class="note">{t.pet.status(pet, name)}</p>
+  <p class="note">{t.pet.note(name)}</p>
 </section>
 
 <style>
@@ -70,15 +61,6 @@ const rows = $derived([
     margin: 0 0 var(--space-4);
     font-size: var(--text-size-md);
     font-weight: var(--weight-semibold);
-  }
-
-  .name {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-4);
-    color: var(--text-2);
-    font-size: var(--text-size-sm);
   }
 
   .row {

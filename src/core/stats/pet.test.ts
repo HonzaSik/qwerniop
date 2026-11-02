@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { leavesAt, petState } from "./pet";
+import { type PetState, petMoment, petState } from "./pet";
 import { type DayPractice, dayKey } from "./practice";
 
 const MINUTE = 60_000;
@@ -30,20 +30,53 @@ const dayAfter = (days: Map<string, DayPractice>): number => {
   return new Date(`${last}T12:00:00`).getTime() + 86_400_000;
 };
 
-describe("leavesAt", () => {
-  test.each([
-    [1, 1],
-    [2, 1],
-    [3, 2],
-    [7, 2],
-    [8, 3],
-    [12, 3],
-    [13, 4],
-    [16, 4],
-    [17, 5],
-    [20, 5],
-  ])("level %i has %i leaves", (level, leaves) => {
-    expect(leavesAt(level)).toBe(leaves);
+describe("petMoment", () => {
+  const pet = (over: Partial<PetState>): PetState => ({
+    stage: "egg",
+    mood: "content",
+    level: 1,
+    progress: 0,
+    minutes: 0,
+    toNext: 5,
+    ageDays: 0,
+    togetherDays: 0,
+    daysAway: 0,
+    lastPractised: "2026-03-01",
+    lost: 0,
+    ...over,
+  });
+
+  test("the first session has no moment", () => {
+    expect(petMoment(null, pet({}))).toBeNull();
+  });
+
+  test("nothing new is no moment", () => {
+    expect(petMoment(pet({}), pet({}))).toBeNull();
+  });
+
+  test("a new level", () => {
+    expect(petMoment(pet({}), pet({ level: 2 }))).toEqual({
+      kind: "level",
+      level: 2,
+    });
+  });
+
+  test("a new stage says more than its level", () => {
+    expect(
+      petMoment(pet({ level: 2 }), pet({ level: 3, stage: "hatchling" })),
+    ).toEqual({ kind: "stage", stage: "hatchling" });
+  });
+
+  test("coming back to a hungry pet says more than a level", () => {
+    expect(
+      petMoment(pet({ mood: "hungry", daysAway: 6 }), pet({ level: 2 })),
+    ).toEqual({ kind: "missed", days: 6 });
+  });
+
+  test("coming back to a dead pet says the most", () => {
+    expect(petMoment(pet({ mood: "dead", level: 9 }), pet({}))).toEqual({
+      kind: "reborn",
+    });
   });
 });
 
@@ -54,13 +87,19 @@ describe("petState", () => {
 
   test.each([
     [14, "egg", 2],
-    [15, "baby", 3],
-    [119, "baby", 5],
-    [120, "child", 6],
-    [479, "child", 9],
-    [480, "teen", 10],
-    [2099, "teen", 16],
-    [2100, "adult", 17],
+    [15, "hatchling", 3],
+    [59, "hatchling", 4],
+    [60, "seedling", 5],
+    [179, "seedling", 6],
+    [180, "sprout", 7],
+    [479, "sprout", 9],
+    [480, "sapling", 10],
+    [1079, "sapling", 12],
+    [1080, "bush", 13],
+    [2099, "bush", 16],
+    [2100, "bloom", 17],
+    [5999, "bloom", 19],
+    [6000, "guardian", 20],
   ])("%i minutes make a %s at level %i", (minutes, stage, level) => {
     const days = practised(minutes);
     expect(petState(days, dayAfter(days))).toMatchObject({
@@ -82,7 +121,7 @@ describe("petState", () => {
   test("the top level has no next level", () => {
     const days = practised(6000);
     expect(petState(days, dayAfter(days))).toMatchObject({
-      stage: "adult",
+      stage: "guardian",
       level: 20,
       toNext: undefined,
       progress: 1,
@@ -114,7 +153,7 @@ describe("petState", () => {
   test("a dead pet counts as lost and has no next stage", () => {
     expect(petState(history([1, 60]), at(2026, 3, 15))).toMatchObject({
       mood: "dead",
-      stage: "baby",
+      stage: "seedling",
       toNext: undefined,
       lost: 1,
     });
@@ -154,6 +193,11 @@ describe("petState", () => {
       lost: 1,
       minutes: 10,
     });
+  });
+
+  test("time together keeps counting through a death", () => {
+    const got = petState(history([1, 60], [15, 5]), at(2026, 3, 20));
+    expect(got).toMatchObject({ ageDays: 5, togetherDays: 19 });
   });
 
   test("a gap of 13 days does not kill it", () => {

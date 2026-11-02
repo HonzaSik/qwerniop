@@ -5,10 +5,10 @@ describe("migrateSettings", () => {
   test.each([
     ["Bean", "Bean"],
     ["  Bean  ", "Bean"],
-    ["", "Tenny"],
-    ["   ", "Tenny"],
-    [7, "Tenny"],
-    [undefined, "Tenny"],
+    ["", ""],
+    ["   ", ""],
+    [7, ""],
+    [undefined, ""],
     ["x".repeat(30), "x".repeat(20)],
   ])("pet name %j reads as %j", (petName, want) => {
     expect(migrateSettings({ petName }).petName).toBe(want);

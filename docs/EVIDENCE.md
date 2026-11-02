@@ -33,7 +33,7 @@ Pooling about 10 learners could answer it (a rough calculation, not simulated), 
 
 ## Practice pet
 
-No study here shows that a virtual pet improves typing or learning; it is there for motivation only. A pet that can die may also make some people quit after a loss. Only its daily 60-minute growth cap and the 35 hours to adult draw on a source, Baddeley & Longman above.
+No study here shows that a virtual pet improves typing or learning; it is there for motivation only. A pet that can die may also make some people quit after a loss. Only its daily 60-minute growth cap and the 35 hours to the bloom stage draw on a source, Baddeley & Longman above.
 
 ## Left out
 

@@ -163,8 +163,9 @@ Not built. Simulation showed a test on one learner's typing could not detect the
 
 ## 22. Practice pet
 
-Named Tenny by default; the learner can rename it.
+Named by the learner, once.
 
 - [x] Pet worked out from practice history: growth by minutes, hungry after 4 days, dead after 14 (`core/stats/pet.ts`)
 - [x] Shown on the session summary and in Stats
+- [x] Named once on the first summary; the summary reacts to level-ups, new stages and coming back
 - [x] 20 levels with a progress bar, and a sprout that grows with them

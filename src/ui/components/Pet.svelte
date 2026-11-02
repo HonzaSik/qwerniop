@@ -1,5 +1,5 @@
 <script lang="ts">
-import { leavesAt, type PetState, TOP_LEVEL } from "../../core/stats/pet";
+import { PET_STAGES, type PetStage, type PetState } from "../../core/stats/pet";
 import { ui } from "../state.svelte";
 import { t } from "../strings";
 
@@ -11,120 +11,183 @@ interface Props {
 let { pet, large = false }: Props = $props();
 
 const BOTTOM = 57;
-// Grows wider and taller with each stage, and the sprout grows with it.
-const SHAPE = {
-  egg: { top: 16, half: 16, stem: 4, leaf: 0.55 },
-  baby: { top: 21, half: 17, stem: 6, leaf: 0.75 },
-  child: { top: 18, half: 19, stem: 7, leaf: 0.85 },
-  teen: { top: 16, half: 20, stem: 8, leaf: 1 },
-  adult: { top: 14, half: 23, stem: 8, leaf: 1.1 },
-} as const;
-const shape = $derived(SHAPE[pet.stage]);
-const height = $derived(BOTTOM - shape.top);
-const y = $derived(shape.top + height * 0.6);
-const apart = $derived(shape.half * 0.5);
-const r = $derived(shape.half * 0.25);
-const left = $derived(32 - apart);
-const right = $derived(32 + apart);
-const stemTop = $derived(shape.top - shape.stem);
 const dead = $derived(pet.mood === "dead");
+const atLeast = (stage: PetStage): boolean =>
+  PET_STAGES.indexOf(pet.stage) >= PET_STAGES.indexOf(stage);
+
+// Grows a little at every level, not only at a new stage, so each one shows on the pet.
+const grown = $derived((pet.level - 1) / 19);
+const half = $derived((pet.stage === "egg" ? 13 : 15) + 9 * grown);
+const top = $derived(27 - 11 * grown);
+const stem = $derived(2 + 5 * grown);
+const leafSize = $derived(0.5 + 0.5 * grown);
+const height = $derived(BOTTOM - top);
+const hatching = $derived(pet.stage === "hatchling");
+const y = $derived(top + height * (hatching && !dead ? 0.46 : 0.6));
+const r = $derived(half * 0.25);
+const left = $derived(32 - half * 0.5);
+const right = $derived(32 + half * 0.5);
+const stemTop = $derived(top - stem);
 const hungry = $derived(pet.mood === "hungry");
 const asleep = $derived(pet.stage === "egg" && pet.mood === "content");
-const fruit = $derived(pet.level >= TOP_LEVEL);
 // Leaves hang lower the longer it goes unfed, so the sprout shows its mood too.
-const droop = $derived(dead ? 62 : hungry ? 34 : 0);
+const droop = $derived(dead ? 62 : hungry ? 28 : 0);
 
-const body = $derived.by(() => {
-  const { top, half } = shape;
-  const x = (share: number): number => half * share;
-  const at = (share: number): number => top + height * share;
-  return `M32 ${top}C${32 + x(0.58)} ${top} ${32 + half} ${at(0.32)} ${32 + half} ${at(0.6)}C${32 + half} ${at(0.86)} ${32 + x(0.58)} ${BOTTOM} 32 ${BOTTOM}C${32 - x(0.58)} ${BOTTOM} ${32 - half} ${at(0.86)} ${32 - half} ${at(0.6)}C${32 - half} ${at(0.32)} ${32 - x(0.58)} ${top} 32 ${top}Z`;
+const eggPath = (t0: number, w: number, b: number, dx = 0): string => {
+  const h = b - t0;
+  const c = 32 + dx;
+  const at = (share: number): number => t0 + h * share;
+  const side = w * 0.58;
+  return `M${c} ${t0}C${c + side} ${t0} ${c + w} ${at(0.32)} ${c + w} ${at(0.6)}C${c + w} ${at(0.86)} ${c + side} ${b} ${c} ${b}C${c - side} ${b} ${c - w} ${at(0.86)} ${c - w} ${at(0.6)}C${c - w} ${at(0.32)} ${c - side} ${t0} ${c} ${t0}Z`;
+};
+const body = $derived(eggPath(top, half, BOTTOM));
+// A second, smaller egg over the first leaves a shaded edge without a gradient.
+const lit = $derived(eggPath(top + 0.8, half - 1.6, BOTTOM - 3, -0.8));
+
+const shell = $derived.by(() => {
+  const edge = top + height * 0.68;
+  const w = half + 1;
+  const step = (w * 2) / 6;
+  const zigzag = Array.from(
+    { length: 6 },
+    (_, i) =>
+      `L${32 - w + step * (i + 0.5)} ${edge + (i % 2 === 0 ? -4 : 2)}L${32 - w + step * (i + 1)} ${edge}`,
+  ).join("");
+  return `M${32 - w} ${edge}${zigzag}C${32 + w} ${BOTTOM - 3} ${32 + w * 0.6} ${BOTTOM + 1} 32 ${BOTTOM + 1}C${32 - w * 0.6} ${BOTTOM + 1} ${32 - w} ${BOTTOM - 3} ${32 - w} ${edge}Z`;
 });
 
 interface Leaf {
+  x: number;
   y: number;
-  side: 1 | -1;
   turn: number;
   size: number;
 }
 
+const CROWN: Record<PetStage, number> = {
+  egg: 1,
+  hatchling: 2,
+  seedling: 2,
+  sprout: 3,
+  sapling: 4,
+  bush: 5,
+  bloom: 6,
+  guardian: 7,
+};
+
+// A tidy fan, outer leaves drawn first and shorter: leaves at random angles read as a heap.
 const leaves = $derived.by((): Leaf[] => {
-  const size = shape.leaf;
-  const count = leavesAt(pet.level);
-  const low = stemTop + shape.stem * 0.55;
-  const top: Leaf = { y: stemTop, side: 1, turn: 52, size: size * 0.85 };
-  const pair = (at: number, scale: number): Leaf[] => [
-    { y: at, side: -1, turn: 0, size: size * scale },
-    { y: at, side: 1, turn: 0, size: size * scale },
-  ];
-  if (count === 1) return [{ y: stemTop, side: 1, turn: 0, size }];
-  if (count === 2) return pair(stemTop, 1);
-  if (count === 3) return [top, ...pair(stemTop, 1)];
-  if (count === 4) return [...pair(low, 0.85), ...pair(stemTop, 1)];
-  return [...pair(low, 0.85), top, ...pair(stemTop, 1)];
+  const count = CROWN[pet.stage];
+  if (count === 1) {
+    return [{ x: 32, y: stemTop, turn: 28 + droop, size: leafSize }];
+  }
+  const spread = count === 2 ? 48 : 76;
+  return Array.from(
+    { length: count },
+    (_, i) => -spread + (2 * spread * i) / (count - 1),
+  )
+    .sort((a, b) => Math.abs(b) - Math.abs(a))
+    .map((angle) => ({
+      x: 32,
+      y: stemTop,
+      // A dead crown flops to one side, or its middle leaf would still stand up.
+      turn: angle + (angle / spread) * droop + (dead && count > 2 ? 34 : 0),
+      size:
+        leafSize * (count === 2 ? 1 : 1 - 0.22 * (Math.abs(angle) / spread)),
+    }));
 });
-// Lying on its side, so its widest part sets how high the halo floats.
-const haloY = $derived(30 - shape.half);
+// Little leaves at the sides of the head, like ears.
+const earLeaves = $derived.by((): Leaf[] => {
+  if (!atLeast("bush")) return [];
+  const y = top + height * 0.2;
+  const size = leafSize * 0.6;
+  return [
+    { x: 32 - half * 0.72, y, turn: -58 - droop, size },
+    { x: 32 + half * 0.72, y, turn: 58 + droop, size },
+  ];
+});
+
+const leafPath = (s: number): string =>
+  `M0 0C${-5.5 * s} ${-3 * s} ${-6.5 * s} ${-10 * s} 0 ${-15 * s}C${6.5 * s} ${-10 * s} ${5.5 * s} ${-3 * s} 0 0Z`;
+const leafShade = (s: number): string =>
+  `M0 0C${5.5 * s} ${-3 * s} ${6.5 * s} ${-10 * s} 0 ${-15 * s}Z`;
+
+const PETALS = [0, 72, 144, 216, 288];
+
+const haloY = $derived(stemTop - (atLeast("sprout") ? 6 + 12 * leafSize : 8));
 const toLevel = $derived(pet.level + 1);
 </script>
 
 <figure class:large>
-  <svg class:dead class:hungry viewBox="0 0 64 64" role="img" aria-label={t.pet.label(pet, ui.settings.petName)}>
+  <svg class:dead class:hungry viewBox="-6 -14 76 76" role="img" aria-label={t.pet.label(pet, ui.settings.petName || t.pet.unnamed)}>
+    <ellipse class="ground" cx="32" cy={BOTTOM + 3} rx={half * 0.95} ry="2.4" />
     <g class="creature">
-      <g transform={dead ? "translate(1 3) rotate(-82 32 36)" : undefined}>
-      <path class="stem" d="M32 {shape.top + 1}V{stemTop}" />
-      {#each leaves as leaf}
-        <path
-          class="leaf"
-          d="M0 0c-6 0-10-3-11-8 6-1 11 2 11 8Z"
-          transform="translate(32 {leaf.y}) scale({leaf.side * leaf.size} {leaf.size}) rotate({leaf.turn - droop})"
-        />
-      {/each}
-      {#if fruit}<circle class="fruit" cx="32" cy={stemTop - 3} r="3" />{/if}
-
-      {#if pet.stage !== "egg"}
-        <ellipse class="fur" cx={32 - shape.half * 0.45} cy={BOTTOM + 1} rx="5" ry="3" />
-        <ellipse class="fur" cx={32 + shape.half * 0.45} cy={BOTTOM + 1} rx="5" ry="3" />
-      {/if}
-      {#if pet.stage === "child" || pet.stage === "teen" || pet.stage === "adult"}
-        <ellipse class="fur" cx={32 - shape.half} cy={y + 6} rx="3.2" ry="5" transform="rotate(18 {32 - shape.half} {y + 6})" />
-        <ellipse class="fur" cx={32 + shape.half} cy={y + 6} rx="3.2" ry="5" transform="rotate(-18 {32 + shape.half} {y + 6})" />
-      {/if}
-      <path class="fur" d={body} />
-      <circle class="speck" cx={32 - shape.half * 0.45} cy={shape.top + height * 0.24} r="2.4" />
-      <circle class="speck" cx={32 + shape.half * 0.5} cy={shape.top + height * 0.3} r="1.7" />
-      <circle class="speck" cx={32 + shape.half * 0.55} cy={shape.top + height * 0.88} r="1.9" />
-
-      {#if !dead}
-        <ellipse class="cheek" cx={left - r * 0.7} cy={y + r + 1} rx="3" ry="1.8" /><ellipse class="cheek" cx={right + r * 0.7} cy={y + r + 1} rx="3" ry="1.8" />
-      {/if}
-      {#if dead}
-        {#each [left, right] as x}
-          <path class="line" d="M{x - r * 0.8} {y - r * 0.8}l{r * 1.6} {r * 1.6}m0-{r * 1.6}l-{r * 1.6} {r * 1.6}" />
+      <!-- Slumped where it sat: tipped over it read as a thing, not a pet. -->
+      <g transform={dead ? `rotate(-7 32 ${BOTTOM})` : undefined}>
+        <path class="stem-edge" d="M32 {top + 1}V{stemTop}" />
+        <path class="stem" d="M32 {top + 1}V{stemTop}" />
+        {#each [...leaves, ...earLeaves] as leaf}
+          <g transform="translate({leaf.x} {leaf.y}) rotate({leaf.turn})">
+            <path class="leaf" d={leafPath(leaf.size)} />
+            <path class="leaf-shade" d={leafShade(leaf.size)} />
+            <path class="vein" d="M0 {-2 * leaf.size}V{-11 * leaf.size}" />
+          </g>
         {/each}
-      {:else if asleep}
-        {#each [left, right] as x}
-          <path class="line" d="M{x - r} {y}q{r} {r} {r * 2} 0" />
-        {/each}
-      {:else}
-        <g class="eyes">
-          {#each [left, right] as x}
-            <circle class="eye" cx={x} cy={y} {r} />
-            <circle class="shine" cx={x + r * 0.35} cy={y - r * 0.4} r={r * 0.34} />
-            <circle class="shine" cx={x - r * 0.35} cy={y + r * 0.4} r={r * (hungry ? 0.26 : 0.16)} />
+        {#if pet.stage === "bloom"}
+          {#each PETALS as angle}
+            <circle class="petal" cx={32 + Math.cos((angle * Math.PI) / 180) * 3.2} cy={stemTop - 3 + Math.sin((angle * Math.PI) / 180) * 3.2} r="2.2" />
           {/each}
-        </g>
-      {/if}
-      {#if dead}
-        <path class="line" d="M26 {y + r + 1.5}h12" />
-        <ellipse class="tongue" cx="35" cy={y + r + 3.8} rx="2.6" ry="2.4" />
-      {:else if hungry}
-        <path class="line" d="M{left - 3} {y - r - 1.5}l5-2M{right + 3} {y - r - 1.5}l-5-2" />
-        <path class="tear" d="M{right + 2.5} {y + r}c2 3 2 5 0 5s-2-2 0-5Z" />
-        <path class="line" d="M29.5 {y + r + 2}q2.5-2 5 0" />
-      {:else}
-        <path class="line" d="M29.5 {y + r * 0.7}q1.25 1.6 2.5 0q1.25 1.6 2.5 0" />
-      {/if}
+          <circle class="fruit" cx="32" cy={stemTop - 3} r="2" />
+        {:else if pet.stage === "guardian"}
+          <circle class="fruit" cx="32" cy={stemTop - 3} r="4.5" />
+          <circle class="fruit-shine" cx="30.6" cy={stemTop - 4.6} r="1.2" />
+        {/if}
+
+        {#if atLeast("seedling")}
+          <ellipse class="fur" cx={32 - half * 0.45} cy={BOTTOM + 1} rx={half * 0.28} ry="3" />
+          <ellipse class="fur" cx={32 + half * 0.45} cy={BOTTOM + 1} rx={half * 0.28} ry="3" />
+        {/if}
+        {#if atLeast("sprout")}
+          <ellipse class="fur" cx={32 - half} cy={y + 6} rx={half * 0.16} ry={half * 0.25} transform="rotate(18 {32 - half} {y + 6})" />
+          <ellipse class="fur" cx={32 + half} cy={y + 6} rx={half * 0.16} ry={half * 0.25} transform="rotate(-18 {32 + half} {y + 6})" />
+        {/if}
+        <path class="shade" d={body} />
+        <path class="fur plain" d={lit} />
+        <path class="edge" d={body} />
+        <ellipse class="gloss" cx={32 - half * 0.45} cy={top + height * 0.2} rx={half * 0.17} ry={half * 0.11} transform="rotate(-30 {32 - half * 0.45} {top + height * 0.2})" />
+        <circle class="speck" cx={32 + half * 0.55} cy={top + height * 0.3} r={half * 0.08} />
+        <circle class="speck" cx={32 + half * 0.68} cy={top + height * 0.45} r={half * 0.05} />
+        {#if pet.level === 2}<path class="edge" d="M{32 - half * 0.4} {top + height * 0.2}l2.5 2.5 2-3 2.5 2.5" />{/if}
+
+        {#if !dead}
+          <ellipse class="cheek" cx={left - r * 0.7} cy={y + r + 1} rx={half * 0.18} ry={half * 0.11} /><ellipse class="cheek" cx={right + r * 0.7} cy={y + r + 1} rx={half * 0.18} ry={half * 0.11} />
+        {/if}
+        {#if dead}
+          {#each [left, right] as x}
+            <path class="line" d="M{x - r * 0.8} {y - r * 0.8}l{r * 1.6} {r * 1.6}m0-{r * 1.6}l-{r * 1.6} {r * 1.6}" />
+          {/each}
+          <path class="line" d="M26 {y + r + 1.5}h12" />
+          <ellipse class="tongue" cx="32" cy={y + r + 3.6} rx="3.2" ry="3" />
+        {:else if asleep}
+          {#each [left, right] as x}
+            <path class="line" d="M{x - r} {y}q{r} {r} {r * 2} 0" />
+          {/each}
+        {:else}
+          <g class="eyes">
+            {#each [left, right] as x}
+              <circle class="eye" cx={x} cy={y} {r} />
+              <circle class="shine" cx={x + r * 0.35} cy={y - r * 0.4} r={r * 0.36} />
+              <circle class="shine" cx={x - r * 0.35} cy={y + r * 0.4} r={r * (hungry ? 0.26 : 0.17)} />
+            {/each}
+          </g>
+        {/if}
+        {#if hungry}
+          <path class="line" d="M{left - 3} {y - r - 1.5}l5-2M{right + 3} {y - r - 1.5}l-5-2" />
+          <path class="tear" d="M{right + 2.5} {y + r}c2 3 2 5 0 5s-2-2 0-5Z" />
+          <path class="line" d="M29.5 {y + r + 2}q2.5-2 5 0" />
+        {:else if !dead}
+          <path class="line" d="M29.5 {y + r * 0.7}q1.25 1.6 2.5 0q1.25 1.6 2.5 0" />
+        {/if}
+        {#if hatching && !dead}<path class="eggshell" d={shell} />{/if}
       </g>
       {#if dead}<ellipse class="halo" cx="32" cy={haloY} rx="8" ry="2.2" />{/if}
     </g>
@@ -163,12 +226,35 @@ const toLevel = $derived(pet.level + 1);
     stroke-linejoin: round;
   }
 
+  .ground {
+    fill: var(--pet-ink);
+    stroke: none;
+    opacity: var(--pet-ground-opacity);
+  }
+
   .fur {
     fill: var(--pet-fur);
   }
 
-  .dead .fur {
-    fill: var(--pet-ghost);
+  .plain,
+  .edge {
+    stroke: none;
+  }
+
+  .edge {
+    fill: none;
+    stroke: var(--pet-outline);
+  }
+
+  .shade {
+    fill: var(--pet-shade);
+    stroke: none;
+  }
+
+  .gloss {
+    fill: var(--pet-light);
+    stroke: none;
+    opacity: var(--pet-gloss-opacity);
   }
 
   .speck {
@@ -176,27 +262,19 @@ const toLevel = $derived(pet.level + 1);
     stroke: none;
   }
 
-  .dead {
-    stroke: var(--pet-dead-line);
-  }
-
-  .dead .speck {
-    fill: var(--pet-dead-line);
-    opacity: var(--pet-dead-speck);
-  }
-
-  .tongue {
-    fill: var(--pet-tongue);
-    stroke: var(--pet-ink);
-  }
-
   .cheek {
     fill: var(--pet-cheek);
     stroke: none;
   }
 
-  .stem {
+  .stem-edge {
     stroke: var(--pet-leaf-line);
+    stroke-width: calc(var(--pet-stroke) * 2);
+  }
+
+  .stem {
+    stroke: var(--pet-leaf);
+    stroke-width: var(--pet-stroke);
   }
 
   .leaf {
@@ -204,21 +282,80 @@ const toLevel = $derived(pet.level + 1);
     stroke: var(--pet-leaf-line);
   }
 
+  .leaf-shade {
+    fill: var(--pet-leaf-line);
+    stroke: none;
+    opacity: var(--pet-leaf-shade-opacity);
+  }
+
+  .vein {
+    stroke: var(--pet-leaf-line);
+    stroke-width: calc(var(--pet-stroke) / 2);
+  }
+
   .hungry .leaf {
     fill: var(--pet-leaf-dry);
   }
 
-  .dead .leaf {
-    fill: var(--pet-leaf-dead);
-    stroke: var(--pet-dead-line);
+  .eggshell {
+    fill: var(--pet-shell);
   }
 
-  .dead .stem {
-    stroke: var(--pet-dead-line);
+  .petal {
+    fill: var(--pet-light);
+    stroke-width: calc(var(--pet-stroke) / 2);
+    stroke: var(--pet-patch);
   }
 
   .fruit {
     fill: var(--pet-gold);
+  }
+
+  .fruit-shine {
+    fill: var(--pet-light);
+    stroke: none;
+  }
+
+  .tongue {
+    fill: var(--pet-tongue);
+    stroke: var(--pet-ink);
+  }
+
+  .dead {
+    stroke: var(--pet-dead-line);
+  }
+
+  .dead .fur {
+    fill: var(--pet-ghost);
+  }
+
+  .dead .shade {
+    fill: var(--pet-dead-shade);
+  }
+
+  .dead .edge,
+  .dead .stem-edge,
+  .dead .vein,
+  .dead .leaf {
+    stroke: var(--pet-dead-line);
+  }
+
+  .dead .stem,
+  .dead .leaf {
+    fill: var(--pet-leaf-dead);
+  }
+
+  .dead .stem {
+    stroke: var(--pet-leaf-dead);
+  }
+
+  .dead .speck {
+    fill: var(--pet-dead-line);
+    opacity: var(--pet-dead-speck);
+  }
+
+  .dead .eggshell {
+    fill: var(--pet-ghost);
   }
 
   .halo {

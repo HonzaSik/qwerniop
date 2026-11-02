@@ -17,10 +17,19 @@ describe("summaryPet", () => {
   const now = new Date(2026, 2, 1, 12).getTime();
 
   test("counts a session whose write is still queued", () => {
-    expect(summaryPet([], record(now))?.minutes).toBe(10);
+    expect(summaryPet([], record(now))?.state.minutes).toBe(10);
+  });
+
+  test("compares with the pet as it was before this session", () => {
+    const earlier = record(now - 6 * 86_400_000);
+    expect(summaryPet([earlier], record(now))?.moment).toEqual({
+      kind: "missed",
+      days: 6,
+    });
+    expect(summaryPet([], record(now))?.moment).toBeNull();
   });
 
   test("does not count a session twice once it is saved", () => {
-    expect(summaryPet([record(now)], record(now))?.minutes).toBe(10);
+    expect(summaryPet([record(now)], record(now))?.state.minutes).toBe(10);
   });
 });

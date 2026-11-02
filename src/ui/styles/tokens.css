@@ -69,8 +69,8 @@
   --calendar-mix-2: 35%;
   --calendar-mix-3: 50%;
   --calendar-cell-height: 2.75rem;
-  --pet-size: 5rem;
-  --pet-size-large: 8rem;
+  --pet-size: 6rem;
+  --pet-size-large: 9rem;
   /* Room under the pet for its level and bar, so the summary holds its height while it loads. */
   --pet-caption: 1.75rem;
   --pet-stroke: 1.5;
@@ -78,7 +78,12 @@
   --pet-breath: 1.6s;
   /* The same in every theme: a warm body with soft edges stands out on white and on black alike. */
   --pet-fur: #fbe3bf;
+  --pet-shade: #f2cc9c;
   --pet-patch: #edc594;
+  --pet-shell: #fffaf0;
+  --pet-ground-opacity: 0.12;
+  --pet-gloss-opacity: 0.75;
+  --pet-leaf-shade-opacity: 0.18;
   --pet-cheek: #f6c49c;
   --pet-outline: #a57f5a;
   --pet-ink: #33261c;
@@ -86,6 +91,7 @@
   --pet-ghost: #d4d3d1;
   --pet-dead-line: #77736e;
   --pet-dead-speck: 0.35;
+  --pet-dead-shade: #bdbcb9;
   --pet-tongue: #f59a8f;
   --pet-leaf: #a5dd8e;
   --pet-leaf-line: #5d9b58;

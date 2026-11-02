@@ -8,13 +8,13 @@ import {
 } from "../../core/engine/engine";
 import { accuracy, netWpm } from "../../core/engine/results";
 import { layoutById } from "../../core/layouts/registry";
-import type { PetState } from "../../core/stats/pet";
 import { attachInput } from "../../input/input";
 import { isPhysicalCode } from "../../input/physicalKey";
 import Keyboard from "../components/Keyboard.svelte";
 import SessionSummary from "../components/SessionSummary.svelte";
 import { formatAccuracy } from "../components/session-summary";
 import TextView from "../components/TextView.svelte";
+import type { SummaryPet } from "../pet-summary";
 import { KEYBOARD_MODES, saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
 
@@ -33,7 +33,7 @@ interface Props {
         weakest: string[];
         sentence: string;
         recap?: string | undefined;
-        pet?: PetState | undefined;
+        pet?: SummaryPet | undefined;
       }
     | undefined;
   onnext: () => void;

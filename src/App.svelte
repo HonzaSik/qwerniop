@@ -19,7 +19,6 @@ import {
 import { stageCount, unlockedLetters } from "./core/lessons/letters";
 import { type CharStats, foldSession } from "./core/stats/chars";
 import { foldPairs, transitionTimes } from "./core/stats/pairs";
-import type { PetState } from "./core/stats/pet";
 import { generateContent, parseSnippets } from "./core/text/content";
 import { seededRng } from "./core/text/rng";
 import { loadStore } from "./storage/store";
@@ -34,6 +33,7 @@ import {
 import KeyIntro from "./ui/components/KeyIntro.svelte";
 import { keyLabel } from "./ui/components/keyboard-labels";
 import { loadSnippets, loadWords } from "./ui/content";
+import type { SummaryPet } from "./ui/pet-summary";
 import { createPrefetch } from "./ui/prefetch";
 import { isBackKey, isHelpKey, isSettingsKey } from "./ui/shortcuts";
 import {
@@ -117,7 +117,7 @@ interface Run {
     weakest: string[];
     sentence: string;
     recap?: string;
-    pet?: PetState;
+    pet?: SummaryPet;
   };
   /** Text from the model server, when one was asked for and passed validation. */
   generated?: Generated | undefined;

@@ -222,10 +222,10 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue
 1. Fresh profile, finish a session: the summary shows an egg and "… min to level 2.", the buttons do not jump, and Enter still continues. Nothing shows while typing.
 2. Stats shows the Pet section with matching numbers.
 3. With sessions dated 5 days ago: hungry face and text. With sessions dated 20 days ago: dead face and text, and lives lost is 1. Finish a session: a new egg, with lessons and stats unchanged.
-4. In Stats, rename the pet, including with `,` and `?`: no shortcut fires, and the new name shows in the heading, the summary and after a reload. A blank name goes back to Tenny. Export, then import: the pet and its name are unchanged.
+4. On the first summary, name the pet, including `R`, `,` and `?`: no shortcut fires, Enter names it and focus moves to Continue. Stats has no way to rename it. It asks again on the next summary if you continued without naming. Export, then import: the pet and its name are unchanged.
 5. Check light, dark, Black (OLED), 360 px, Czech, and a screen reader's label. With motion reduced it does not blink.
 
-Checked 2026-11-02 headless Chromium: pass for steps 1 to 3, and for step 5 in light, dark, Black (OLED), 360 px and Czech, on seeded data for every stage and leaf count, hungry and dead. Export and import through the page (step 4), a real screen reader and the blink not checked.
+Checked 2026-11-02 headless Chromium: pass for steps 1 to 3, and for step 5 in light, dark, Black (OLED), 360 px and Czech, on seeded data for every stage, hungry and dead. Naming the pet once on the first summary: pass. Export and import through the page (step 4), a real screen reader and the blink not checked.
 
 ## Custom text
 

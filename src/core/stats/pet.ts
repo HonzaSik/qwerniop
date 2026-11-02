@@ -7,29 +7,37 @@ const DAILY_CAP_MS = 60 * MINUTE;
 const HUNGRY_AFTER_DAYS = 4;
 const DIES_AFTER_DAYS = 14;
 
-export const PET_STAGES = ["egg", "baby", "child", "teen", "adult"] as const;
+export const PET_STAGES = [
+  "egg",
+  "hatchling",
+  "seedling",
+  "sprout",
+  "sapling",
+  "bush",
+  "bloom",
+  "guardian",
+] as const;
 export type PetStage = (typeof PET_STAGES)[number];
 export type PetMood = "content" | "hungry" | "dead";
 
-// Adult sits near the 35 hours that Baddeley & Longman's best group needed; see EVIDENCE.md.
+// Bloom sits near the 35 hours that Baddeley & Longman's best group needed; see EVIDENCE.md.
 const STAGE_FROM_MS: Record<PetStage, number> = {
   egg: 0,
-  baby: 15 * MINUTE,
-  child: 120 * MINUTE,
-  teen: 480 * MINUTE,
-  adult: 2100 * MINUTE,
+  hatchling: 15 * MINUTE,
+  seedling: 60 * MINUTE,
+  sprout: 180 * MINUTE,
+  sapling: 480 * MINUTE,
+  bush: 1080 * MINUTE,
+  bloom: 2100 * MINUTE,
+  guardian: 6000 * MINUTE,
 };
 
-// Minutes at which each level starts: quick at first, then slower. Stages begin on levels 3, 6, 10 and 17.
+// Minutes at which each level starts: quick at first, then slower. Stages begin on levels 3, 5, 7, 10, 13, 17 and 20.
 const LEVEL_FROM_MINUTES = [
   0, 5, 15, 30, 60, 120, 180, 270, 360, 480, 660, 840, 1080, 1320, 1560, 1800,
   2100, 2700, 3600, 6000,
 ] as const;
 export const TOP_LEVEL = LEVEL_FROM_MINUTES.length;
-
-/** The sprout on its head grows between stages, so a new level can show on the pet itself. */
-export const leavesAt = (level: number): number =>
-  level >= 17 ? 5 : level >= 13 ? 4 : level >= 8 ? 3 : level >= 3 ? 2 : 1;
 
 export interface PetState {
   stage: PetStage;
@@ -42,7 +50,10 @@ export interface PetState {
   minutes: number;
   /** Minutes to the next level. Undefined at the top level, and for a dead pet, which grows no further. */
   toNext: number | undefined;
+  /** Days since this pet's first practice. */
   ageDays: number;
+  /** Days since the very first practice: a death does not reset them. */
+  togetherDays: number;
   daysAway: number;
   /** Day key of the last practice. */
   lastPractised: string;
@@ -68,7 +79,8 @@ export function petState(
 ): PetState | null {
   const keys = [...days.keys()].sort();
   const last = keys.at(-1);
-  if (last === undefined) return null;
+  const first = keys[0];
+  if (last === undefined || first === undefined) return null;
   let lost = 0;
   let ms = 0;
   let born = dayNumber(last);
@@ -108,8 +120,30 @@ export function petState(
         ? undefined
         : Math.ceil((next * MINUTE - ms) / MINUTE),
     ageDays: Math.max(0, (mood === "dead" ? dayNumber(last) : now) - born),
+    togetherDays: Math.max(0, now - dayNumber(first)),
     daysAway,
     lastPractised: last,
     lost: lost + (mood === "dead" ? 1 : 0),
   };
+}
+
+export type PetMoment =
+  | { kind: "reborn" }
+  | { kind: "missed"; days: number }
+  | { kind: "stage"; stage: PetStage }
+  | { kind: "level"; level: number };
+
+/** What this session meant to the pet, comparing it just before and just after. */
+export function petMoment(
+  before: PetState | null,
+  after: PetState,
+): PetMoment | null {
+  if (before === null) return null;
+  if (before.mood === "dead") return { kind: "reborn" };
+  if (before.mood === "hungry")
+    return { kind: "missed", days: before.daysAway };
+  if (after.stage !== before.stage)
+    return { kind: "stage", stage: after.stage };
+  if (after.level > before.level) return { kind: "level", level: after.level };
+  return null;
 }

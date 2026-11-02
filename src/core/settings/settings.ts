@@ -66,13 +66,10 @@ export interface ModelServer {
 
 export const DEFAULT_BASE_URL = "http://localhost:11434/v1";
 
-export const DEFAULT_PET_NAME = "Tenny";
 export const PET_NAME_MAX = 20;
 
-/** Anything unusable, blank included, reads as the default: the pet is never left without a name. */
 export const cleanPetName = (v: unknown): string =>
-  (typeof v === "string" ? v.trim().slice(0, PET_NAME_MAX).trim() : "") ||
-  DEFAULT_PET_NAME;
+  typeof v === "string" ? v.trim().slice(0, PET_NAME_MAX).trim() : "";
 
 export interface Settings {
   version: number;
@@ -90,6 +87,7 @@ export interface Settings {
   liveStats: boolean;
   /** Every lesson can be started; progress is never changed by it. */
   developerMode: boolean;
+  /** Empty until the learner names the pet, which happens once. */
   petName: string;
   modelServer: ModelServer;
 }
@@ -109,7 +107,7 @@ export const defaultSettings = (): Settings => ({
   caret: "bar",
   liveStats: false,
   developerMode: false,
-  petName: DEFAULT_PET_NAME,
+  petName: "",
   modelServer: {
     enabled: false,
     modes: { lesson: true, topic: true, code: true, feedback: true },

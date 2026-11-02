@@ -232,13 +232,35 @@ export const cs: Strings = {
     recap: "Zamyslete se:",
   },
   pet: {
-    name: "Jméno",
+    unnamed: "Mazlíček",
+    askName: (egg) =>
+      egg
+        ? "Našli jste vajíčko! Jak se bude jmenovat?"
+        : "Váš mazlíček potřebuje jméno. Jak se bude jmenovat?",
+    giveName: "Pojmenovat",
+    nameOnce: "Vybíráte jen jednou, tak ať stojí za to.",
+    moment: (moment, name) => {
+      switch (moment.kind) {
+        case "reborn":
+          return `${name} je zpět jako nové vajíčko. Tentokrát zůstaňte déle.`;
+        case "missed":
+          return `Po ${moment.days} dnech jste zpět a ${name} už nemá hlad.`;
+        case "stage":
+          return `${name} postupuje do nové fáze: ${cs.pet.stages[moment.stage].toLowerCase()}!`;
+        case "level":
+          return `${name} je teď na úrovni ${moment.level}!`;
+      }
+    },
+    together: "Spolu už",
     stages: {
       egg: "Vajíčko",
-      baby: "Mládě",
-      child: "Dítě",
-      teen: "Dospívající",
-      adult: "Dospělý",
+      hatchling: "Mládě ve skořápce",
+      seedling: "Semenáček",
+      sprout: "Výhonek",
+      sapling: "Stromek",
+      bush: "Keřík",
+      bloom: "V květu",
+      guardian: "Strážce",
     },
     label: (pet, name) => {
       const who = `${name}, ${cs.pet.stages[pet.stage].toLowerCase()}, úroveň ${pet.level}`;
@@ -257,7 +279,7 @@ export const cs: Strings = {
           ? `${name} má hlad: ${pet.daysAway} ${plural(pet.daysAway, "den", "dny", "dní")} bez cvičení. Stačí jedno cvičení.`
           : pet.toNext === undefined
             ? `Mazlíček ${name} dosáhl nejvyšší úrovně.`
-            : `${pet.lost > 0 && pet.ageDays === 0 ? `${name} je zpět jako nové vajíčko. ` : ""}Do úrovně ${pet.level + 1} zbývá ${pet.toNext} min.`,
+            : `Do úrovně ${pet.level + 1} zbývá ${pet.toNext} min.`,
     note: (name) =>
       `${name} roste se cvičením, nejvýše 60 minut denně. Po 4 dnech bez cvičení má hlad, po 14 zemře.`,
     stageLabel: "Fáze",
