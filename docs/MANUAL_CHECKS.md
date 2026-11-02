@@ -117,7 +117,7 @@ Setup: `pnpm build && python3 -m http.server 4173 --directory dist`, Chromium wi
 2. Network panel: tick Offline and reload. The app loads and a session works.
 3. Back online, switch Layout to Czech (QWERTZ) once so its word list loads. Go offline, reload, switch between layouts. Both work.
 4. Update flow: change any source file, run `pnpm build` again (the server serves the new `dist`), reload the open tab. "Update available" shows. Click Reload: the page reloads and Application shows the new worker as activated.
-5. Application, Manifest: no errors, name "Tenfold", icon shown, installable (install icon in the address bar).
+5. Application, Manifest: no errors, name "Qwerniop", icon shown, installable (install icon in the address bar).
 6. With a model server configured, requests to it are not listed under Cache Storage.
 
 Pass: offline reload works for both layouts, the update message appears only after a rebuild, and the manifest has no warnings.
@@ -302,7 +302,7 @@ Open both PNGs: the page must be rendered (not blank) and the two must differ. S
 
 ## GitHub Pages
 
-After the first push to GitHub, open repository Settings, Pages, and set Source to "GitHub Actions"; then run the Pages workflow (or push again). Load `https://<user>.github.io/tenfold/` and check: the page renders with the monospace font, a lesson types, and both word lists load (switch layout to Czech). In DevTools, Application shows the worker active with scope `/tenfold/`. Go offline and reload: the app still loads. Install it from the browser menu and confirm it opens at `/tenfold/`.
+After the first push to GitHub, open repository Settings, Pages, and set Source to "GitHub Actions"; then run the Pages workflow (or push again). Load `https://<user>.github.io/qwerniop/` and check: the page renders with the monospace font, a lesson types, and both word lists load (switch layout to Czech). In DevTools, Application shows the worker active with scope `/qwerniop/`. Go offline and reload: the app still loads. Install it from the browser menu and confirm it opens at `/tenfold/`.
 
 ## Release
 

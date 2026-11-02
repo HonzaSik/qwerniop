@@ -85,6 +85,7 @@ export class Database {
  * Opens the database, running pending migrations. Resolves null when storage is
  * unavailable (private mode, blocked, error) so the app can run memory-only.
  */
+// The app's earlier name: changing it would strand data already saved in a browser.
 export function openDatabase(
   name = "tenfold",
   list: readonly Migration[] = appMigrations,

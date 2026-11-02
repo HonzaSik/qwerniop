@@ -18,7 +18,7 @@ const en = {
   practice: (result: string): string =>
     `Practice. Today's score stays ${result}.`,
   share: (date: string, layout: string, result: string, url: string): string =>
-    `Tenfold daily ${date} · ${layout}\n${result}\n${url}`,
+    `Qwerniop daily ${date} · ${layout}\n${result}\n${url}`,
 };
 
 const cs: typeof en = {
@@ -37,7 +37,7 @@ const cs: typeof en = {
   score: (result) => `Dnešní skóre: ${result}`,
   practice: (result) => `Cvičení. Dnešní skóre zůstává ${result}.`,
   share: (date, layout, result, url) =>
-    `Tenfold denní výzva ${date} · ${layout}\n${result}\n${url}`,
+    `Qwerniop denní výzva ${date} · ${layout}\n${result}\n${url}`,
 };
 
 export const td: typeof en = new Proxy(en, {

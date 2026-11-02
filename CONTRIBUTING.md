@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping. Tenfold stays small on purpose, so please read this before opening a pull request.
+Thanks for helping. Qwerniop stays small on purpose, so please read this before opening a pull request.
 
 ## Before you start
 

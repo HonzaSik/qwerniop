@@ -108,7 +108,7 @@ export const en = {
     >,
     modelServer: "Model server",
     intro:
-      "Optional. A model on your own machine can write practice text. Tenfold works the same without one. Only prompts and session statistics are sent, never what you type.",
+      "Optional. A model on your own machine can write practice text. Qwerniop works the same without one. Only prompts and session statistics are sent, never what you type.",
     baseUrl: "Address",
     enabled: "Use the model server",
     modes: "Practice material",
@@ -136,7 +136,7 @@ export const en = {
     } as Record<ProviderErrorKind, string>,
     corsTitle: "If the server is running, it may be blocking this page",
     corsIntro:
-      "Browsers only allow Tenfold to call a local server that permits its origin.",
+      "Browsers only allow Qwerniop to call a local server that permits its origin.",
     corsOllama: (origin: string): string =>
       `Ollama: start it with OLLAMA_ORIGINS including ${origin}, for example OLLAMA_ORIGINS="${origin}".`,
     corsLmStudio: "LM Studio: enable CORS in the server settings.",
@@ -371,7 +371,8 @@ export const en = {
   },
   danger: {
     title: "Danger zone",
-    intro: "Delete everything Tenfold has saved on this device and start over.",
+    intro:
+      "Delete everything Qwerniop has saved on this device and start over.",
     delete: "Delete all data",
     confirmTitle: "Delete all your data?",
     confirmBody: (current: number): string =>
@@ -387,13 +388,13 @@ export const en = {
     import: "Import",
     exported: "Exported.",
     exportFailed: "The export failed.",
-    tooLarge: "That file is too large to be a Tenfold export.",
+    tooLarge: "That file is too large to be a Qwerniop export.",
     notJson: "The file is not valid JSON.",
     errors: {
-      notExport: "This is not a Tenfold export file.",
+      notExport: "This is not a Qwerniop export file.",
       noFormat: "The file has no valid format version.",
       newer:
-        "The file was made by a newer version of Tenfold. Update the app and try again.",
+        "The file was made by a newer version of Qwerniop. Update the app and try again.",
       noSessions: "The file has no session list.",
     } as Record<ExportError, string>,
     imported: "Imported.",

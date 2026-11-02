@@ -2,7 +2,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  // Relative so the same build works at a domain root and under /tenfold/ on GitHub Pages.
+  // Relative so the same build works at a domain root and under /qwerniop/ on GitHub Pages.
   base: "./",
   plugins: [svelte()],
   // One address: by default "localhost" can bind IPv6 only, and the browser may then reach something else.

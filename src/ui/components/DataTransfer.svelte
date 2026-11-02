@@ -31,7 +31,7 @@ async function download(): Promise<void> {
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = `tenfold-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `qwerniop-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     say(t.data.exported);

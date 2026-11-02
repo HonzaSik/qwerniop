@@ -1,6 +1,6 @@
 # Model integration (optional)
 
-Tenfold can use a language model running on your own machine to generate practice material. This is an extra: every mode has an offline equivalent, and the app works identically with no model server.
+Qwerniop can use a language model running on your own machine to generate practice material. This is an extra: every mode has an offline equivalent, and the app works identically with no model server.
 
 ## Rules
 

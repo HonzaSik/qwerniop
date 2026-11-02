@@ -22,6 +22,7 @@ export type ParsedExport =
 
 export function buildExport(data: AppData, now: Date): string {
   return JSON.stringify({
+    // The app's earlier name: changing it would make existing export files unreadable.
     app: "tenfold",
     schema: EXPORT_SCHEMA,
     exportedAt: now.toISOString(),

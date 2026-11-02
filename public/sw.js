@@ -1,6 +1,6 @@
 // Stamped by scripts/stamp-sw.mjs after the build; the stamp changes this file's bytes, which is what makes browsers see an update.
 const BUILD = { shell: [], version: "dev" };
-const CACHE = `tenfold-${BUILD.version}`;
+const CACHE = `qwerniop-${BUILD.version}`;
 
 self.addEventListener("install", (event) => {
   // No skipWaiting here: the page offers "Update available" instead of swapping under a running session.

@@ -25,6 +25,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Renamed the app to Qwerniop. Saved data and export files keep working.
 - Lessons and Stats are wider, with columns from 900 px and sections on tabs. Stats opens with headline figures and their change against earlier sessions.
 - Errors by key are the share of tries that went wrong, not a count.
 - A letter lesson uses only its own letters, so going back to Lesson 1 practises just f and j.

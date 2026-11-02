@@ -97,7 +97,7 @@ export const cs: Strings = {
     } as Record<Language, string>,
     modelServer: "Model server",
     intro:
-      "Volitelné. Model běžící na vašem počítači může psát cvičné texty. Tenfold funguje stejně i bez něj. Odesílají se jen zadání a statistiky cvičení, nikdy to, co píšete.",
+      "Volitelné. Model běžící na vašem počítači může psát cvičné texty. Qwerniop funguje stejně i bez něj. Odesílají se jen zadání a statistiky cvičení, nikdy to, co píšete.",
     baseUrl: "Adresa",
     enabled: "Používat model server",
     modes: "Cvičný materiál",
@@ -124,7 +124,7 @@ export const cs: Strings = {
     },
     corsTitle: "Pokud server běží, možná blokuje tuto stránku",
     corsIntro:
-      "Prohlížeč dovolí Tenfoldu volat místní server jen tehdy, když server povolí jeho původ.",
+      "Prohlížeč dovolí Qwerniopu volat místní server jen tehdy, když server povolí jeho původ.",
     corsOllama: (origin: string): string =>
       `Ollama: spusťte ji s proměnnou OLLAMA_ORIGINS, která obsahuje ${origin}, například OLLAMA_ORIGINS="${origin}".`,
     corsLmStudio: "LM Studio: zapněte CORS v nastavení serveru.",
@@ -343,7 +343,7 @@ export const cs: Strings = {
   danger: {
     title: "Nebezpečná zóna",
     intro:
-      "Smažte vše, co si Tenfold v tomto zařízení uložil, a začněte znovu.",
+      "Smažte vše, co si Qwerniop v tomto zařízení uložil, a začněte znovu.",
     delete: "Smazat všechna data",
     confirmTitle: "Smazat všechna vaše data?",
     confirmBody: (current) =>
@@ -359,13 +359,13 @@ export const cs: Strings = {
     import: "Importovat",
     exported: "Exportováno.",
     exportFailed: "Export se nezdařil.",
-    tooLarge: "Soubor je příliš velký na export z Tenfoldu.",
+    tooLarge: "Soubor je příliš velký na export z Qwerniopu.",
     notJson: "Soubor není platný JSON.",
     errors: {
-      notExport: "Toto není exportní soubor Tenfoldu.",
+      notExport: "Toto není exportní soubor Qwerniopu.",
       noFormat: "Soubor nemá platnou verzi formátu.",
       newer:
-        "Soubor vytvořila novější verze Tenfoldu. Aktualizujte aplikaci a zkuste to znovu.",
+        "Soubor vytvořila novější verze Qwerniopu. Aktualizujte aplikaci a zkuste to znovu.",
       noSessions: "Soubor neobsahuje seznam cvičení.",
     },
     imported: "Importováno.",

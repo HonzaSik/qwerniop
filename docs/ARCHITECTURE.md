@@ -252,7 +252,7 @@ This module turns DOM events into `InputEvent`s and nothing more.
 
 ## Storage (`src/storage/`)
 
-IndexedDB database `tenfold`, versioned with explicit upgrade steps.
+IndexedDB database `tenfold`, versioned with explicit upgrade steps. The name predates the app's rename and stays, so data already saved in a browser is still found.
 
 | Store | Key | Contents |
 |---|---|---|
@@ -279,9 +279,9 @@ Export produces one JSON file:
 { "app": "tenfold", "schema": 1, "exportedAt": "…", "settings": {…}, "progress": {…}, "sessions": […] }
 ```
 
-Import is a full replace, not a merge: settings, progress and every session are swapped for the file's. `parseExport(unknown)` (`core/export/export.ts`) returns `{ ok, value, droppedSessions }` or `{ ok: false, reason }`. It rejects a file that is not a Tenfold export, has no integer `schema` of at least 1, has a `schema` newer than the app, or has no `sessions` array. Settings and progress repair themselves field by field (`migrateSettings`, `parseProgress`; both layouts' progress is read, one record per layout id); per-character stats travel inside progress, and a file without them imports with empty stats, so adding them kept schema 1; invalid sessions are dropped and counted. There is no older schema than 1, so no migration step exists yet; it goes into `parseExport` with schema 2. Model server settings are excluded from export.
+Import is a full replace, not a merge: settings, progress and every session are swapped for the file's. `parseExport(unknown)` (`core/export/export.ts`) returns `{ ok, value, droppedSessions }` or `{ ok: false, reason }`. It rejects a file that is not a Qwerniop export, has no integer `schema` of at least 1, has a `schema` newer than the app, or has no `sessions` array. Settings and progress repair themselves field by field (`migrateSettings`, `parseProgress`; both layouts' progress is read, one record per layout id); per-character stats travel inside progress, and a file without them imports with empty stats, so adding them kept schema 1; invalid sessions are dropped and counted. There is no older schema than 1, so no migration step exists yet; it goes into `parseExport` with schema 2. Model server settings are excluded from export.
 
-The UI (`ui/components/DataTransfer.svelte`, at the bottom of the Stats view) reads the chosen file only if it is at most 5 MB, parses it and shows a modal `<dialog>` with the counts of what is replaced and what is skipped before anything is written. `Store.replaceAll` discards queued writes, then clears and fills the three exported stores in one readwrite transaction, so a failure changes nothing, and memory is updated only after it succeeds. With no database the import updates memory only and says so; sessions have no in-memory home, so they are not kept. Export downloads `tenfold-YYYY-MM-DD.json` through a Blob and object URL.
+The UI (`ui/components/DataTransfer.svelte`, at the bottom of the Stats view) reads the chosen file only if it is at most 5 MB, parses it and shows a modal `<dialog>` with the counts of what is replaced and what is skipped before anything is written. `Store.replaceAll` discards queued writes, then clears and fills the three exported stores in one readwrite transaction, so a failure changes nothing, and memory is updated only after it succeeds. With no database the import updates memory only and says so; sessions have no in-memory home, so they are not kept. Export downloads `qwerniop-YYYY-MM-DD.json` through a Blob and object URL.
 
 ## Model integration (`src/ai/`)
 
@@ -301,7 +301,7 @@ Design rules are in [DESIGN.md](DESIGN.md).
 
 `public/sw.js` is a hand-written service worker: cache the app shell on install, serve cache-first, update in the background, and show "Update available" when a new version is waiting. Word lists and fonts are cached when first loaded. No plugin.
 
-`scripts/stamp-sw.mjs` runs after `vite build` and writes the shell file list and a content-hash version into `dist/sw.js`, so the file changes bytes on every new build and browsers see the update. Every same-origin GET is cache-first in the versioned cache; other requests (model server calls are POST or cross-origin) are never touched. A new worker waits; `src/ui/worker.svelte.ts` shows "Update available" and on click posts `skip-waiting`, then reloads when the new worker takes control. The worker is registered only in production builds, after `load`. The build uses `base: "./"` (relative URLs), so it works under a subpath such as `/tenfold/` on GitHub Pages; `.github/workflows/pages.yml` deploys `dist/` on every push to main.
+`scripts/stamp-sw.mjs` runs after `vite build` and writes the shell file list and a content-hash version into `dist/sw.js`, so the file changes bytes on every new build and browsers see the update. Every same-origin GET is cache-first in the versioned cache; other requests (model server calls are POST or cross-origin) are never touched. A new worker waits; `src/ui/worker.svelte.ts` shows "Update available" and on click posts `skip-waiting`, then reloads when the new worker takes control. The worker is registered only in production builds, after `load`. The build uses `base: "./"` (relative URLs), so it works under a subpath such as `/qwerniop/` on GitHub Pages; `.github/workflows/pages.yml` deploys `dist/` on every push to main.
 
 ## Browser support
 

@@ -1,6 +1,6 @@
 # Performance
 
-Tenfold must feel instant on weak hardware: old laptops, Chromebooks, a Raspberry Pi 4, low-end Windows machines. Performance is a requirement from the first milestone, not a polish step.
+Qwerniop must feel instant on weak hardware: old laptops, Chromebooks, a Raspberry Pi 4, low-end Windows machines. Performance is a requirement from the first milestone, not a polish step.
 
 ## Budgets
 

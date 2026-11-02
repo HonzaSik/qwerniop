@@ -8,7 +8,7 @@ export function createTabSync(reload: () => void): {
   regained: () => void;
   close: () => void;
 } {
-  const channel = new BroadcastChannel("tenfold-saved");
+  const channel = new BroadcastChannel("qwerniop-saved");
   let stale = false;
   channel.onmessage = () => {
     stale = true;
