@@ -27,6 +27,18 @@ describe("shortcuts", () => {
     }
   });
 
+  it("never fire from inside an open dialog, which handles its own Esc", () => {
+    const el = { tagName: "BUTTON", closest: () => ({}) };
+    expect(isHelpKey(press("?"), el)).toBe(false);
+    expect(isBackKey(press("Escape"), el)).toBe(false);
+    expect(isSettingsKey(press(","), el)).toBe(false);
+  });
+
+  it("still fire from an element outside any dialog", () => {
+    const el = { tagName: "BUTTON", closest: () => null };
+    expect(isBackKey(press("Escape"), el)).toBe(true);
+  });
+
   it("ignore prevented, repeated and modified keys", () => {
     expect(isHelpKey(press("?", { defaultPrevented: true }), null)).toBe(false);
     expect(isHelpKey(press("?", { repeat: true }), null)).toBe(false);

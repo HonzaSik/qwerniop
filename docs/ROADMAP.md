@@ -188,3 +188,7 @@ Named by the learner, once.
 - [x] Days in a row and best, worked out from the history (`practiceStreak`)
 - [x] Streak said by the pet in the bottom left corner of Lessons, Stats and Practice
 - [x] Pet shown before every session in Practice
+
+## 26. Danger zone
+
+- [x] Delete all data from Settings, with a confirmation; everything saved goes in one transaction, queued writes included (`clearAll`)

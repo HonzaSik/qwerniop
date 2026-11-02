@@ -28,6 +28,8 @@ export interface Store {
   readSessions(): Promise<SessionRecord[]>;
   /** Replaces everything saved, in one transaction; rejects with nothing changed on failure. */
   replaceAll(data: AppData): Promise<void>;
+  /** Deletes everything saved, in one transaction; rejects with nothing changed on failure. */
+  clearAll(): Promise<void>;
 }
 
 /**
@@ -103,6 +105,17 @@ function writer(db: Database): Store {
         settings: [[SETTINGS_KEY, data.settings]],
         progress: Object.entries(data.progress),
         sessions: data.sessions.map((r) => [null, r]),
+      });
+    },
+    async clearAll() {
+      // Queued values must not land after the delete and bring data back.
+      queue.discard();
+      await queue.flush();
+      await db.replaceAll({
+        settings: [],
+        progress: [],
+        sessions: [],
+        topics: [],
       });
     },
   };

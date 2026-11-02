@@ -8,11 +8,16 @@ type Key = Pick<
 interface Target {
   tagName?: string;
   isContentEditable?: boolean;
+  closest?: (selector: string) => unknown;
 }
 const typingTarget = (target: Target | null): boolean =>
   target !== null &&
   (target.isContentEditable === true ||
     /^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName ?? ""));
+
+// A modal handles its own Esc; acting on it here too would also leave the view behind it.
+const inDialog = (target: Target | null): boolean =>
+  (target?.closest?.("dialog[open]") ?? null) !== null;
 
 function plain(event: Key, target: Target | null): boolean {
   return !(
@@ -21,7 +26,8 @@ function plain(event: Key, target: Target | null): boolean {
     event.ctrlKey ||
     event.metaKey ||
     event.altKey ||
-    typingTarget(target)
+    typingTarget(target) ||
+    inDialog(target)
   );
 }
 

@@ -14,6 +14,7 @@ import {
   TEXT_SIZE_VALUES,
   THEME_VALUES,
 } from "../../core/settings/settings";
+import DangerZone from "../components/DangerZone.svelte";
 import { saveSettings, ui } from "../state.svelte";
 import { t } from "../strings";
 
@@ -305,6 +306,7 @@ async function test(): Promise<void> {
       </div>
     {/if}
   </section>
+  <DangerZone />
 </main>
 
 <style>

@@ -115,6 +115,11 @@ export async function exportText(): Promise<string> {
   );
 }
 
+/** Deletes everything saved. Rejects with nothing deleted; the caller reloads on success, so nothing in memory survives. */
+export const deleteAllData = async (): Promise<void> => {
+  await store?.clearAll();
+};
+
 /**
  * Replaces everything. Saved data is written first, so a failed write throws
  * and leaves memory as it was. Resolves false in memory-only mode.

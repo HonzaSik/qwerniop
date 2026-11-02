@@ -361,6 +361,18 @@ export const en = {
     ): string =>
       `${title} over the last ${n} sessions: latest ${last} ${unit}, lowest ${min}, highest ${max}.`,
   },
+  danger: {
+    title: "Danger zone",
+    intro: "Delete everything Tenfold has saved on this device and start over.",
+    delete: "Delete all data",
+    confirmTitle: "Delete all your data?",
+    confirmBody: (current: number): string =>
+      `This removes your settings, your progress on every layout, ${sessions(current)}, your pet and your topic history.`,
+    warning:
+      "This cannot be undone. To keep a copy, export it first in Stats, under Your data.",
+    confirm: "Delete everything",
+    failed: "Could not delete your data. Nothing was removed.",
+  },
   data: {
     title: "Your data",
     export: "Export",

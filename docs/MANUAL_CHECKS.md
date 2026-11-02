@@ -228,6 +228,12 @@ Checked 2026-10-31 headless Chromium 156.0.8078.47: pass. Full session, Continue
 
 Checked 2026-11-02 headless Chromium: pass for steps 1 to 3, and for step 5 in light, dark, Black (OLED), 360 px and Czech, on seeded data for every stage, hungry and dead. Naming the pet once on the first summary: pass. Step 6 on seeded data, with widths 1099 to 1920 px, 600 px high, and Czech: pass, except the hop itself, because the browser ran with reduced motion. Export and import through the page (step 4), a real screen reader and the blink not checked.
 
+## Danger zone
+
+1. Settings, Danger zone, Delete all data: the dialog names the session count, and Cancel has focus. Enter, Esc and Cancel delete nothing.
+2. Delete everything: the app reloads on Practice as for a new learner, with default settings, Lesson 1 and no pet, on every layout.
+3. Change a setting and delete straight away: the changed setting is gone after the reload too.
+
 ## Streak and pet
 
 1. With a history of several days in a row, the pet in the bottom left corner of Lessons and Stats says the number and the best, and covers no content while scrolling. Under 1100 px it closes the page instead.

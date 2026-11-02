@@ -331,6 +331,19 @@ export const cs: Strings = {
     chart: (title, n, last, unit, min, max) =>
       `${title} za ${n === 1 ? "poslední cvičení" : `posledních ${n} cvičení`}: poslední ${last} ${unit}, nejnižší ${min}, nejvyšší ${max}.`,
   },
+  danger: {
+    title: "Nebezpečná zóna",
+    intro:
+      "Smažte vše, co si Tenfold v tomto zařízení uložil, a začněte znovu.",
+    delete: "Smazat všechna data",
+    confirmTitle: "Smazat všechna vaše data?",
+    confirmBody: (current) =>
+      `Odstraní se vaše nastavení, postup na všech rozloženích, uložená cvičení (${current}), mazlíček a historie témat.`,
+    warning:
+      "Tuto akci nelze vrátit. Pokud chcete kopii, nejdřív ji exportujte ve Statistikách v části Vaše data.",
+    confirm: "Smazat vše",
+    failed: "Data se nepodařilo smazat. Nic nebylo odstraněno.",
+  },
   data: {
     title: "Vaše data",
     export: "Exportovat",
