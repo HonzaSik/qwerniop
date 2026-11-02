@@ -25,8 +25,8 @@ const LEVEL_FROM_MINUTES = [
   0, 5, 15, 30, 60, 120, 180, 270, 360, 480, 660, 840, 1080, 1320, 1560, 1800,
   2100, 2700, 3600, 6000,
 ] as const;
-export const BOW_LEVEL = 8;
-export const SCARF_LEVEL = 13;
+export const HAT_LEVEL = 8;
+export const TIE_LEVEL = 13;
 export const CROWN_LEVEL = LEVEL_FROM_MINUTES.length;
 
 export interface PetState {

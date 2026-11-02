@@ -1,9 +1,9 @@
 <script lang="ts">
 import {
-  BOW_LEVEL,
   CROWN_LEVEL,
+  HAT_LEVEL,
   type PetState,
-  SCARF_LEVEL,
+  TIE_LEVEL,
 } from "../../core/stats/pet";
 import { t } from "../strings";
 
@@ -15,31 +15,35 @@ interface Props {
 let { pet, large = false }: Props = $props();
 
 const FACE = {
-  egg: { y: 37, apart: 7, r: 2.6 },
-  baby: { y: 41, apart: 7, r: 3.2 },
-  child: { y: 36, apart: 8, r: 3.6 },
-  teen: { y: 31, apart: 8, r: 3.6 },
-  adult: { y: 28, apart: 9, r: 3.8 },
+  egg: { y: 33, apart: 7, r: 4 },
+  baby: { y: 39, apart: 7.5, r: 4.4 },
+  child: { y: 33, apart: 8.5, r: 5 },
+  teen: { y: 28, apart: 8.5, r: 5 },
+  adult: { y: 25, apart: 10, r: 5.4 },
 } as const;
 const face = $derived(FACE[pet.stage]);
 const left = $derived(32 - face.apart);
 const right = $derived(32 + face.apart);
-const sides = $derived([left, right]);
+const mouth = $derived(face.y + face.r + 2);
 const dead = $derived(pet.mood === "dead");
 const hungry = $derived(pet.mood === "hungry");
 const grown = $derived(pet.stage !== "egg" && pet.stage !== "baby");
 const headTop = $derived(
   pet.stage === "adult" ? 11 : pet.stage === "teen" ? 14 : 19,
 );
+const armX = $derived(pet.stage === "adult" ? 8 : 12);
+const tieY = $derived(pet.stage === "adult" ? 41 : 44);
 // Above whatever is on the head, so nothing hides it.
 const haloY = $derived(
   pet.level >= CROWN_LEVEL
-    ? -1
-    : pet.stage === "egg"
-      ? 2
-      : pet.stage === "baby"
-        ? 5
-        : Math.max(5, headTop - 8),
+    ? -3
+    : pet.level >= HAT_LEVEL && grown
+      ? headTop - 15
+      : pet.stage === "egg"
+        ? 2
+        : pet.stage === "baby"
+          ? 5
+          : Math.max(5, headTop - 8),
 );
 const toLevel = $derived(pet.level + 1);
 </script>
@@ -50,81 +54,85 @@ const toLevel = $derived(pet.level + 1);
       {#if dead}<ellipse class="halo" cx="32" cy={haloY} rx="9" ry="2.5" />{/if}
 
       {#if pet.stage === "teen" || pet.stage === "adult"}
-        <path class="body" d="M50 {pet.stage === 'adult' ? 48 : 50}c7 1 10-4 7-8-2-2-5-1-5 1" />
+        <path class="tail" d="M50 48c7 1 10-4 7-8" />
       {/if}
+      <!-- Lopsided on purpose: nothing about this creature quite matches. -->
       {#if pet.stage === "child"}
-        <circle class="body" cx="16" cy="22" r="6.5" /><circle class="body" cx="48" cy="22" r="6.5" />
-        <circle class="inner" cx="16" cy="22" r="3" /><circle class="inner" cx="48" cy="22" r="3" />
+        <circle class="body" cx="15" cy="22" r="7" /><circle class="body" cx="49" cy="24" r="5" />
       {:else if pet.stage === "teen"}
-        <ellipse class="body" cx="20" cy="15" rx="5.5" ry="11" transform="rotate(-12 20 15)" />
-        <ellipse class="body" cx="44" cy="15" rx="5.5" ry="11" transform="rotate(12 44 15)" />
-        <ellipse class="inner" cx="20" cy="15" rx="2.5" ry="7" transform="rotate(-12 20 15)" />
-        <ellipse class="inner" cx="44" cy="15" rx="2.5" ry="7" transform="rotate(12 44 15)" />
+        <ellipse class="body" cx="21" cy="13" rx="5" ry="11" transform="rotate(-10 21 13)" />
+        <ellipse class="body" cx="50" cy="20" rx="11" ry="5" transform="rotate(22 50 20)" />
       {:else if pet.stage === "adult"}
-        <circle class="body" cx="13" cy="14" r="8.5" /><circle class="body" cx="51" cy="14" r="8.5" />
-        <circle class="inner" cx="13" cy="14" r="4.5" /><circle class="inner" cx="51" cy="14" r="4.5" />
+        <circle class="body" cx="12" cy="13" r="8.5" /><circle class="body" cx="53" cy="16" r="6" />
       {/if}
 
-      {#if grown || pet.stage === "baby"}
-                <ellipse class="body" cx="23" cy="58" rx="6" ry="3.8" /><ellipse class="body" cx="41" cy="58" rx="6" ry="3.8" />
+      {#if pet.stage !== "egg"}
+        <ellipse class="body" cx="22" cy="58" rx="7" ry="3.8" /><ellipse class="body" cx="42" cy="58" rx="7" ry="3.8" transform="rotate(8 42 58)" />
       {/if}
       {#if grown}
-        <ellipse class="body" cx={pet.stage === "adult" ? 9 : 12} cy="42" rx="3.6" ry="5.5" transform="rotate(20 {pet.stage === 'adult' ? 9 : 12} 42)" />
-        <ellipse class="body" cx={pet.stage === "adult" ? 55 : 52} cy="42" rx="3.6" ry="5.5" transform="rotate(-20 {pet.stage === 'adult' ? 55 : 52} 42)" />
+        <ellipse class="body" cx={armX} cy="42" rx="3.6" ry="5.5" transform="rotate(25 {armX} 42)" />
+        <ellipse class="body" cx={64 - armX} cy="38" rx="3.6" ry="5.5" transform="rotate(-35 {64 - armX} 38)" />
       {/if}
 
       {#if pet.stage === "egg"}
         <path class="body" d="M32 7C42 7 50 23 50 37C50 50 42 58 32 58C22 58 14 50 14 37C14 23 22 7 32 7Z" />
-        <circle class="spot" cx="24" cy="24" r="3" /><circle class="spot" cx="41" cy="27" r="2.2" /><circle class="spot" cx="39" cy="50" r="2.6" /><circle class="spot" cx="22" cy="49" r="2" />
+        <path d="M24 13l3 3 3-3 3 3" />
+        <circle class="spot" cx="41" cy="23" r="2.2" /><circle class="spot" cx="40" cy="51" r="2.6" /><circle class="spot" cx="21" cy="49" r="2" />
       {:else if pet.stage === "baby"}
-        <path d="M32 25c0-4 0-6 1-9" />
-        <path class="leaf" d="M33 17c-6 0-9-3-10-7 6-1 10 2 10 7Z" /><path class="leaf" d="M33 17c5-1 8-4 8-8-5 0-8 3-8 8Z" />
+        <path d="M32 25c0-4-1-6 1-9" />
+        <path class="leaf" d="M33 16c5-1 9 1 11 6-6 1-10-1-11-6Z" />
         <circle class="body" cx="32" cy="41" r="17" />
       {:else if pet.stage === "child"}
-        <ellipse class="body" cx="32" cy="37" rx="20" ry="19" />
-        <ellipse class="belly" cx="32" cy="47" rx="10" ry="7" />
+        <ellipse class="body" cx="32" cy="37" rx="21" ry="19" />
+        <ellipse class="belly" cx="32" cy="49" rx="11" ry="6" />
       {:else if pet.stage === "teen"}
-        <ellipse class="body" cx="32" cy="35" rx="19" ry="21" />
-        <ellipse class="belly" cx="32" cy="46" rx="10" ry="8" />
+        <ellipse class="body" cx="32" cy="35" rx="20" ry="21" />
+        <ellipse class="belly" cx="32" cy="48" rx="11" ry="7" />
       {:else}
-        <ellipse class="body" cx="32" cy="33" rx="22" ry="23" />
-        <ellipse class="belly" cx="32" cy="45" rx="12" ry="9" />
+        <ellipse class="body" cx="32" cy="33" rx="23" ry="23" />
+        <ellipse class="belly" cx="32" cy="47" rx="13" ry="8" />
       {/if}
 
-      {#if pet.level >= SCARF_LEVEL && (pet.stage === "teen" || pet.stage === "adult")}
-        {@const wide = pet.stage === "adult" ? 21 : 18}
-        <path class="ribbon" d="M{32 - wide} 39q{wide} 8 {wide * 2} 0v3q-{wide} 9-{wide * 2} 0Z" />
-        <path class="ribbon" d="M40 44l2 9 5-2-2-8Z" />
+      {#if pet.level >= TIE_LEVEL && (pet.stage === "teen" || pet.stage === "adult")}
+        <path class="tie" d="M32 {tieY}l-3 2 2 2-2 8 4 3 4-4-3-7 2-2Z" transform="rotate(12 32 {tieY})" />
       {/if}
       {#if pet.level >= CROWN_LEVEL}
-        <path class="crown" d="M23 12l-1-9 6 4 4-6 4 6 6-4-1 9Z" />
-      {:else if pet.level >= BOW_LEVEL && grown}
-        <path class="ribbon" d="M32 {headTop + 2}l-8-4v8ZM32 {headTop + 2}l8-4v8Z" />
-        <circle class="ribbon" cx="32" cy={headTop + 2} r="2" />
+        <path class="crown" d="M22 13l-1-10 6 4 5-6 5 6 6-4-1 10Z" transform="rotate(-12 32 8)" />
+      {:else if pet.level >= HAT_LEVEL && grown}
+        <g transform="rotate(-10 32 {headTop})">
+          <path d="M32 {headTop - 6}v-5" />
+          <path class="tie" d="M23 {headTop + 3}a9 9 0 0 1 18 0Z" />
+          <ellipse class="crown" cx="27" cy={headTop - 11} rx="5" ry="1.6" /><ellipse class="crown" cx="37" cy={headTop - 11} rx="5" ry="1.6" />
+        </g>
       {/if}
 
-      {#if !dead}
-        <ellipse class="cheek" cx={left - 4} cy={face.y + 5} rx="3.2" ry="2" /><ellipse class="cheek" cx={right + 4} cy={face.y + 5} rx="3.2" ry="2" />
-      {/if}
       {#if dead}
-        {#each sides as x}<path d="M{x - 2.4} {face.y - 2.4}l4.8 4.8m0-4.8l-4.8 4.8" />{/each}
-        <path d="M29 {face.y + 7}h6" />
-      {:else if pet.stage === "egg" && !hungry}
-        {#each sides as x}<path d="M{x - 3} {face.y}q3 3 6 0" />{/each}
-        <path d="M30 {face.y + 5}q2 2 4 0" />
+        {#each [left, right] as x}
+          <path d="M{x - 3} {face.y - 3}l6 6m0-6l-6 6" />
+        {/each}
+        <path d="M27 {mouth}h10" />
+        <ellipse class="tongue" cx="35" cy={mouth + 3} rx="2.6" ry="3.2" />
       {:else}
         <g class="eyes">
-          {#each sides as x}
-            <circle class="eye" cx={x} cy={face.y} r={face.r} />
-            <circle class="shine" cx={x + 1} cy={face.y - 1.2} r={face.r * 0.32} />
-          {/each}
+          <circle class="eye" cx={left} cy={face.y} r={face.r + 0.8} />
+          <circle class="eye" cx={right} cy={face.y} r={face.r - 0.3} />
+          {#if hungry}
+            <circle class="pupil" cx={left} cy={face.y + face.r * 0.5} r={face.r * 0.42} />
+            <circle class="pupil" cx={right} cy={face.y + face.r * 0.4} r={face.r * 0.42} />
+          {:else}
+            <!-- Slightly cross-eyed, which is most of the joke. -->
+            <circle class="pupil" cx={left + face.r * 0.4} cy={face.y + face.r * 0.25} r={face.r * 0.42} />
+            <circle class="pupil" cx={right - face.r * 0.35} cy={face.y - face.r * 0.2} r={face.r * 0.42} />
+          {/if}
         </g>
         {#if hungry}
-          <path d="M{left - 4} {face.y - 4}l5-2M{right + 4} {face.y - 4}l-5-2" />
-          <path class="tear" d="M{right + 3} {face.y + 3}c2 3 2 5 0 5s-2-2 0-5Z" />
-          <path d="M29 {face.y + 8}q3-3 6 0" />
+          <path d="M27 {mouth + 1}q2.5-2.5 5 0t5 0" />
+          <ellipse class="tongue" cx="29" cy={mouth + 3.5} rx="2.2" ry="2.8" />
+          <path class="drool" d="M36 {mouth + 2}c2 3 2 5 0 5s-2-2 0-5Z" />
         {:else}
-          <path d="M29 {face.y + 5}q3 3.5 6 0" />
+          <path class="grin" d="M23 {mouth}q9 11 18-1Z" />
+          <rect class="tooth" x="27" y={mouth} width="3.4" height="3" />
+          <ellipse class="tongue" cx="35" cy={mouth + 3.5} rx="3" ry="2.2" />
         {/if}
       {/if}
     </g>
@@ -178,27 +186,26 @@ const toLevel = $derived(pet.level + 1);
     opacity: var(--pet-soft-opacity);
   }
 
-  .inner,
-  .cheek {
-    fill: var(--pet-cheek);
-    stroke: none;
-  }
-
   .leaf {
     fill: var(--pet-leaf);
   }
 
-  .ribbon {
-    fill: var(--pet-cheek-strong);
+  /* In the body colour: an ink line alone would vanish on a dark page. */
+  .tail {
+    stroke: color-mix(in srgb, var(--accent) var(--pet-fill-mix), var(--pet-light));
+    stroke-width: calc(var(--pet-stroke) * 2.5);
+  }
+
+  .dead .tail {
+    stroke: var(--pet-ghost);
+  }
+
+  .tie {
+    fill: var(--pet-tie);
   }
 
   .crown {
     fill: var(--pet-gold);
-  }
-
-  .tear {
-    fill: var(--pet-tear);
-    stroke: none;
   }
 
   .halo {
@@ -206,13 +213,27 @@ const toLevel = $derived(pet.level + 1);
     stroke: var(--pet-gold);
   }
 
-  .eye {
+  .eye,
+  .tooth {
+    fill: var(--pet-light);
+  }
+
+  .pupil,
+  .grin {
     fill: var(--pet-ink);
     stroke: none;
   }
 
-  .shine {
-    fill: var(--pet-light);
+  .tooth {
+    stroke: none;
+  }
+
+  .tongue {
+    fill: var(--pet-tongue);
+  }
+
+  .drool {
+    fill: var(--pet-drool);
     stroke: none;
   }
 
