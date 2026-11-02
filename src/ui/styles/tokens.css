@@ -74,18 +74,20 @@
   /* Room under the pet for its level and bar, so the summary holds its height while it loads. */
   --pet-caption: 1.75rem;
   --pet-stroke: 1.5;
-  --pet-worn-mix: 55%;
   --pet-blink: 5s;
   --pet-breath: 1.6s;
-  /* The same in every theme: warm fur with soft edges stands out on white and on black alike. */
+  /* The same in every theme: a warm body with soft edges stands out on white and on black alike. */
   --pet-fur: #fbe3bf;
-  --pet-belly: #fff6e6;
   --pet-patch: #edc594;
   --pet-cheek: #f6c49c;
   --pet-outline: #a57f5a;
   --pet-ink: #33261c;
   --pet-light: #ffffff;
   --pet-ghost: #eeeae4;
+  --pet-leaf: #a5dd8e;
+  --pet-leaf-line: #5d9b58;
+  --pet-leaf-dry: #dcd98f;
+  --pet-leaf-dead: #cdbda2;
   --pet-gold: #f4c542;
   --pet-tear: #8fd3ff;
 

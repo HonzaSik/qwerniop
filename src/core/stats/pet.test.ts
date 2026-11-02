@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { petState } from "./pet";
+import { leavesAt, petState } from "./pet";
 import { type DayPractice, dayKey } from "./practice";
 
 const MINUTE = 60_000;
@@ -29,6 +29,23 @@ const dayAfter = (days: Map<string, DayPractice>): number => {
   const last = [...days.keys()].sort().at(-1) ?? "";
   return new Date(`${last}T12:00:00`).getTime() + 86_400_000;
 };
+
+describe("leavesAt", () => {
+  test.each([
+    [1, 1],
+    [2, 1],
+    [3, 2],
+    [7, 2],
+    [8, 3],
+    [12, 3],
+    [13, 4],
+    [16, 4],
+    [17, 5],
+    [20, 5],
+  ])("level %i has %i leaves", (level, leaves) => {
+    expect(leavesAt(level)).toBe(leaves);
+  });
+});
 
 describe("petState", () => {
   test("no practice means no pet", () => {

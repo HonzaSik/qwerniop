@@ -167,4 +167,4 @@ Named Tenny.
 
 - [x] Pet worked out from practice history: growth by minutes, hungry after 4 days, dead after 14 (`core/stats/pet.ts`)
 - [x] Shown on the session summary and in Stats
-- [x] 20 levels with a progress bar, and things to wear at levels 8, 13 and 20
+- [x] 20 levels with a progress bar, and a sprout that grows with them

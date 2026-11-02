@@ -25,14 +25,16 @@ const LEVEL_FROM_MINUTES = [
   0, 5, 15, 30, 60, 120, 180, 270, 360, 480, 660, 840, 1080, 1320, 1560, 1800,
   2100, 2700, 3600, 6000,
 ] as const;
-export const BANDANA_LEVEL = 8;
-export const BEANIE_LEVEL = 13;
-export const CROWN_LEVEL = LEVEL_FROM_MINUTES.length;
+export const TOP_LEVEL = LEVEL_FROM_MINUTES.length;
+
+/** The sprout on its head grows between stages, so a new level can show on the pet itself. */
+export const leavesAt = (level: number): number =>
+  level >= 17 ? 5 : level >= 13 ? 4 : level >= 8 ? 3 : level >= 3 ? 2 : 1;
 
 export interface PetState {
   stage: PetStage;
   mood: PetMood;
-  /** From 1 to CROWN_LEVEL. */
+  /** From 1 to TOP_LEVEL. */
   level: number;
   /** Share of the way through this level, from 0 to 1. */
   progress: number;
